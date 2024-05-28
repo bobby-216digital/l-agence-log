@@ -1,0 +1,145 @@
+<main-search data-term="{{ search.terms }}">
+  <div class="template-search px-8 pt-16 pb-40 desktop:px-56 {% unless search.performed and search.results.size > 0 %} template-search--empty{% endunless %}">
+    <nav class="template-search__breadcrumbs font-akzidenz text-9 mb-16 hidden desktop:block" role="navigation" aria-label="breadcrumbs" js-search-nav>
+      <a href="/" class="template-search__breadcrumbs-link search-link" title="Home">Home</a>
+      <span>/</span>
+      <a href="{{ routes.search_url }}" class="template-search__breadcrumbs-link search-link" title="Search">Search</a>
+      {%- if search.performed -%}
+      <span> / Results for "{{ search.terms }}"</span>
+      {%- endif -%}
+    </nav>
+
+    <div class="template-search__layout" js-search-layout>
+      {%- if search.performed -%}
+        <h1 class="template-search__title text-center capitalize">{{ 'templates.search.title' | t }}</h1>
+      {%- else -%}
+        <h1 class="template-search__title text-center">{{ 'general.search.search' | t }}</h1>
+      {%- endif -%}
+      {%- if search.performed -%}
+        <p class="template-search__results-count h3 text-center mt-4" role="status">
+          {%- if search.results_count == 0 -%}
+            {{ 'templates.search.no_results' | t: terms: search.terms }}
+          {%- else -%}
+            {{ 'templates.search.results_with_count' | t: terms: search.terms, count: search.results_count }}
+          {%- endif -%}
+        </p>
+      {%- endif -%}
+      {%- if search.performed == false or search.results_count == 0 -%}
+        <div class="template-search__search mt-20 w-3/4 mx-auto max-w-375">
+          <form action="{{ routes.search_url }}" method="get" role="search" class="search">
+            <div class="field relative">
+              <input
+                class="search__input form__element pr-36"
+                id="Search-In-Template"
+                type="search"
+                name="q"
+                value="{{ search.terms | escape }}"
+                {% if search.performed %}autofocus{% endif %}
+                placeholder="{{ 'general.search.search' | t }}"
+              >
+              <label class="field__label visually-hidden" for="Search-In-Template" aria-hidden="true">{{ 'general.search.search' | t }}</label>
+              <input name="options[prefix]" type="hidden" value="last">
+              <button type="submit" class="search__button search-link w-20 absolute top-1/2 translate-y-[-50%] right-8" aria-label="{{ 'general.search.search' | t }}">
+                {% render 'icon-search' %}
+              </button>
+            </div>
+          </form>
+        </div>
+      {%- endif -%}
+    </div>
+
+    <active-filters class="active-filters flex flex-wrap gap-8 my-12 desktop:hidden" role="list" js-active-filters>
+      {% assign has_filters = false %}
+      {% for filter in collection.filters %}
+        {% for value in filter.active_values %}
+          {% assign has_filters = true %}
+          <li class="active-filters__filter list-none border border-gray-light" js-active-filter>
+            <button class="active-filters__remove" data-value="{{ value.value }}" data-name="{{ value.param_name }}" js-remove>          
+              {{ value.label | escape }} X
+              <span class="visually-hidden">Clear Filter</span>
+            </button>
+          </li>
+        {% endfor %}
+        {% if filter.type == 'price_range' %}
+          {%- if filter.min_value.value != nil or filter.max_value.value != nil -%}
+            {% assign has_filters = true %}
+            <li class="active-filters__filter list-none border border-gray-light" js-active-filter>
+              <button class="active-filters__remove" js-remove>
+                {%- if filter.min_value.value -%}{{ filter.min_value.value | money }}{%- else -%}{{ 0 | money }}{%- endif -%}-{%- if filter.max_value.value -%}{{ filter.max_value.value | money }}{%- else -%}{{ filter.range_max | money }}{%- endif -%}
+                <span class="visually-hidden">Clear Filter</span>
+              </button>
+            </li>
+          {%- endif -%}
+        {% endif %}
+      {% endfor %}
+      {% comment %}
+      {% if has_filters %}
+        <li class="active-filters__clear-all clear-all" js-active-filter>
+          <button class="active-filters__remove"  js-clear-all>
+            Clear All
+          </button>
+        </li>
+      {% endif %}
+      {% endcomment %}
+    </active-filters>
+
+    <div class="filter-sort--container mb-16 desktop:mt-28 desktop:mb-52 flex justify-between w-full">
+      <div class="filter-btns">
+        <button class="flex justify-start items-center gap-4 font-400 text-10" js-open-filter-sort>FILTER <span class="inline-block w-8">{% render 'icon-arrow-down' %}</span></button>
+        <button class="hidden justify-start items-center gap-4 font-400 text-10" js-close-filter-sort>FILTER <span class="inline-block w-8 rotate-180">{% render 'icon-arrow-down' %}</span></button>
+      </div>
+      <div class="sort">
+        <div class="filter-sort__container relative">
+          <label for="SortBy" class="filter-sort__label hidden"><span>SORT BY</span></label>
+          <select name="sort_by" class="filter-sort__select uppercase w-[76px] cursor-pointer font-400 bg-transparent text-10" id="SortByController" aria-describedby="a11y-refresh-page-message" js-sort-controller>
+            <option value="sort-by" selected disabled>SORT BY</option>
+            {%- for option in search.sort_options -%}
+              <option value="{{ option.value | escape }}">{{ option.name | escape }}</option>
+            {%- endfor -%}
+          </select>
+          <div class="filter-sort__select-icon absolute top-1/2 -translate-y-1/2 right-8 w-8">
+            {% render 'icon-arrow-down' %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% paginate search.results by 48 %}
+      <div class="template-search__results grid gap-8 h-full">
+      {%- if search.performed and search.results.size > 0 -%}
+				{% render 'drawer--filter-sort' %}
+        <ul class="template-search__results-grid pb-40 grid grid-cols-2 gap-x-8 gap-y-12 desktop:grid-cols-4 desktop:gap-y-16 transition-all col-span-4" role="list"  js-search-results>
+          {%- for item in search.results -%}
+            {% unless item.tags contains 'outlet' %}
+            <li class="grid__item {% if item.object_type == 'page' %}p-24{% endif %}">
+              {%- case item.object_type -%}
+                {%- when 'product' -%}
+                  {% render 'product-card', product: item, section_id: section.id %}
+                {%- when 'article' -%}
+                  {% render 'article-card', article: item %}
+                {%- when 'page' -%}
+                  <a href="{{ item.url }}" class="search-card">
+                    <div class="search-card__inner">
+                      <div class="search-card__content"><h1 class="search-card__heading font-akzidenz">{{ item.title | truncate: 50 | escape }}</h1></div>
+                    </div>
+                  </a>
+              {%- endcase -%}
+            </li>
+            {% endunless %}
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+      </div>
+      {%- if paginate.pages > 1 -%}
+        {% render 'pagination', paginate: paginate, class: 'pagination-wrapper-small' %}
+      {%- endif -%}
+    {% endpaginate %}
+  </div>
+</main-search>
+
+{% schema %}
+{
+  "name": "Search Results",
+  "tag": "section"
+}
+{% endschema %}

@@ -1,0 +1,38 @@
+{%- liquid 
+  assign width_class = 'tabletp:max-w-[712px]'
+
+  if section.settings.wide_section == true
+    assign width_class = 'tabletp:max-w-[1000px]'
+  endif
+-%}
+
+<div class="page max-w-[100vw] {{ width_class }} mx-auto px-16">
+  <h1 class="page__title py-40 desktop:pt-80 text-center">
+    {{ page.title | escape }}
+  </h1>
+
+  <div class="rte text-[18px] leading-normal">
+    {{ page.content }}
+  </div>
+</div>
+
+{% schema %}
+  {
+    "name": "Page",
+    "tag": "section",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "show_title",
+        "label": "Show Title",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "wide_section",
+        "label": "Wide Section",
+        "default": true
+      }
+    ]  
+  }
+{% endschema %}

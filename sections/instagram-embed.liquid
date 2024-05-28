@@ -1,0 +1,103 @@
+<div class="instagram-embed text-center w-full px-16 pb-40 landscape:px-32 mx-auto {{ section.settings.max_width }}">
+    {% if section.settings.title != blank or section.settings.text != blank or section.settings.cta_text != blank %}
+        <div class="hero__content-wrapper flex flex-col w-full p-40">
+          <div class="hero__content">
+            {% if section.settings.title != blank %}
+              <h1 class="hero__title mb-16">{{section.settings.title}}</h1>
+            {% endif %}
+  
+            {% if section.settings.text != blank %}
+              <p class="hero__subtitle mb-16">{{section.settings.text}}</p>
+            {% endif %}
+  
+            {% if section.settings.cta_text != blank %}
+              <button class="hero__btn btn {{cta_style}}">{{section.settings.cta_text}}</button>
+            {% else %}
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+      <div class="instagram-embed__embed">
+        {{ section.settings.embed }}
+      </div>
+  </div>
+  
+  {% schema %}
+  {
+    "name": "Instagram Embed",
+    "tag": "section",
+    "settings": [
+        {
+            "type": "text",
+            "id": "embed",
+            "label": "Embed Code"
+        },
+      {
+        "type": "header",
+        "content": "Content"
+      },
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Title"
+      },
+      {
+        "type": "textarea",
+        "id": "text",
+        "label": "Text"
+      },
+      {
+        "type": "select",
+        "id": "cta_style",
+        "label": "CTA Style",
+        "options": [
+          {
+            "value": "btn",
+            "label": "Default"
+          }
+        ],
+        "default": "btn"
+      },
+      {
+        "type": "text",
+        "id": "cta_text",
+        "label": "CTA Text"
+      },
+      {
+        "type": "url",
+        "id": "cta_url",
+        "label": "CTA Target"
+      },
+      {
+        "type": "select",
+        "id": "max_width",
+        "label": "Max Width",
+        "options": [
+          {
+            "value": "w-full",
+            "label": "Full"
+          },
+          {
+            "value": "max-w-screen-laptop",
+            "label": "Container"
+          },
+          {
+            "value": "max-w-[928px]",
+            "label": "Wide"
+          },
+          {
+            "value": "max-w-[600px]",
+            "label": "Small"
+          }
+        ],
+        "default": "max-w-screen-laptop"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Instagram Embed"
+      }
+    ]
+  }
+  {% endschema %}
+  

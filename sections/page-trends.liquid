@@ -1,0 +1,195 @@
+<trends-grid class="block trending__collection px-8 desktop:px-56">
+
+  {%- capture carousel_options -%}
+    {
+    "cellAlign": "left",
+                      "contain": false
+                    }{%- endcapture -%}
+  <s-carousel
+    class="trending__buttons-top block pt-24 pb-64"
+    data-options='{{carousel_options}}'
+    data-init="belowDesktop">
+    {% if section.settings.title != blank or section.settings.subtitle != blank %}
+      <div class="trending__header-mobile pb-24 px-48 desktop:hidden">
+        {% if section.settings.title != blank %}
+          <h1 class="text-[25px] text-center pb-8">{{ section.settings.title }}</h1>
+        {% endif %}
+        {% if section.settings.subtitle != blank %}
+          <p class="text-12 text-center">{{ section.settings.subtitle }}</p>
+        {% endif %}
+      </div>
+    {% endif %}
+    <div class="w-full desktop:grid grid-cols-6 gap-8" js-carousel>
+      {% if section.settings.title != blank or section.settings.subtitle != blank %}
+        <div class="trending__header-desktop hidden desktop:block">
+          {% if section.settings.title != blank %}
+            <h1 class="text-[50px] pb-8">{{ section.settings.title }}</h1>
+          {% endif %}
+          {% if section.settings.subtitle != blank %}
+            <p class="text-12">{{ section.settings.subtitle }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+      {% for block in section.blocks %}
+        <div
+          class="w-[65%] mx-4 desktop:w-full"
+          js-carousel-slide
+          {% if section.settings.single_collection %}
+          data-index="{{forloop.index0}}"
+          js-index
+          {% endif %}>
+          {% if section.settings.anchor_off == false and section.settings.single_collection == false %}
+            <a href="#{{block.settings.component_name}}" class="trending__btn">
+              <div class="trending__btn-image">
+                {% render 'lazy-image', image: block.settings.hero_image %}
+              </div>
+              <h2 class="text-15 text-center pt-8">{{ block.settings.anchor_label }}</h2>
+            </a>
+          {% else %}
+            <div class="trending__header {% if section.settings.single_collection %} cursor-pointer {% endif %}">
+              <div class="trending__btn-image">
+                {% render 'lazy-image', image: block.settings.hero_image %}
+              </div>
+              <h2 class="text-15 text-center pt-8">{{ block.settings.anchor_label }}</h2>
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </s-carousel>
+
+  {% if section.settings.item_model_view_off == false %}
+    <div class="trending-toggle-container pb-32 desktop:pb-24 desktop:w-[45%] mx-auto flex justify-between items-start max-w-[200px]">
+      <button
+        class="trending-toggle text-10"
+        data-view="item"
+        js-collection-view
+        disabled="disabled">ITEM VIEW</button>
+      <button
+        class="trending-toggle text-10"
+        data-view="model"
+        js-collection-view>MODEL VIEW</button>
+    </div>
+  {% endif %}
+
+  {% for block in section.blocks %}
+    <div
+      class="trending__collection pt-24 pb-56
+      {% if section.settings.single_collection %}
+        {% unless forloop.index0 == 0 %}hidden{% else %}selected{% endunless %}
+      {% endif %}"
+      {% if section.settings.single_collection %}data-collection-index="{{forloop.index0}}"js-collection{% endif %}>
+      <div id="{{block.settings.component_name}}" class="trending__collection-title pt-[100px] mt-[-100px]">
+        <h2 class="text-15 text-center pb-12">{{ block.settings.title }}</h2>
+      </div>
+      <div
+        class="trending__collection grid grid-cols-2 desktop:grid-cols-4 gap-8"
+        data-view="item"
+        js-trends-grid>
+        {% paginate collections[block.settings.collection].products by 200 %}
+          {% for product in collections[block.settings.collection].products limit: block.settings.limit %}
+            {% render 'product-card' product: product %}
+          {% endfor %}
+        {% endpaginate %}
+      </div>
+      {% if block.settings.url != blank %}
+        <div class="trending__cta-container flex justify-center mt-32 desktop:mt-12">
+          <a class="trending__cta btn" href="{{block.settings.url}}">{{ block.settings.cta }}</a>
+        </div>
+      {% endif %}
+    </div>
+
+  {% endfor %}
+
+</trends-grid>
+
+
+
+{% schema %}
+
+  {
+    "name": "Page Trending",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "anchor_off",
+        "default": false,
+        "label": "Turn anchors off"
+      },
+      {
+        "type": "checkbox",
+        "id": "item_model_view_off",
+        "default": true,
+        "label": "Turn item and model view off"
+      },
+      {
+        "type": "checkbox",
+        "id": "single_collection",
+        "default": false,
+        "label": "Single Collection View",
+        "info": "Selecting will disable anchors"
+      },
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Title",
+        "default": "L'agence Trends"
+      }, {
+        "type": "text",
+        "id": "subtitle",
+        "label": "Subtitle"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "collection",
+        "name": "Collection",
+        "settings": [
+          {
+            "type": "text",
+            "id": "component_name",
+            "label": "Link for"
+          },
+          {
+            "type": "text",
+            "id": "anchor_label",
+            "label": "Anchor Label"
+          },
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Title"
+          },
+          {
+            "id": "collection",
+            "type": "collection",
+            "label": "Collection for Section"
+          }, {
+            "type": "number",
+            "id": "limit",
+            "label": "Product limit",
+            "default": 12
+          }, {
+            "type": "url",
+            "id": "url",
+            "label": "CTA URL"
+          }, {
+            "type": "text",
+            "id": "cta",
+            "label": "CTA",
+            "default": "See More"
+          }, {
+            "type": "image_picker",
+            "id": "hero_image",
+            "label": "Hero Image"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Page Trending"
+      }
+    ]
+  }
+{% endschema %}

@@ -1,0 +1,65 @@
+<div class="faq max-w-[712px] mx-auto px-16 border-b border-gray-light">
+    <h3 class="faq-header text-left font-sangbleu mb-24">
+      {{ section.settings.header }}
+    </h3>
+
+    <s-accordion data-manual-collapse="false" js-accordion>
+      {% for block in section.blocks %}
+        <div class="faq-accordion-item accordion-item border-t border-gray-light" js-accordion-item>
+          <button class="faq-accordion-header relative w-full text-left font-sangbleu font-300 text-15 py-16" aria-expanded="false" aria-controls="{{block.settings.question | handleize}}" js-accordion-header>
+            {{block.settings.question}}
+            <div class="faq-accordion-header-icon plus absolute top-1/2 right-16 -translate-y-1/2 w-16 opacity-100 transition">
+              {% render 'icon-arrow-down' %}
+            </div>
+            <div class="faq-accordion-header-icon minus absolute top-1/2 right-16 -translate-y-1/2 w-20 opacity-0 transition">
+              {% render 'icon-arrow-up' %}
+            </div>
+          </button>
+
+          <div id="{{block.settings.question | handleize}}" class="accordion-content" aria-hidden="true" js-accordion-content>
+            <div class="faq-answer py-20 rte">
+              {{block.settings.answer}}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </s-accordion>
+  </div>
+
+  {% schema %}
+    {
+      "name": "FAQ",
+      "tag": "section",
+      "settings": [
+        {
+          "type": "text",
+          "id": "header",
+          "label": "Header",
+          "default": "Frequently Asked Questions"
+        }
+      ],
+      "blocks": [
+        {
+          "type": "question",
+          "name": "Question",
+          "settings": [
+            {
+              "type": "text",
+              "id": "question",
+              "label": "Question"
+            },
+            {
+              "type": "textarea",
+              "id": "answer",
+              "label": "Answer"
+            }
+          ]
+        }
+      ],
+      "presets": [
+        {
+          "name": "FAQ"
+        }
+      ]
+    }
+  {% endschema %}

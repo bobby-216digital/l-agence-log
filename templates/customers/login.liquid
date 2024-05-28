@@ -1,0 +1,120 @@
+<section class="account self-center justify-self-center w-full max-w-[952px] px-16">
+  <div class="account__container">
+    <h1 class="account__title mb-24 desktop:mb-80 text-center">Log In</h1>
+
+    <div class="gap-32 grid desktop:grid-cols-2 desktop:gap-72">
+      {%- form 'recover_customer_password', id: 'recover', class: 'account-login__forgot hidden', novalidate: 'novalidate' -%}
+        {% assign recover_success = form.posted_successfully? %}
+        <h1 class="account__title mb-32">Reset Password</h1>
+        <h4 class="mb-16">We will send you an email to reset your password.</h4>
+
+        {%- if form.errors -%}
+          <ul class="form__errors">
+            {% for field in form.errors %}
+              <li>
+                {% if field == 'form' %}
+                  {{ form.errors.messages[field] }}
+                {% else %}
+                  {{ form.errors.translated_fields[field] }} - {{ form.errors.messages[field] }}
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {%- endif -%}
+
+        <div class="relative mb-24">
+          <label for="RecoverEmail" class="form__label block mb-4">
+            Email Address
+          </label>
+          <input type="email"
+            value=""
+            name="email"
+            id="RecoverEmail"
+            class="form__element"
+            autocorrect="off"
+            autocapitalize="off"
+            autocomplete="email"
+            {% if form.errors %}
+              aria-invalid="true"
+              aria-describedby="RecoverEmail-email-error"
+              autofocus
+            {% endif %}
+            placeholder="Email Address"
+          >
+        </div>
+
+
+        <button class="btn btn--black w-full mb-16">Submit</button>
+        <a href="#login"><h4>Cancel</h4></a>
+      {%- endform -%}
+
+
+      {%- form 'customer_login', id: 'login', class: 'account-login__login', novalidate: 'novalidate' -%}
+        <h1 class="account__title mb-32">Customer Login</h1>
+        {%- if recover_success == true -%}
+          <p class="">We've sent you an email with a link to update your password.</p>
+        {%- endif -%}
+        {%- if form.errors -%}
+          <ul class="form__errors">
+            {% for field in form.errors %}
+              <li>
+                {% if field == 'form' %}
+                  {{ form.errors.messages[field] }}
+                {% else %}
+                  {{ form.errors.translated_fields[field] }} - {{ form.errors.messages[field] }}
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {%- endif -%}
+
+        <div class="relative mb-24">
+          <label for="CustomerEmail" class="form__label block mb-4">
+            Email Address
+          </label>
+          <input
+            type="email"
+            name="customer[email]"
+            id="CustomerEmail"
+            class="form__element"
+            autocomplete="email"
+            autocorrect="off"
+            autocapitalize="off"
+            {% if form.errors contains 'form' %}
+              aria-invalid="true"
+            {% endif %}
+            placeholder="Email Address"
+          >
+        </div>
+
+        <div class="relative mb-24">
+          <label for="CustomerPassword" class="form__label block mb-4">
+            Password
+          </label>
+          <input
+            type="password"
+            value=""
+            name="customer[password]"
+            id="CustomerPassword"
+            class="form__element"
+            autocomplete="current-password"
+            {% if form.errors contains 'form' %}
+              aria-invalid="true"
+            {% endif %}
+            placeholder="Password"
+          >
+        </div>
+
+        <input type="submit" class="btn btn--black w-full mb-16" value="Log In">
+        <a href="#recover"><h4>Forgot Password?</h4></a>
+      {%- endform -%}
+
+      <div class="">
+        <h1 class="account__title mb-32">Create Account</h1>
+        <h4 class="mb-16">Create an account for easier checkout.</h4>
+
+        <a href="/account/register" class="btn btn--black w-full">Get Started</a>
+      </div>
+    </div>
+  </div>
+</section>

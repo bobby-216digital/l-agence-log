@@ -1,0 +1,91 @@
+{%- capture carousel_options -%}
+{
+  "cellAlign": "left"
+}
+{%- endcapture -%}
+
+{% assign collection = collections[section.settings.collection] %}
+{% assign limit = section.settings.limit %}
+
+<div class="product-carousel py-24 desktop:py-40 px-8 desktop:px-56">
+  {% if section.settings.title != blank %}
+    <h1 class="product-carousel__title mb-24 desktop:mb-40 text-center">{{ section.settings.title }}</h1>
+  {% endif %}
+
+  {% unless section.settings.grid %}
+  <s-carousel data-options='{{carousel_options}}'>
+  {% endunless %}
+    <div class="product-carousel__carousel relative w-full {% if section.settings.grid %}grid grid-cols-2 {% if section.settings.desktop_width == 'desktop:w-1/3' and section.settings.limit > 2 %} desktop:grid-cols-3 {% elsif  section.settings.desktop_width == 'desktop:w-1/2' %} desktop:grid-cols-2 {% elsif section.settings.limit <= 3 %} desktop:grid-cols-{{ section.settings.limit }} {% else %} desktop:grid-cols-4 {% endif %} gap-8{% endif %}" js-carousel>
+      {% for product in collection.products limit: limit%}
+        <div class="product-carousel__slide {% unless section.settings.grid %} w-1/2 {{ section.settings.desktop_width }} mr-8{% endunless %}" js-carousel-slide>
+          {% render 'product-card' with product: product, section_id: section.id %}
+        </div>
+      {% endfor %}
+
+      {% unless section.settings.grid %}
+      <button class="product-carousel__left w-[44px] h-[44px] absolute top-1/2 -left-48 z-[2] hidden desktop:block flex items-center justify-center" js-prev-button>
+        {% render 'icon-arrow-left' %}
+      </button>
+      <button class="product-carousel__right w-[44px] h-[44px] absolute top-1/2 -right-48 z-[2] hidden desktop:block flex items-center justify-center" js-next-button>
+        {% render 'icon-arrow-right' %}
+      </button>
+      {% endunless %}
+    </div>
+  {% unless section.settings.grid %}
+  </s-carousel>
+  {% endunless %}
+</div>
+
+{% schema %}
+{
+  "name": "Product Carousel",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "select",
+      "id": "desktop_width",
+      "label": "Desktop Product Width",
+      "options": [
+        {
+          "value": "desktop:w-1/2",
+          "label": "50%"
+        },
+        {
+          "value": "desktop:w-1/3",
+          "label": "33%"
+        },
+        {
+          "value": "desktop:w-1/4",
+          "label": "25%"
+        }
+      ],
+      "default": "desktop:w-1/4"
+    },
+    {
+      "type": "checkbox",
+      "id": "grid",
+      "label": "Display as grid"
+    },
+    {
+      "type": "number",
+      "id": "limit",
+      "label": "Grid Display Limit",
+      "default": 4
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Carousel"
+    }
+  ]
+}
+{% endschema %}

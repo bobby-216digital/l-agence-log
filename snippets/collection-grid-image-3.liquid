@@ -1,0 +1,61 @@
+<lookbook-drawer>
+    {% assign product_1 = collection.metafields.seed.collection_grid_image_3_shop_the_look_product_1.value %}
+    {% assign product_1_handle = product_1.handle %}
+    {% assign product_2 = collection.metafields.seed.collection_grid_image_3_shop_the_look_product_2.value %}
+    {% assign product_2_handle = product_2.handle %}
+    {% assign product_3 = collection.metafields.seed.collection_grid_image_3_shop_the_look_product_3.value %}
+    {% assign product_3_handle = product_3.handle %}
+    {% assign product_4 = collection.metafields.seed.collection_grid_image_3shop_the_look_product_4.value %}
+    {% assign product_4_handle = product_4.handle %}
+    {% assign product_5 = collection.metafields.seed.collection_grid_image_3_shop_the_look_product_5.value %}
+    {% assign product_5_handle = product_5.handle %}
+    <div class="collection-grid-image__image-card {% if grid_image_video_desktop != blank %}w-full desktop:h-full desktop:flex desktop:flex-col{% endif %}">
+      {% if grid_image_link != blank %}
+        <a href="{{ grid_image_link }}" class="collection-grid-image__image-wrapper--link block flex-1">
+      {% else %}
+        <div class="collection-grid-image__image-wrapper flex-1">
+      {% endif %}
+      <div class="collection-grid-image__image-wrapper relative flex-1 overflow-hidden">
+        {% if grid_image_video_desktop != blank %}
+          <video class="collection-grid-image__video w-full h-full object-cover object-center hidden desktop:block" src="{{ grid_image_video_desktop }}" autoplay muted loop playsinline></video>
+          <video class="collection-grid-image__video w-full h-full object-cover object-center desktop:hidden" src="{{ grid_image_video_mobile }}" autoplay muted loop playsinline style="aspect-ratio: 3/4;"></video>
+        {% else %}
+        {% render 'lazy-image', image: grid_image_mobile, image_desktop: grid_image_desktop, breakpoint: '1025px' %}
+          <div class="collection-lookbook__button absolute bottom-8 left-[10px]" type="button" js-lookbook-drawer-open data-product-1="{% if collection.metafields.seed.collection_grid_image_1_shop_the_look_product_1 != blank %}{{ product_1.handle }}{% else %}NULL{% endif %}" data-product-2="{% if collection.metafields.seed.collection_grid_image_1_shop_the_look_product_2 != blank %}{{ product_2.handle }}{% else %}NULL{% endif %}" data-product-3="{% if collection.metafields.seed.collection_grid_image_1_shop_the_look_product_3 != blank %}{{ product_3.handle }}{% else %}NULL{% endif %}" data-product-4="{% if collection.metafields.seed.collection_grid_image_1_shop_the_look_product_4 != blank %}{{ product_4.handle }}{% else %}NULL{% endif %}" data-product-5="{% if collection.metafields.seed.collection_grid_image_1_shop_the_look_product_5 != blank %}{{ product_5.handle }}{% else %}NULL{% endif %}" {% unless collection.metafields.seed.collection_grid_image_1_shop_the_look_product_1 != blank or collection.metafields.seed.collection_grid_image_1_shop_the_look_product_2 != blank or collection.metafields.seed.collection_grid_image_1_shop_the_look_product_3 != blank or collection.metafields.seed.collection_grid_image_1_shop_the_look_product_4 != blank or collection.metafields.seed.collection_grid_image_1_shop_the_look_product_5 != blank %}disabled {% endunless %}>
+            <div class="pointer-events-none">
+              {% if collection.metafields.seed.collection_grid_image_1_shop_the_look_product_1 != blank or collection.metafields.seed.collection_grid_image_1_shop_the_look_product_2 != blank or collection.metafields.seed.collection_grid_image_1_shop_the_look_product_3 != blank or collection.metafields.seed.collection_grid_image_1_shop_the_look_product_4 != blank or collection.metafields.seed.collection_grid_image_1_shop_the_look_product_5 != blank %}
+                <div class="image-grid__item-hotspot__target collection-image__icon w-[21px] h-[21px] inline-flex justify-center items-center text-black bg-white rounded-full">
+                  <span class="w-[12px] h-[12px] flex icon__wrapper absolute">
+                    {% render 'icon-plus' %}
+                  </span>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+          {% if collection.metafields.seed.collection_grid_image_1_shop_the_look_product_1 != blank or collection.metafields.seed.collection_grid_image_1_shop_the_look_product_2 != blank or collection.metafields.seed.collection_grid_image_1_shop_the_look_product_3 != blank or collection.metafields.seed.collection_grid_image_1_shop_the_look_product_4 != blank or collection.metafields.seed.collection_grid_image_1_shop_the_look_product_5 != blank %}
+          <button class="hidden-bar p-[15px] flex h-[62px] w-full bg-white top-[100%] items-center justify-start absolute" js-lookbook-drawer-open data-product-1="{% if collection.metafields.seed.collection_grid_image_1_shop_the_look_product_1 != blank %}{{ product_1.handle }}{% else %}NULL{% endif %}" data-product-2="{% if collection.metafields.seed.collection_grid_image_1_shop_the_look_product_2 != blank %}{{ product_2.handle }}{% else %}NULL{% endif %}" data-product-3="{% if collection.metafields.seed.collection_grid_image_1_shop_the_look_product_3 != blank %}{{ product_3.handle }}{% else %}NULL{% endif %}" data-product-4="{% if collection.metafields.seed.collection_grid_image_1_shop_the_look_product_4 != blank %}{{ product_4.handle }}{% else %}NULL{% endif %}" data-product-5="{% if collection.metafields.seed.collection_grid_image_1_shop_the_look_product_5 != blank %}{{ product_5.handle }}{% else %}NULL{% endif %}" {% unless collection.metafields.seed.collection_grid_image_1_shop_the_look_product_1 != blank or collection.metafields.seed.collection_grid_image_1_shop_the_look_product_2 != blank or collection.metafields.seed.collection_grid_image_1_shop_the_look_product_3 != blank or collection.metafields.seed.collection_grid_image_1_shop_the_look_product_4 != blank or collection.metafields.seed.collection_grid_image_1_shop_the_look_product_5 != blank %}disabled {% endunless %}>
+            <span class="w-[12px] h-[12px] mr-8 flex icon__wrapper pointer-events-none">
+              {% render 'icon-minus' %}
+            </span>
+            <span class="shop__message pointer-events-none">
+              SHOP THE LOOK
+            </span>
+          </button>
+          {% endif %}
+        {% endif %}
+      </div>
+      {% if grid_image_link != blank %}
+        </a>
+      {% else %}
+        </div>
+      {% endif %}
+      {% if grid_image_subtext != blank %}
+        <div class="collection-grid-image__subtext mt-16 text-center font-400 text-12">{{ grid_image_subtext }}</div>
+      {% endif %}
+      {% if grid_image_link != blank and grid_image_link_title != blank %}
+        <a href="{{ grid_image_link }}" class="collection-grid-image__link-btn block max-w-max mx-auto mt-16 font-400 {% if grid_image_link_style == true %}btn py-12 px-64{% else %}underline-link border-b border-black pb-[2px]{% endif %}">
+          {{ grid_image_link_title }}
+        </a>
+      {% endif %}
+    </div>
+  </lookbook-drawer>

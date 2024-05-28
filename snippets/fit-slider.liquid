@@ -1,0 +1,16 @@
+{% assign selected = product.metafields.product.fitment %}
+
+{% if selected %}
+  <div class="fit-slider" data-value="{{ selected }}">
+    <div class="fit-slider__track"></div>
+    <div class="fit-slider__progress" style="width: calc(({{ selected }} - 1) * 25%);"></div>
+    <div class="fit-slider__thumb" style="left: calc(({{ selected }} - 1) * 25% - 8px);"></div>
+    <div class="fit-slider__labels">
+      <span class="tick"><span class="label">Slim</span></span>
+      <span class="tick"></span>
+      <span class="tick"><span class="label">True to size</span></span>
+      <span class="tick"></span>
+      <span class="tick"><span class="label">Oversized</span></span>
+    </div>
+  </div>
+{% endif %}

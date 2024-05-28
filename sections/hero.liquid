@@ -1,0 +1,366 @@
+<div class="hero">
+  <s-carousel>
+      <div class="hero-carousel w-full" js-carousel>
+        {% for block in section.blocks %}
+        {%- liquid
+          assign image_mobile = block.settings.image_mobile
+          assign image_desktop = block.settings.image_desktop
+          assign use_video = block.settings.use_video
+          assign video_desktop = block.settings.video_desktop
+          assign ar_desktop = block.settings.aspect_ratio_desktop
+          assign video_mobile = block.settings.video_mobile
+          assign ar_mobile = block.settings.aspect_ratio_mobile
+          assign text_alignment = block.settings.text_alignment
+          assign mobile_text_alignment = block.settings.mobile_text_alignment
+          assign title = block.settings.title
+          assign title_color = block.settings.title_color
+          assign title_size = block.settings.title_size
+          assign cta_style = block.settings.cta_style
+          assign cta_url = block.settings.cta_url
+          assign cta_text = block.settings.cta_text
+          assign text = block.settings.text
+          assign text_size = block.settings.text_size
+          assign text_color = block.settings.text_color
+          assign use_bold = block.settings.use_bold
+          assign video_controls = section.settings.video_controls
+          assign controls_color = section.settings.controls_color
+        -%}
+
+        {%- capture src -%}{{video_desktop}}{%- endcapture -%}
+        {%- capture src_mobile -%}{{video_mobile}}{%- endcapture -%}
+
+        <div class="hero-carousel__slide w-full" js-carousel-slide>
+          {% if cta_url != blank %}
+            <a href="{{cta_url}}" class="hero block relative">
+            {% else %}
+              <div class="hero block relative">
+            {% endif %}
+              <div class="hero__media">
+                {% if use_video %}
+                  <s-video>
+                    <div class="hero-video hidden tabletp:block" style="aspect-ratio:{{ar_desktop}};position:relative;" js-desktop-video>
+                      <video
+                        src="{{src}}"
+                        autoplay
+                        muted
+                        loop
+                        playsinline
+                        class="w-full h-full object-cover"
+                      ></video>
+                      {% if video_controls %}
+                      <button class="icon-pause w-24 absolute bottom-24 right-48" style="color: {{controls_color}};" js-desktop-pause>{% render 'icon-pause'%}</button>
+                      <button class="icon-play hidden w-24 absolute bottom-24 right-48" style="color: {{controls_color}};" js-desktop-play>{% render 'icon-play'%}</button>
+                      <button class="icon-volume w-24 absolute bottom-24 right-24" style="color: {{controls_color}};" js-desktop-volume>{% render 'icon-volume'%}</button>
+                      <button class="icon-mute hidden w-24 absolute bottom-24 right-24" style="color: {{controls_color}};" js-desktop-mute>{% render 'icon-mute'%}</button>
+                      {% endif %}
+                    </div>
+
+                    <div class="hero-video__mobile tabletp:hidden" style="aspect-ratio: {{ar_mobile}};position:relative;" js-mobile-video>
+                      <video
+                        src="{{src_mobile}}"
+                        autoplay
+                        muted
+                        loop
+                        playsinline
+                        class="w-full h-full object-cover"
+                      ></video>
+                      {% if video_controls %}
+                      <button class="icon-pause w-24 absolute bottom-24 right-48" style="color: {{controls_color}};" js-mobile-pause>{% render 'icon-pause'%}</button>
+                      <button class="icon-play hidden w-24 absolute right-48 bottom-24" style="color: {{controls_color}};" js-mobile-play>{% render 'icon-play'%}</button>
+                      <button class="icon-volume w-24 absolute bottom-24 right-24" style="color: {{controls_color}};" js-mobile-volume>{% render 'icon-volume'%}</button>
+                      <button class="icon-mute hidden w-24 absolute bottom-24 right-24" style="color: {{controls_color}};" js-mobile-mute>{% render 'icon-mute'%}</button>
+                      {% endif %}
+                    </div>
+                  </s-video>
+                {% else %}
+                  {% if section.settings.first_no_lazy == true %}
+                    {% if forloop.first %}
+                      {% if image_mobile != blank %}
+                        <img class="w-full  {% if image_desktop != blank %}block desktop:hidden{% else %}block{% endif %}" src="{{ image_mobile | image_url }}" />
+                      {% endif %}
+                      {% if image_desktop != blank %}
+                        <img class="w-full {% if image_desktop != blank %}hidden desktop:block{% else %}block{% endif %}" src="{{ image_desktop |  image_url }}" />
+                      {% endif %}
+                    {% else %}
+                      {% render 'lazy-image', type: object, image: image_mobile, image_desktop: image_desktop %}
+                    {% endif %}
+                  {% else %}
+                    {% render 'lazy-image', type: object, image: image_mobile, image_desktop: image_desktop %}
+                  {% endif %}
+                {% endif %}
+                </div>
+                {% if title != blank or text != blank or cta_text != blank %}
+                  <div class="hero__content-wrapper flex flex-col w-full p-40 {{mobile_text_alignment}} {{text_alignment}}">
+                    <div class="hero__content">
+                      {% if title != blank %}
+                        <h1 class="hero__title mb-16 {{title_size}} {% if use_bold %}font-500{% endif %}" style="color: {{title_color}};">
+                          {% if cta_style == 'title' %}
+                          <button class="title-link">
+                          {% endif %}
+                            {{title}}
+                          {% if cta_style == 'title' %}
+                          </button>
+                          {% endif %}
+                        </h1>
+                      {% endif %}
+
+                      {% if text != blank %}
+                        <p class="hero__subtitle mb-16 {{text_size}}" style="color: {{text_color}};">{{text}}</p>
+                      {% endif %}
+
+                      {% if cta_text != blank and cta_style != 'title' %}
+                        <button class="hero__btn {{cta_style}}">{{cta_text}}</button>
+                      {% else %}
+                      {% endif %}
+                    </div>
+                  </div>
+                {% endif %}
+            {% if cta_url != blank %}
+            </a>
+            {% else %}
+            </div>
+            {% endif %}
+
+        </div>
+        {% endfor %}
+
+        {% if section.blocks.size > 1%}
+            <button class="w-24 z-[2] absolute left-16 top-1/2 -translate-y-1/2" js-prev-button>{% render 'icon-arrow-left' %}</button>
+            <button class="w-24 z-[2] absolute right-16 top-1/2 -translate-y-1/2"js-next-button>{% render 'icon-arrow-right' %}</button>
+        {% endif %}
+  </s-carousel>
+</div>
+
+{% schema %}
+{
+  "name": "Hero",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "video_controls",
+      "label": "Video Controls",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "first_no_lazy",
+      "label": "Make the first image not lazyload",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "controls_color",
+      "label": "Controls Color",
+      "default": "#FFFFFF"
+    }
+  ],
+  "blocks": [
+  {
+    "type": "slide",
+    "name": "Slide",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Image"
+      },
+      {
+        "type": "image_picker",
+        "id": "image_mobile",
+        "label": "Image (Mobile)"
+      },
+      {
+        "type": "image_picker",
+        "id": "image_desktop",
+        "label": "Image (Desktop)"
+      },
+      {
+        "type": "header",
+        "content": "Video"
+      },
+      {
+        "type": "checkbox",
+        "id": "use_video",
+        "label": "Use video",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "video_mobile",
+        "label": "Video Link (Mobile)"
+      },
+      {
+        "type": "text",
+        "id": "aspect_ratio_mobile",
+        "label": "Aspect Ratio (Mobile)",
+        "default": "130",
+        "info": "Ratio of height when width is set to 100%"
+      },
+      {
+        "type": "text",
+        "id": "video_desktop",
+        "label": "Video Link (Desktop)"
+      },
+      {
+        "type": "text",
+        "id": "aspect_ratio_desktop",
+        "label": "Aspect Ratio (Destkop)",
+        "default": "50",
+        "info": "Ratio of height when width is set to 100%"
+      },
+      {
+      "type": "header",
+      "content": "Mobile Text Alignment"
+      },
+      {
+        "type": "select",
+        "id": "mobile_text_alignment",
+        "label": "Mobile Content Text Alignment",
+        "options": [
+          {
+            "value": "text-left",
+            "label": "Left"
+          },
+          {
+            "value": "text-center",
+            "label": "Center"
+          },
+          {
+            "value": "text-right",
+            "label": "Right"
+          }
+        ],
+        "default": "text-center"
+      },
+      {
+        "type": "select",
+        "id": "text_alignment",
+        "label": "Content Text Alignment",
+        "options": [
+          {
+            "value": "landscape:text-left",
+            "label": "Left"
+          },
+          {
+            "value": "landscape:text-center",
+            "label": "Center"
+          },
+          {
+            "value": "landscape:text-right",
+            "label": "Right"
+          }
+        ],
+        "default": "landscape:text-right"
+      },
+      {
+        "type": "header",
+        "content": "Content"
+      },
+      {
+        "type": "text",
+        "id": "title",
+        "label": "Title"
+      },
+      {
+        "type": "color",
+        "id": "title_color",
+        "label": "Title Color",
+        "default": "#000000"
+      },
+      {
+        "type": "select",
+        "id": "title_size",
+        "label": "Title Size",
+        "options": [
+          {
+            "value": "text-16",
+            "label": "Small"
+          },
+          {
+            "value": "text-25",
+            "label": "Medium"
+          },
+          {
+            "value": "text-40",
+            "label": "Large"
+          }
+        ],
+        "default": "text-25"
+      },
+      {
+        "type": "checkbox",
+        "id": "use_bold",
+        "label": "Use Bold Title",
+        "default": false
+      },
+      {
+        "type": "textarea",
+        "id": "text",
+        "label": "Text"
+      },
+      {
+        "type": "color",
+        "id": "text_color",
+        "label": "Text Color",
+        "default": "#000000"
+      },
+      {
+        "type": "select",
+        "id": "text_size",
+        "label": "Text Size",
+        "options": [
+          {
+            "value": "text-12",
+            "label": "Small"
+          },
+          {
+            "value": "text-16",
+            "label": "Medium"
+          },
+          {
+            "value": "text-20",
+            "label": "Large"
+          }
+        ],
+        "default": "text-12"
+      },
+      {
+        "type": "select",
+        "id": "cta_style",
+        "label": "CTA Style",
+        "options": [
+          {
+            "value": "title",
+            "label": "No CTA, title links instead"
+          },
+          {
+            "value": "btn",
+            "label": "Button"
+          },
+          {
+            "value": "link",
+            "label": "Link"
+          }
+        ],
+        "default": "btn"
+      },
+      {
+        "type": "text",
+        "id": "cta_text",
+        "label": "CTA Text"
+      },
+      {
+        "type": "url",
+        "id": "cta_url",
+        "label": "CTA Target"
+      }
+    ]
+  }
+],
+  "presets": [
+    {
+      "name": "Hero"
+    }
+  ]
+}
+{% endschema %}

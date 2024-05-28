@@ -1,0 +1,464 @@
+{%- liquid
+  assign current_variant = false
+  if product.selected_variant
+    assign current_variant = product.selected_variant
+  endif
+  assign product_form_id = 'ProductForm-' | append: section.id | append: product.id
+  assign master_select_id = 'MasterSelect-' | append: section.id
+  assign related_handle = false
+
+  for tag in product.tags
+    if tag contains 'handle:'
+      assign related_tag = tag
+    endif
+    if tag contains 'upsell:'
+      assign upsell_tag = tag | remove: 'upsell:'
+    endif
+    if tag contains 'gwp:'
+      assign gwp_tag = tag | remove: "gwp:"
+    endif
+    if tag contains 'plp tag:'
+      assign badge_tag = tag | remove: "plp tag:" | strip
+    endif
+    if tag contains 'est. ship date:'
+      assign preorder = tag | remove: "est. ship date:" | strip
+    endif
+    if tag contains 'coming-soon'
+      assign waitlist = 'JOIN THE WAITLIST'
+    endif
+  endfor
+
+  if product.metafields.seed.color_groups != blank
+    assign color_groups = product.metafields.seed.color_groups
+  endif
+-%}
+
+
+
+<nav class="collection-header__breadcrumbs px-16 py-24 text-9 font-akzidenz product block w-full max-w-screen-extrawide mx-auto" role="navigation" aria-label="breadcrumbs">
+  {% if product.tags contains 'outlet' %}
+    {% comment %} <form>
+      <input class="outlet-back bg-white cursor-pointer" type="button" value="Back to Outlet" onclick="history.back()">
+    </form> {% endcomment %}
+  {% else %}
+  <a href="/" title="Home">Home</a>
+  {%- if collection.url -%}
+    <li class="breadcrumbs__item">
+      {{ collection.title | link_to: collection.url }}
+    </li>
+  {%- endif -%}  
+  <span> / {{ product.title }}</span>
+  {% endif %}
+</nav>
+
+<s-product role="section" class="product block w-full max-w-screen-extrawide mx-auto" data-section-id="{{ section.id }}">
+  <a class="skip-to-content-link sr-only" href="#{{product_form_id}}">Skip to product information</a>
+  <div class="product__layout mb-40 tabletl:grid tabletl:grid-cols-[100px,1fr,1fr] tabletl:gap-32 tabletl:px-16 items-start">
+
+    {% comment %}magictoolbox code begins{% endcomment %}
+    {% capture mzp %}{% render 'magiczoomplus' %}{% endcapture %}
+    {% if mzp contains 'Liquid error' %}
+        {% comment %}magictoolbox replace code begins{% endcomment %}
+      {% assign magic = false %}
+        {% comment %}magictoolbox replace code ends{% endcomment %}
+    {% else %}
+      {% assign magic = true %}
+    {% endif %}
+    {% comment %}magictoolbox code ends{% endcomment %}
+    
+    <div class="product__thumbnails-container hidden tabletl:block sticky top-[100px]">
+      <div class="product__thumbnails w-full">
+        {% for media in product.media %}
+          <button data-type="{{ media.media_type }}" class="{% if media.media_type == 'video' %}relative{% endif %} product__thumbnail block w-full mb-8 {% unless forloop.first %}opacity-50{% endunless %}" data-index="{{forloop.index0}}" js-product-thumbnail>
+            {% case media.media_type %}
+              {% when 'image' %}
+                {% render 'lazy-image' image: media %}
+              {% when 'video' %}
+                {% render 'lazy-image' image: media.preview_image %}
+              {% when 'external_video' %}
+                {{ media | external_video_tag }}
+            {% endcase %}
+          </button>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="product__media px-16 desktop:px-0 mb-40 tabletl:mb-0">
+      <s-carousel data-init="belowDesktop">
+        <div class="product-media__carousel" js-carousel js-product-image-carousel>
+          {% for media in product.media %}
+            <div class="product-media__slide block w-full{% if media.media_type == 'video' %} relative{% endif %}" data-type="{{ media.media_type }}" data-index="{{ forloop.index0 }}" js-carousel-slide js-product-image>
+              {% case media.media_type %}
+                {% when 'image' %}
+                  {% render 'lazy-image' image: media, magic: magic %}
+                {% when 'video' %}
+                  {{ media | video_tag: image_size: '900x', controls: false, autoplay: false, loop: true, muted: "muted", class: 'w-full h-full' }}
+                  <div class="video-controls">
+                    <div class="video-controls__progress"></div>
+                  </div>
+                {% when 'external_video' %}
+                  {{ media | external_video_tag }}
+              {% endcase %}
+            </div>
+          {% endfor %}
+        </div>
+        <div class="flex w-full items-center justify-center gap-4 mt-8 tabletl:hidden" js-carousel-dots>
+          {% for media in product.media %}
+            <button class="product-images__dot w-[12px] h-[12px] bg-gray-light text-[0px] rounded-[50%] overflow-hidden" data-index="{{ forloop.index0 }}" aria-label="Go to slide {{ forloop.index }}">{{forloop.index}}</button>
+          {% endfor %}
+        </div>
+      </s-carousel>
+    </div><!-- .product__images-container -->
+
+    {% if magic %}
+    <script>
+      if (window.matchMedia("(max-width: 767px)").matches) {
+        var $zooms = document.querySelectorAll('.MagicZoom');
+        $zooms.forEach(function($elm){
+          $elm.outerHTML = $elm.innerHTML;
+        })
+      }
+    </script>
+    {% endif %}
+        
+    <div class="product-information tabletl:sticky top-[100px]">
+      {%- form 'product', product, id: product_form_id, class: 'product__form px-16 font-400 tabletl:px-0 flex flex-col', novalidate: 'novalidate', js-product-form: true -%}
+        <h1 class="product__title text-center mb-16">{{ product.title }}</h1>
+
+        {% if badge_tag %}
+          <h2 class="product__badge text-10 text-center mb-16 uppercase font-700 font-sangbleu">{{badge_tag}}</h2>
+        {% endif %}
+        {% if product.tags contains 'final sale' %}
+          <h2 class="product__badge text-10 text-center mb-16 uppercase font-700 font-sangbleu">Final Sale</h2>
+        {% endif %}
+
+        {% unless product.type == 'Gift Cards' %}
+          {% if product.available or waitlist != blank %}
+            <div class="product__price text-center mb-24 flex justify-center flex-wrap">
+              {% if product.compare_at_price > product.price %}
+                <s class="product__price--sale pr-4 text-gray font-akzidenz text-10">
+                  {% if product.tags contains 'collection: sale' %}
+                    {{ product.price | money_without_trailing_zeros }}
+                  {% else %}
+                    {{ product.compare_at_price | money_without_trailing_zeros }}
+                  {% endif %}
+                </s>
+              {% endif %}
+              <div class="product__price font-akzidenz text-10" js-price>
+                {% if product.tags contains 'collection: sale' %}
+                  {% assign discount_percentage = 0.25 %}
+                  {% assign product_discount = product.price | times: discount_percentage %}
+                  {% assign product_price = product.price | minus: product_discount %}
+                  {{ product_price | money_without_trailing_zeros }}
+                {% else %}
+                  {{product.price | money_without_trailing_zeros }}
+                {% endif %}
+              </div>
+            </div>
+          {% elsif product.available == false and waitlist == blank %}
+            <span class="product-card__price--soldout">Sold Out</span>
+          {% endif %}
+
+          {% if product.tags contains 'outlet' %}
+            <div class="text-[#ff0000] text-center w-full text-10 mt-8">
+              {% if product.compare_at_price_max > product.price %}{{ product.compare_at_price_max | minus: product.price | times: 100.0 | divided_by: product.compare_at_price_max | money_without_currency | times: 100 | remove: '.0'}}% Off{% endif %}
+            </div>
+          {% endif %}
+
+          <div class="product__color font-akzidenz text-10 uppercase text-center mb-16">COLOR: <span class="font-500">{{ product.options_by_name['color'].values[0] }}</span></div>
+
+          {%- assign color = product.options_by_name['color'].values[0] -%}
+          {%- assign swatch_handle = color | handleize | append: '.png' | prepend: 'swatch-' -%}
+          {%- assign swatch = images[swatch_handle] -%}
+          <div class="product__related-colors mb-24 flex flex-col" data-handle="{{product.handle}}" {% if related_tag %}data-tag="{{related_tag}}" data-color-groups='{{ color_groups }}' js-related-colors {% endif %}></div>
+        {% endunless %}
+
+        {% if waitlist != blank %}
+          <div class="waitlist__heading text-center">COMING SOON</div>
+          <a class="klaviyo-bis-trigger !block btn mt-20" href="#">Notify Me When Available</a>
+        {% else %}
+          {%- comment -%} Product Variant Master Select {%- endcomment -%}
+          {% render 'master-variant-select',
+            variants: product.variants,
+            id: master_select_id,
+            current_variant: current_variant
+          %}
+          {% unless product.has_only_default_variant %}
+            <product-options class="no-js-hidden block font-akzidenz text-10" data-product='ProductJSON' data-master-select-id="{{ master_select_id }}" data-enable-history-state>
+              {% for option in product.options_with_values %}
+                {% render 'product-option-selector'
+                  option: option
+                  type: 'swatch'
+                  section_id: section.id
+                  product_id: product.id
+                  current_variant: current_variant
+                %}
+              {% endfor %}
+            </product-options>
+          {% endunless %}
+
+          {% if upsell_tag %}
+            <input type="hidden" name="properties[_upsellTag]" value="{{ upsell_tag }}">
+          {% endif %}
+          {% if gwp_tag %}
+            <input type="hidden" name="properties[_gwpTag]" value="{{ gwp_tag }}">
+          {% endif %}
+
+          <input class="product__quantity" type="hidden" name="quantity" value="1">
+
+          {% if preorder %}
+            <p class="product__preorder-message text-center mb-16">Estimated Ship Date: {{preorder}}</p>
+            <input type="hidden" name="properties[est. ship date]" value="{{preorder}}">
+          {% endif %}
+
+          {% assign disabled = true %}
+          {% if current_variant %}
+            {% if current_variant.available %}
+              {% if preorder %}
+                {% assign cart_text = 'Pre-Order' %}
+              {% else %}
+                {% assign cart_text = 'Add to Cart' %}
+              {% endif %}
+              {% assign disabled = false %}
+            {% else %}
+              {% assign cart_text = 'Sold Out' %}
+            {% endif %}
+          {% elsif product.variants.size == 1 %}
+            {% if product.available %}
+              {% if preorder %}
+                {% assign cart_text = 'Pre-Order' %}
+              {% else %}
+                {% assign cart_text = 'Add to Cart' %}
+              {% endif %}
+              {% assign disabled = false %}
+            {% else %}
+              {% assign cart_text = 'Sold Out' %}
+            {% endif %}
+          {% else %}
+            {% if product.available %}
+              {% assign cart_text = 'Select A Size' %}
+            {% else %}
+              {% assign cart_text = 'Sold Out' %}
+            {% endif %}
+          {% endif %}
+          {% if product.tags contains 'final sale' %}
+            <input type="hidden" id="tags" value="FINAL SALE" name="properties[Item]">
+          {% endif %}
+          <button
+            class="product-add-to-cart-button btn relative w-full uppercase mb-16 {% if current_variant.available == false or product.available == false %}hidden{% endif %}"
+            type="submit"
+            {% if preorder %}data-preorder="true"{% endif %}
+            {% if disabled %}disabled{% endif %}
+            js-add-to-cart>
+            <loading-spinner style="--size: 3rem; --bg-opacity: 100%;"></loading-spinner>
+            {{ cart_text }}
+          </button>
+        {% endif %}
+        
+        {% if product.metafields.product.fitment != empty %}
+          {% include 'fit-slider' %}
+        {% endif %}
+        {% render 'okendo-reviews-product-rating-summary', product: product %}
+
+        <a class="block mb-24 order-3" href="{{ product.url }}#yotpoReviewsWidget">
+            <div class="yotpo bottomLine"
+                data-product-id="{{ product.id }}"
+                data-url="{{ product.url }}">
+            </div> 
+        </a>
+        
+      {%- endform -%}
+
+      <s-tabs class="product-tab__tabs block px-16 mb-40 tabletl:px-0">
+        <div class="tab__triggers flex items-center justify-between mb-12 w-[100vw] max-w-full" role="tablist" aria-orientation="horizontal" js-tablist>
+          <button id="product-tab__description-trigger" class="tab__trigger font-akzidenz text-9 desktop:text-10 font-400 uppercase text-center" aria-controls="product-tab__description" role="tab" aria-selected="true" js-tab>Description</button>
+          <button id="product-tab__details-trigger" class="tab__trigger font-akzidenz text-9 desktop:text-10 font-400 uppercase text-center" aria-controls="product-tab__details" role="tab" aria-selected="false" js-tab>Details & Fit</button>
+          <button id="product-tab__size-chart-trigger" class="tab__trigger font-akzidenz text-9 desktop:text-10 font-400 uppercase text-center" aria-controls="product-tab__size-chart" role="tab" aria-selected="false" js-tab>SIZE CHART</button>
+          <button id="product-tab__shipping-trigger" class="tab__trigger font-akzidenz text-9 desktop:text-10 font-400 uppercase text-center" aria-controls="product-tab__shipping" role="tab" aria-selected="false" js-tab>Shipping & Returns</button>
+        </div>
+        <div id="product-tab__description" class="tab__panel" role="tabpanel" aria-labelledby="product-tab__description-trigger" aria-hidden="false">
+          <div class="product__description rte">
+            {{product.description}}
+          </div>
+          {%- if product.metafields.styleNumber.sku != blank -%}
+            <div class="product__sku mt-16">
+              Style No. {{ product.metafields.styleNumber.sku }}
+            </div>
+          {%- endif -%}
+        </div>
+        <div id="product-tab__details" class="tab__panel" role="tabpanel" aria-labelledby="product-tab__details-trigger" aria-hidden="true">
+          <div class="product__details rte">
+            <ul>
+              {% for i in (1..8) %}
+                {% assign detail_handle = 'detail_spec_' | append: forloop.index %}
+                {% assign detail = product.metafields.custom[detail_handle] %}
+                {% if detail != blank %}
+                  <li>{{detail}}</li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+        <div id="product-tab__size-chart" class="tab__panel" role="tabpanel" aria-labelledby="product-tab__size-chart-trigger" aria-hidden="true">
+          <div class="product__size-chart pb-20 max-h-[480px] max-w-[100vw] mx-auto desktop:max-w-[calc((100vw-220px)*0.5)] extrawide:max-w-[620px] overflow-auto">
+          </div>
+        </div>
+        <div id="product-tab__shipping" class="tab__panel" role="tabpanel" aria-labelledby="product-tab__shipping-trigger" aria-hidden="true">
+          Free Ground Shipping and Easy Returns. For more details, please see our <a href="/pages/shipping-returns">Shipping & Returns</a> page.
+        </div>
+      </s-tabs>
+      <div class="product__social px-16 tabletl:px-0">
+        <h2 class="product-social__title text-center mb-16 font-akzidenz font-400 text-10">SHARE</h2>
+        {% render 'social-sharing', share_title: product.title, share_image: product, share_permalink: product.url %}
+      </div>
+    </div>
+  </div><!-- .product__layout -->
+
+  <script type="application/json" id="ProductJSON">{{ product | json }}</script>
+</s-product>
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org/",
+    "@type": "Product",
+    "name": {{ product.title | json }},
+    "url": {{ shop.url | append: product.url | json }},
+    {%- if product.selected_or_first_available_variant.featured_media -%}
+      {%- assign media_size = product.selected_or_first_available_variant.featured_media.preview_image.width | append: 'x' -%}
+      "image": [
+        {{ product.selected_or_first_available_variant.featured_media | img_url: media_size | prepend: "https:" | json }}
+      ],
+    {%- endif -%}
+    "description": {{ product.description | strip_html | json }},
+    {%- if product.selected_or_first_available_variant.sku != blank -%}
+      "sku": {{ product.selected_or_first_available_variant.sku | json }},
+    {%- endif -%}
+    "brand": {
+      "@type": "Thing",
+      "name": {{ product.vendor | json }}
+    },
+    "offers": [
+      {%- for variant in product.variants -%}
+        {
+          "@type" : "Offer",
+          {%- if variant.sku != blank -%}
+            "sku": {{ variant.sku | json }},
+          {%- endif -%}
+          "availability" : "http://schema.org/{% if variant.available %}InStock{% else %}OutOfStock{% endif %}",
+          "price" : {{ variant.price | divided_by: 100.00 | json }},
+          "priceCurrency" : {{ cart.currency.iso_code | json }},
+          "url" : {{ shop.url | append: variant.url | json }}
+        }{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ]
+    {% if product.metafields.okendo.summaryData.reviewCount > 0 %}
+    ,"aggregateRating": {
+      "@type": "AggregateRating",
+      "description": "Okendo Reviews",
+      "ratingValue": "{{ product.metafields.okendo.summaryData.reviewAverageValue }}",
+      "ratingCount": "{{ product.metafields.okendo.summaryData.reviewCount }}"
+    }
+    {% elsif product.metafields.okendo.REviewCount > 0 %}
+    ,"aggregateRating": {
+      "@type": "AggregateRating",
+      "description": "Okendo Reviews",
+      "ratingValue": "{{ product.metafields.okendo.ReviewAverageValue }}",
+      "ratingCount": "{{ product.metafields.okendo.ReviewCount }}"
+    }
+    {% endif %}
+  }
+</script>
+<script type="text/javascript">
+  var _learnq = _learnq || [];
+    var classname = document.getElementsByClassName("product-add-to-cart-button");
+  var addToCart = function() {
+  _learnq.push(['track', 'Added to Cart', item]);
+  }; for (var i = 0; i < classname.length; i++) {
+  classname[i].addEventListener('click', addToCart, false);
+  }
+  </script>
+  {% if product.tags contains 'coming-soon' %}
+    <script src="https://a.klaviyo.com/media/js/onsite/onsite.js"></script>
+    <script>
+        var klaviyo = klaviyo || [];
+        klaviyo.init({
+            account: "MUVAwS",
+            platform: "shopify",
+            list: "VRRgY8"
+        });
+        klaviyo.enable("backinstock",{
+        trigger: {
+            product_page_text: "Notify Me When Available",
+            product_page_class: "btn",
+            product_page_text_align: "center",
+            product_page_margin: "0px",
+            replace_anchor: false
+        },
+        modal: {
+            headline: "{product_name}",
+            body_content: "Select your size below and sign up to receive an email notification when the item becomes available.",
+            email_field_label: "Email",
+            button_label: "Notify me when available",
+           newsletter_subscribe_label: "subscribe to our newsletter",
+            subscription_success_label: "You’re in! We’ll email you when your item is available.",
+            footer_content: '',
+            additional_styles: "@font-face {font-family: 'Akzidenz-Grotesk BQ';src: url('https://cdn.shopify.com/s/files/1/0054/3952/0871/t/611/assets/AkzidenzGroteskBQ-Ext.woff2') format('woff2');font-weight: normal;font-style: normal;} body, .btn{font-family: Akzidenz-Grotesk BQ,sans-serif !important; font-size: 10px!important;} .btn {text-transform:uppercase !important;} .input-lg {font-size: 12px !important; font-family: SangBleu Sans,sans-serif !important;} @font-face {font-family: 'SangBleu Sans';src: url('https://cdn.shopify.com/s/files/1/0054/3952/0871/t/611/assets/sangbleusans-regular-webfont.woff2') format('woff2');font-weight: bold;font-style: normal;font-display: swap;} h1,h2,h3,h4,h5,h6{font-family: SangBleu Sans,sans-serif !important;}",
+            drop_background_color: "#000",
+            background_color: "#fff",
+            text_color: "#222",
+            button_text_color: "#fff",
+            button_background_color: "#222",
+            close_button_color: "#ccc",
+            error_background_color: "#fcd6d7",
+            error_text_color: "#C72E2F",
+            success_background_color: "#d3efcd",
+            success_text_color: "#1B9500"
+        }
+        });
+    </script>
+    {% else %}
+    <script src="https://a.klaviyo.com/media/js/onsite/onsite.js"></script>
+    <script>
+        var klaviyo = klaviyo || [];
+        klaviyo.init({
+            account: "MUVAwS",
+            list: 'ULMMkg',
+            platform: "shopify"
+        });
+        klaviyo.enable("backinstock",{
+        trigger: {
+            product_page_text: "Notify Me When Available",
+            product_page_class: "btn",
+            product_page_text_align: "center",
+            product_page_margin: "0px",
+            replace_anchor: false
+        },
+        modal: {
+            headline: "{product_name}",
+            body_content: "Register to receive a notification when this item comes back in stock.",
+            email_field_label: "Email",
+          newsletter_subscribe_label: "subscribe to our newsletter",
+            button_label: "Notify me when available",
+            subscription_success_label: "You're in! We'll let you know when it's back.",
+            footer_content: '',
+            additional_styles: "@font-face {font-family: 'Akzidenz-Grotesk BQ';src: url('https://cdn.shopify.com/s/files/1/0054/3952/0871/t/611/assets/AkzidenzGroteskBQ-Ext.woff2') format('woff2');font-weight: normal;font-style: normal;} body, .btn{font-family: Akzidenz-Grotesk BQ,sans-serif !important; font-size: 10px!important;} .btn {text-transform:uppercase !important;} .input-lg {font-size: 12px !important; font-family: SangBleu Sans,sans-serif !important;} @font-face {font-family: 'SangBleu Sans';src: url('https://cdn.shopify.com/s/files/1/0054/3952/0871/t/611/assets/sangbleusans-regular-webfont.woff2') format('woff2');font-weight: bold;font-style: normal;font-display: swap;} h1,h2,h3,h4,h5,h6{font-family: SangBleu Sans,sans-serif !important;} #newsletter_subscription p{display: flex;}",
+            drop_background_color: "#000",
+            background_color: "#fff",
+            text_color: "#222",
+            button_text_color: "#fff",
+            button_background_color: "#222",
+            close_button_color: "#ccc",
+            error_background_color: "#fcd6d7",
+            error_text_color: "#C72E2F",
+            success_background_color: "#d3efcd",
+            success_text_color: "#1B9500"
+        }
+        });
+    </script>
+    {% endif %}
+{% schema %}
+{
+  "name": "Product"
+}
+{% endschema %}

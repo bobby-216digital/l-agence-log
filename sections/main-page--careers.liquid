@@ -1,0 +1,118 @@
+{% capture headings %}
+{% for block in section.blocks %}
+{{ block.settings.header }},
+{% endfor %}
+{% endcapture %}
+
+{% assign tabs = headings | split: ',' | uniq %}
+
+
+<div class="page max-w-[712px] mx-auto px-16">
+  {% if section.settings.show_title %}
+    <h1 class="page__title py-24 text-center desktop:pt-40">
+      {{ page.title | escape }}
+    </h1>
+  {% endif %}
+
+  {% if section.settings.content != blank %}
+    <div class="rte text-[12px] leading-loose">
+      {{ section.settings.content }}
+    </div>
+  {% endif %}
+
+  <div class="mt-32 desktop:mt-52">
+    <s-tabs class="block grid desktop:grid-cols-[160px,1fr] gap-52">
+      <div class="tab__triggers hidden desktop:flex desktop:justify-start desktop:items-start desktop:flex-col" role="tablist" aria-orientation="horizontal" js-tablist>
+        {% for tab in tabs %}
+          <button id="{{ tab | handleize }}-tab" class="tab__trigger tab__trigger--careers w-max my-8 pb-4 text-[15px] text-left" aria-controls="{{ tab | handleize }}-content-panel" role="tab" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}" js-tab>
+            {{ tab }}
+          </button>
+        {% endfor %}
+      </div>
+
+      <div class="tab__accordions">
+        {% for tab in tabs %}
+          <div id="{{ tab | handleize }}-content-panel" class="tab__panel tab__panel--careers mb-52 desktop:mb-0" role="tabpanel" aria-labelledby="{{ tab | handleize }}-tab" aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}">
+            <div class="faq">
+              <h3 class="faq-header text-15 text-left font-sangbleu mb-24 block desktop:hidden">
+                {{ tab }}
+              </h3>
+
+              <s-accordion class="faq-accordion-items" data-manual-collapse="false" js-accordion>
+                {% for block in section.blocks %}
+                  {% assign header_handle = block.settings.header | handleize %}
+                  {% assign tab_handle = tab | handleize %}
+
+                  {% if header_handle == tab_handle %}
+                    {% if block.settings.title != blank and block.settings.description != blank %}
+                      <div class="faq-accordion-item accordion-item" js-accordion-item>
+                        <button class="faq-accordion-header relative w-full text-left font-sangbleu font-300 text-15 py-16" aria-expanded="false" aria-controls="accordion-{{ forloop.index }}" js-accordion-header>
+                          {{ block.settings.title }}
+                          <div class="faq-accordion-header-icon plus absolute top-1/2 right-16 -translate-y-1/2 w-8 opacity-100 transition">
+                            {% render 'icon-plus' %}
+                          </div>
+                          <div class="faq-accordion-header-icon minus absolute top-1/2 right-16 -translate-y-1/2 w-[6px] opacity-0 transition">
+                            {% render 'icon-close' %}
+                          </div>
+                        </button>
+                        <div id="accordion-{{ forloop.index }}" class="accordion-content" aria-hidden="true" js-accordion-content>
+                          <div class="faq-answer py-16 rte text-12 font-300 leading-loose tracking-normal">
+                            {{ block.settings.description }}
+                          </div>
+                        </div>
+                      </div>
+                    {% endif %}
+                  {% endif %}
+                {% endfor %}
+              </s-accordion>
+            </div>        
+          </div>
+        {% endfor %}
+      </div>
+    </s-tabs>
+  </div>
+</div>
+
+{% schema %}
+  {
+    "name": "Careers Page",
+    "tag": "section",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "show_title",
+        "label": "Show Title",
+        "default": true
+      },
+      {
+        "type": "richtext",
+        "id": "content",
+        "label": "Content"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "accordion",
+        "name": "Accordion",
+        "settings": [
+          {
+            "type": "text",
+            "id": "header",
+            "label": "Heading",
+            "default": "Heading"
+          },
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Title"
+          },
+          {
+            "type": "richtext",
+            "id": "description",
+            "label": "Description"
+          }
+        ]
+      }
+    ]
+  }
+  {% endschema %}

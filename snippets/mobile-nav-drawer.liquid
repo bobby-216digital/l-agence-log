@@ -1,0 +1,109 @@
+{% if settings.mobile_nav_international != blank %}
+	{% if localization.country.iso_code != "US" %}
+		{% assign mobile_menu = settings.mobile_nav_international %}
+	{% else %}
+		{% assign mobile_menu = settings.mobile_nav %}
+	{% endif %}
+{% else %}
+	{% assign mobile_menu = settings.mobile_nav %}
+{% endif %}
+
+<s-drawer id="MobileNavDrawer" position='left' open="[js-open-mobile-nav]" close="[js-close-mobile-nav]" data-focus="false">
+  <header class="mobile-nav__header flex items-center justify-between px-16 pt-32 pb-32">
+    <a href="{{routes.root_url}}" class="block w-[110px]"><img src="{{ 'site-logo.png' | asset_img_url: 'master' }}" alt="Serenede" class="w-full" width="" height=""></a>
+    <button class="block w-[15px]" js-close-mobile-nav>{% render 'icon-close' %}</button>
+  </header>
+
+  <s-mobile-header class="mobile-nav__drawer font-akzidenz relative flex flex-col" js-mobile-nav>
+    {% for parent in linklists[mobile_menu].links %}
+      {% if parent.links != empty %}
+        <div class="mobile-nav__drawer-item">
+          <button class="accordion-header w-full uppercase text-10 flex items-center justify-between font-700" aria-expanded="false" aria-controls="mobile-nav-parent-{{parent.handle}}" data-handle="{{ parent.handle }}" js-mobile-nav-button>
+            {{parent.title}}
+            <span class="block w-[5px]">{% render 'icon-arrow-right' %}</span>
+          </button>
+
+          <div class="mobile-nav__children w-full h-full overflow-y-auto absolute top-0 right-0 px-16 pb-16 hidden" js-nav-child data-handle="{{ parent.handle }}">
+            <div class="mobile-nav__children-header flex items-center w-full relative justify-center mb-16 pb-16">
+              <button class="block absolute left-0" js-back-button>
+                <span class="flex items-center">{% render 'icon-arrow-left' %}</span>
+              </button>
+              <h3 class="text-10 uppercase font-700">{{ parent.title }}</h3>
+            </div>
+
+            <ul class="block">
+              {% for child in parent.links %}
+                <li class="mobile-nav__children-item {% unless forloop.first %}pt-16{% endunless %}">
+                  {% if child.links != empty %}
+                    <a href="{{ child.url }}" class="title text-10 font-700 text-gray uppercase">{{ child.title }}</a>
+                    <ul class="mobile-nav__links">
+                      {% for grandchild in child.links %}
+                        <li class="mobile-nav__link-container mt-8">
+                          <a href="{{grandchild.url}}" class="mobile-nav__link capitalize text-12 font-400">{{grandchild.title}}</a>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% else %}
+                    <a href="{{child.url}}" class="mobile-nav__link text-12 font-400">{{child.title | split: '||' | last}}</a>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      {% else %}
+        <a href="{{parent.url}}" class="mobile-nav__link inline-block uppercase text-10 font-700 mb-16">{{parent.title}}</a>
+      {% endif %}
+    {% endfor %}
+
+    <div class="mobile-nav__bottom font-sangbleu text-14 font-400 flex flex-col pt-16 text-gray-dark">
+      <button class="text-10 uppercase font-akzidenz cursor-pointer text-left" js-open-country-modal>
+        <span class="country-label">{{ localization.country.iso_code }}</span>&nbsp;|&nbsp;<span class="currency">{{ localization.country.currency.symbol }}</span>
+      </button>
+      <a href="/account" class="pt-16">{{ 'sections.header.account' | t }}</a>
+      <a href="/apps/store-locator" class="pt-16">{{ 'sections.header.boutiques' | t }}</a>
+      <a href="/pages/wishlist" class="pt-16">{{ 'sections.header.wishlist' | t }}</a>
+      <a href="/pages/contact" class="pt-16">{{ 'sections.header.contact' | t }}</a>
+    </div>
+  </s-mobile-header>
+
+  <s-accordion class="mobile-nav__accordion font-akzidenz hidden" data-manual-collapse="false" js-accordion>
+    {% for parent in linklists[mobile_menu].links %}
+      {% if parent.links != empty %}
+        <div class="accordion-item mb-32" js-accordion-item>
+          <button class="accordion-header w-full uppercase text-10 flex items-center justify-between font-700" aria-expanded="false" aria-controls="mobile-nav-parent-{{parent.handle}}" js-accordion-header>{{parent.title}}<span class="block w-[12px]">{% render 'icon-arrow-down' %}</span></button>
+          <div id="mobile-nav-parent-{{parent.handle}}" class="accordion-content" aria-hidden="true" js-accordion-content>
+            <ul class="mobile-nav__links pl-16">
+              {% for child in parent.links %}
+                {% unless child.title contains '||' %}
+                  <li class="mobile-nav__link-container mt-32">
+                  {% if child.links != empty %}
+                    <s-accordion data-manual-collapse="false" js-accordion>
+                      <div class="accordion-item" js-accordion-item>
+                        <button class="accordion-header w-full uppercase text-10 flex items-center justify-between" aria-expanded="false" aria-controls="mobile-nav-child-{{parent.handle}}-{{child.handle}}" js-accordion-header>{{child.title}}<span class="block w-[12px]">{% render 'icon-arrow-down' %}</span></button>
+                        <div id="mobile-nav-child-{{parent.handle}}-{{child.handle}}" class="accordion-content" aria-hidden="true" js-accordion-content>
+                          <ul class="mobile-nav__links pl-16">
+                            {% for grandchild in child.links %}
+                              <li class="mobile-nav__link-container mt-32">
+                                <a href="{{grandchild.url}}" class="mobile-nav__link uppercase text-10 font-400">{{grandchild.title}}</a>
+                              </li>
+                            {% endfor %}
+                          </ul>
+                        </div>
+                      </div>
+                    </s-accordion>
+                  {% else %}
+                    <a href="{{child.url}}" class="mobile-nav__link uppercase text-10 font-400">{{child.title}}</a>
+                  {% endif %}
+                  </li>
+                {% endunless %}
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      {% else %}
+        <a href="{{parent.url}}" class="mobile-nav__link inline-block uppercase text-10 font-400 mb-32">{{parent.title}}</a>
+      {% endif %}
+    {% endfor %}
+  </s-accordion>
+</s-drawer>

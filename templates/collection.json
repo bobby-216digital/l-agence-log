@@ -1,0 +1,1 @@
+{"sections":{"header":{"type":"collection-header","settings":{}},"nosto_collection_prepend":{"type":"nosto-collection-prepend","settings":{}},"product-grid":{"type":"main-collection-grid","settings":{}},"nosto_collection_append":{"type":"nosto-collection-append","settings":{}}},"order":["header","nosto_collection_prepend","product-grid","nosto_collection_append"]}

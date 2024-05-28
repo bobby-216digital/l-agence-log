@@ -1,0 +1,26 @@
+{%- paginate blog.articles by 49 -%}
+  {% assign first_article = blog.articles.first %}
+  <div class="blog-articles__article mb-20 desktop:mb-40">
+    {%- render 'article-card-lookbook', article: first_article, layout: 'landscape'  -%}
+  </div>
+
+  <div class="blog px-8 desktop:px-56">
+    <ul class="blog-articles grid desktop:grid-cols-3 gap-20 desktop:gap-x-8 desktop:gap-y-20" role="list">
+      {%- for article in blog.articles offset: 1 -%}
+        <li class="blog-articles__article">
+          {%- render 'article-card-lookbook', article: article -%}
+        </li>
+      {%- endfor -%}
+      </ul>
+
+    {%- if paginate.pages > 1 -%}
+      {%- render 'pagination', paginate: paginate -%}
+    {%- endif -%}
+  </div>
+{%- endpaginate -%}
+
+{% schema %}
+{
+  "name": "Blog Posts"
+}
+{% endschema %}

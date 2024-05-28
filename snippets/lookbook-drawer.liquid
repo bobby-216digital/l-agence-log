@@ -1,0 +1,20 @@
+<s-drawer class="lookbook-drawer p-16 mb-16 overflow-y-scroll" id="LookbookDrawer" position="right" open="[js-lookbook-drawer-open]" close="[js-lookbook-drawer-close]">
+    <div class="lookbook-drawer__header flex flex-col">
+        <div class="w-full flex items-center justify-around mb-[10px]">
+            <div class="text-center w-full">
+                <h1 class="lookbook-drawer__title text-center"> {{ settings.lookbook_heading }} </h1>
+            </div>
+            <div class="close-drawer__wrapper flex items-center justify-center h-32 w-32 border">
+                <button type="button" js-lookbook-drawer-close>X</button>
+            </div>
+        </div>
+        <p class="lookbook-drawer__subtext mx-auto mb-16 w-[260px]">
+            {{ settings.lookbook_subheading }}
+        </p>
+    </div>
+    <div class="lookbook-drawer__product-containter h-[80vh]">
+        <div class="lookbook-drawer__product pb-16">
+            {% render 'product-card' %}
+        </div>
+    </div>
+</s-drawer>

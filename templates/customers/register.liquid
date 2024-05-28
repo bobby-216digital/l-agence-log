@@ -1,0 +1,100 @@
+<section class="account self-center justify-self-center w-full max-w-[475px] px-16">
+  <div class="account__container">
+    {%- form 'create_customer', id: 'create', class: 'account-create__form', novalidate: 'novalidate' -%}
+    <h1 class="account__title mb-32 text-center">Create Account</h1>
+    {%- if form.errors -%}
+      <ul class="form__errors mb-12">
+        {% for field in form.errors %}
+          <li>
+            {% if field == 'form' %}
+              {{ form.errors.messages[field] }}
+            {% else %}
+              {{ form.errors.translated_fields[field] }} - {{ form.errors.messages[field] }}
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {%- endif -%}
+
+    <div class="relative mb-24">
+      <label for="RegisterForm-FirstName" class="form__label block mb-4">First Name</label>
+      <input
+        type="text"
+        name="customer[first_name]"
+        id="RegisterForm-FirstName"
+        class="form__element"
+        {% if form.first_name %}value="{{ form.first_name }}"{% endif %}
+        autocomplete="given-name"
+      >
+    </div>
+
+    <div class="relative mb-24">
+      <label for="RegisterForm-LastName" class="form__label block mb-4">Last Name</label>
+      <input
+        type="text"
+        name="customer[last_name]"
+        id="RegisterForm-LastName"
+        class="form__element"
+        {% if form.last_name %}value="{{ form.last_name }}"{% endif %}
+        autocomplete="family-name"
+      >
+    </div>
+
+    <div class="relative mb-24">
+      <label for="RegisterForm-email" class="form__label block mb-4">Email</label>
+      <input
+        type="email"
+        name="customer[email]"
+        id="RegisterForm-email"
+        class="form__element"
+        {% if form.email %} value="{{ form.email }}"{% endif %}
+        spellcheck="false"
+        autocapitalize="off"
+        autocomplete="email"
+        aria-required="true"
+        {% if form.errors contains 'email' %}
+          aria-invalid="true"
+          aria-describedby="RegisterForm-email-error"
+        {% endif %}
+      >
+    </div>
+
+    <div class="relative mb-24">
+      <label for="RegisterForm-phone" class="form__label block mb-4">Phone Number(optional)</label>
+      <input
+        type="email"
+        name="customer[phone]"
+        id="RegisterForm-phone"
+        class="form__element"
+        {% if form.phone %} value="{{ form.phone }}"{% endif %}
+        aria-required="true"
+        {% if form.errors contains 'phone' %}
+          aria-invalid="true"
+          aria-describedby="RegisterForm-phone-error"
+        {% endif %}
+      >
+    </div>
+
+    <div class="relative mb-24">
+      <label for="RegisterForm-password" class="form__label block mb-4">Password</label>
+      <input
+        type="password"
+        name="customer[password]"
+        id="RegisterForm-password"
+        class="form__element"
+        aria-required="true"
+        {% if form.errors contains 'password' %}
+          aria-invalid="true"
+          aria-describedby="RegisterForm-password-error"
+        {% endif %}
+      >
+    </div>
+
+    <p class="mb-16 text-9">View Our <a class="underline" href="/">Notice of Finacial Incentive</a> policy.</p>
+
+    <button class="btn btn--black mb-24 w-full">Create Account</button>
+
+    <a href="/" class="btn w-full">Return To Store</a>
+  {%- endform -%}
+  </div>
+</section>

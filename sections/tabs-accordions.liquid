@@ -1,0 +1,144 @@
+
+<div class="page max-w-[712px] mx-auto px-16">
+  <s-tabs class="block grid desktop:grid-cols-2">
+    <div class="tab__triggers hidden desktop:flex desktop:justify-start desktop:items-start desktop:flex-col" role="tablist" aria-orientation="horizontal" js-tablist>
+      {% for block in section.blocks %}
+        <button id="{{ block.settings.header }}-tab" class="tab__trigger w-full py-9 text-[15px]" aria-controls="{{ block.settings.header }}-content-panel" role="tab" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}" js-tab>{{ block.settings.header }}</button>
+      {% endfor %}
+    </div>
+
+    <div class="tab__accordions">
+      {% for block in section.blocks %}
+        <div id="{{ block.settings.header }}-content-panel" class="tab__panel tab__panel--careers" role="tabpanel" aria-labelledby="tab1-tab" aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}">
+          <div class="faq max-w-[712px] mx-auto px-16 border-b border-gray-light">
+            <h3 class="faq-header text-left font-sangbleu mb-24 block desktop:hidden">
+              {{ block.settings.header }}
+            </h3>
+
+            <s-accordion data-manual-collapse="false" js-accordion>
+              {% comment %} Accordion 1 {% endcomment %}
+              {% if block.settings.title_1 != blank and block.settings.description_1 != blank %}
+                <div class="faq-accordion-item accordion-item border-t border-gray-light" js-accordion-item>
+                  <button class="faq-accordion-header relative w-full text-left font-sangbleu font-300 text-15 py-16" aria-expanded="false" aria-controls="{{block.settings.title_1 | handleize}}" js-accordion-header>
+                    {{ block.settings.title_1 }}
+                    <div class="faq-accordion-header-icon plus absolute top-1/2 right-16 -translate-y-1/2 w-8 opacity-100 transition">
+                      {% render 'icon-plus' %}
+                    </div>
+                    <div class="faq-accordion-header-icon minus absolute top-1/2 right-16 -translate-y-1/2 w-8 opacity-0 transition">
+                      {% render 'icon-close' %}
+                    </div>
+                  </button>
+                  <div id="{{block.settings.title_1 | handleize}}" class="accordion-content" aria-hidden="true" js-accordion-content>
+                    <div class="faq-answer py-20 rte text-12 font-300">
+                      {{ block.settings.description_1 }}
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+
+              {% comment %} Accordion 2 {% endcomment %}
+              {% if block.settings.title_2 != blank and block.settings.description_2 != blank %}
+                <div class="faq-accordion-item accordion-item border-t border-gray-light" js-accordion-item>
+                  <button class="faq-accordion-header relative w-full text-left font-sangbleu font-300 text-15 py-16" aria-expanded="false" aria-controls="{{block.settings.title_2 | handleize}}" js-accordion-header>
+                    {{ block.settings.title_2 }}
+                    <div class="faq-accordion-header-icon plus absolute top-1/2 right-16 -translate-y-1/2 w-8 opacity-100 transition">
+                      {% render 'icon-plus' %}
+                    </div>
+                    <div class="faq-accordion-header-icon minus absolute top-1/2 right-16 -translate-y-1/2 w-8 opacity-0 transition">
+                      {% render 'icon-close' %}
+                    </div>
+                  </button>
+                  <div id="{{block.settings.title_2 | handleize}}" class="accordion-content" aria-hidden="true" js-accordion-content>
+                    <div class="faq-answer py-20 rte text-12 font-300">
+                      {{ block.settings.description_2 }}
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+
+              {% comment %} Accordion 3 {% endcomment %}
+              {% if block.settings.title_3 != blank and block.settings.description_3 != blank %}
+                <div class="faq-accordion-item accordion-item border-t border-gray-light" js-accordion-item>
+                  <button class="faq-accordion-header relative w-full text-left font-sangbleu font-300 text-15 py-16" aria-expanded="false" aria-controls="{{block.settings.title_3 | handleize}}" js-accordion-header>
+                    {{ block.settings.title_3 }}
+                    <div class="faq-accordion-header-icon plus absolute top-1/2 right-16 -translate-y-1/2 w-8 opacity-100 transition">
+                      {% render 'icon-plus' %}
+                    </div>
+                    <div class="faq-accordion-header-icon minus absolute top-1/2 right-16 -translate-y-1/2 w-8 opacity-0 transition">
+                      {% render 'icon-close' %}
+                    </div>
+                  </button>
+                  <div id="{{block.settings.title_3 | handleize}}" class="accordion-content" aria-hidden="true" js-accordion-content>
+                    <div class="faq-answer py-20 rte text-12 font-300">
+                      {{ block.settings.description_3 }}
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+            </s-accordion>
+          </div>        
+        </div>
+      {% endfor %}
+    </div>
+  </s-tabs>
+
+
+</div>
+
+  {% schema %}
+    {
+      "name": "Tabs + Accordions",
+      "tag": "section",
+      "settings": [
+      ],
+      "blocks": [
+        {
+          "type": "question",
+          "name": "Question",
+          "settings": [
+            {
+              "type": "text",
+              "id": "header",
+              "label": "Header",
+              "default": "Frequently Asked Questions"
+            },
+            {
+              "type": "text",
+              "id": "title_1",
+              "label": "Title 1"
+            },
+            {
+              "type": "richtext",
+              "id": "description_1",
+              "label": "Description 1"
+            },
+            {
+              "type": "text",
+              "id": "title_2",
+              "label": "Title 2"
+            },
+            {
+              "type": "richtext",
+              "id": "description_2",
+              "label": "Description 2"
+            },
+            {
+              "type": "text",
+              "id": "title_3",
+              "label": "Title 3"
+            },
+            {
+              "type": "richtext",
+              "id": "description_3",
+              "label": "Description 3"
+            }
+          ]
+        }
+      ],
+      "presets": [
+        {
+          "name": "Tabs + Accordions"
+        }
+      ]
+    }
+  {% endschema %}

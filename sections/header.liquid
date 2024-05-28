@@ -1,0 +1,263 @@
+{% if settings.header_nav_international != blank %}
+	{% if localization.country.iso_code != "US" %}
+		{% assign header_menu = settings.header_nav_international %}
+	{% else %}
+		{% assign header_menu = settings.header_nav %}
+	{% endif %}
+{% else %}
+	{% assign header_menu = settings.header_nav %}
+{% endif %}
+
+{% liquid 
+  assign topLogoBlackDisplay = 'hidden'
+  assign topLogoWhiteDisplay = 'hidden'
+  assign textColor = 'text-white'
+
+  if section.settings.enable_sticky_background == false and template != 'index'
+    assign topLogoBlackDisplay = 'block'
+    assign topLogoWhiteDisplay = 'hidden'
+    assign textColor = 'text-black'
+  elsif section.settings.enable_sticky_background == false and template == 'index'
+    assign topLogoBlackDisplay = 'hidden'
+    assign topLogoWhiteDisplay = 'block'
+    assign textColor = 'text-white'
+  elsif section.settings.enable_sticky_background
+    assign topLogoBlackDisplay = 'block'
+    assign textColor = 'text-black'
+    assign topLogoWhiteDisplay = 'hidden'
+  endif
+%}
+
+<div id="nonUsAnnoucementWrapper"></div>
+
+{% if section.blocks != blank %}
+  <s-carousel id="announcementsBar" data-options='{ "autoPlay": {{ section.settings.announcement_autoplay }} }' class="block bg-gray-light">
+    <div js-carousel class="site-header__announcements-carousel empty:hidden">
+      {% for block in section.blocks %}
+        {% if block.settings.locale == 'all' and block.type == 'announcement' %}
+        {% assign header_has_announcement = true %}
+        <div js-carousel-slide class="site-header__announcement w-full bg-gray-light p-8 text-10 text-center font-akzidenz text-gray-dark font-300">
+          {{block.settings.announcement}}
+        </div>
+        {% endif %}
+        {% if block.settings.locale == 'us' and localization.country.iso_code == 'US' and block.type == 'announcement' %}
+        {% assign header_has_announcement = true %}
+          <div js-carousel-slide class="site-header__announcement w-full bg-gray-light p-8 text-10 text-center font-akzidenz text-gray-dark font-300">
+            {{block.settings.announcement}}
+          </div>
+        {% endif %}
+        {% if block.settings.locale == 'international' and localization.country.iso_code != 'US' and block.type == 'announcement' %}
+        {% assign header_has_announcement = true %}
+          <div js-carousel-slide class="site-header__announcement w-full bg-gray-light p-8 text-10 text-center font-akzidenz text-gray-dark font-300">
+            {{block.settings.announcement}}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </s-carousel>
+{% endif %}
+
+<s-header {% if section.settings.enable_sticky_background %} data-enable-sticky-bg="true" {% endif %}>
+<header class="site-header transition-all duration-150 absolute left-0 {{ textColor }} {% if section.blocks != blank %}top-[31px]{% else %} top-0{% endif %}
+{% if section.settings.enable_sticky_background %} bg-white {% else %} bg-transparent {% endif %}
+  w-full grid grid-cols-3 desktop:grid-rows-2 gap-x-16 px-16 desktop:grid-cols-[1fr,10fr,1fr]" js-header>
+  <div class="header-top hidden desktop:grid col-span-3 grid-cols-3 font-400" js-header-top>
+    <div class="header-top__links-left flex gap-16 items-center">
+        <a href="/apps/store-locator" class="header-link" title="Boutiques" aria-label="Boutiques">Boutiques</a>
+        <a href="https://lagence.attn.tv/p/zFg/landing-page" class="header-link" title="Newsletter" aria-label="Newsletter">Newsletter</a>
+        <a href="/pages/contact" class="header-link font-sangbleu" title="Contact" aria-label="Contact">Contact</a>
+    </div>
+    <h1 class="header-top__links-logo w-[110px] py-12 mx-auto self-center justify-self-center desktop:justify-self-start">
+      <a href="{{routes.root_url}}" class="top-logo-black {{ topLogoBlackDisplay }} "><img src="{{ 'site-logo.png' | asset_img_url: 'master' }}" alt="L'Agence" class="w-full" width="" height=""></a>
+      <a href="{{routes.root_url}}" class="top-logo-white {{ topLogoWhiteDisplay }}"><img src="{{ 'site-logo-white.png' | asset_img_url: 'master' }}" alt="L'Agence" class="w-full" width="" height=""></a>
+
+    </h1>
+    <div class="header-top__links-right flex items-center justify-end gap-16">
+      <button class="text-10 uppercase font-akzidenz cursor-pointer" js-open-country-modal>
+        <span class="country-label">{{ localization.country.iso_code }}</span>&nbsp;|&nbsp;<span class="currency">{{ localization.country.currency.symbol }}</span>
+      </button>
+      <a href="{{routes.account_url}}" class="hidden desktop:block text-10 uppercase font-sangbleu">Account</a>
+      <button class="w-[20px]" aria-label="Search" title="Search" js-search-drawer-open>{% render 'icon-search' %}</button>
+      <button class="w-[20px] relative" aria-label="Shopping Bag" title="Shopping Bag" js-cart-drawer-open>
+        {% render 'icon-bag' %}
+        <div class="text-9 w-20 text-center absolute bottom-0" js-cart-counter>{{ cart.item_count }}</div>
+      </button>
+    </div>
+  </div>
+  <button class="site-header__menu w-[20px] self-center justify-self-start desktop:hidden row-start-2 col-start-1" aria-label="Menu" title="Menu" js-open-mobile-nav>{% render 'icon-menu' %}</button>
+  <h1 class="site-header__logo z-[2] w-[110px] self-center justify-self-center py-12 desktop:justify-self-start row-start-2 desktop:col-start-1 desktop:hidden">
+    <a href="{{routes.root_url}}" class="logo-black {{ topLogoBlackDisplay }}"><img src="{{ 'site-logo.png' | asset_img_url: 'master' }}" alt="Serenede" class="w-full" width="" height=""></a>
+    <a href="{{routes.root_url}}" class="logo-white {{ topLogoWhiteDisplay }}"><img src="{{ 'site-logo-white.png' | asset_img_url: 'master' }}" alt="Serenede" class="w-full" width="" height=""></a>
+
+  </h1>
+    <ul class="site-header__nav hidden {% if section.settings.enable_sticky_background %} text-black {% endif %} items-center justify-center w-full row-start-2 col-start-1 col-span-3 pt-12 desktop:flex">
+    {% for link in linklists[header_menu].links %}
+      <li class="site-header__container flex items-center justify-center text-center px-[20px] pb-[20px] font-400">
+        <a href="{{link.url}}" class="site-header__link font-akzidenz uppercase text-10">{{link.title}}</a>
+        {% if link.links != empty %}
+          <div class="site-header__mega absolute bottom-0 left-0 w-full z-[-1] py-40 px-16 bg-white hidden">
+            <div class="site-header__links-container flex items-start justify-center gap-40">
+              {% for child in link.links %}
+                {% if child.title contains '||' %}
+                  {% assign image_handle = child.title | split: '||' | first | strip %}
+                  {% assign image = images[image_handle] %}
+                  <a href="{{child.url}}" class="site-mega__image-link block">
+                    {% render 'lazy-image', image: image, picture_classes: 'max-w-375 site-mega__image-picture' %}
+                    <div class="font-akzidenz text-10 uppercase mt-16">{{ child.title | split: '||' | last | strip }}</div>
+                  </a>
+                {% else %}
+                  <ul class="site-mega__links flex flex-col items-start gap-4 desktop:w-[180px]">
+                    <li class="site-mega__link-container text-left">
+                      <a href="{{child.url}}" class="site-mega__link font-600 font-akzidenz text-10 uppercase pb-4">{{child.title}}</a>
+                    </li>
+                    {% for grandchild in child.links %}
+                      <li class="site-mega__link-container text-left">
+                        <a href="{{grandchild.url}}" class="site-mega__link font-300 font-sangbleu text-12">{{grandchild.title}}</a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+  <div class="site-header__right flex items-center justify-end gap-16 row-start-2 col-start-3 desktop:hidden">
+      <button class="text-10 uppercase font-akzidenz cursor-pointer hidden desktop:block" js-open-country-modal>
+        <span class="country-label">{{ localization.country.iso_code }}</span>&nbsp;|&nbsp;<span class="currency">{{ localization.country.currency.symbol }}</span>
+      </button>
+    <a href="{{routes.account_url}}" class="hidden desktop:block text-10 uppercase font-sangbleu leading-[1em]">Account</a>
+    <button class="w-[20px]" aria-label="Search" title="Search" js-search-drawer-open>{% render 'icon-search' %}</button>
+    <button class="w-[20px] relative" aria-label="Shopping Bag" title="Shopping Bag" js-cart-drawer-open>
+      {% render 'icon-bag' %}
+      <div class="text-9 w-20 text-center absolute bottom-0" js-cart-counter>{{ cart.item_count }}</div>
+    </button>
+
+  </div>
+  {% if section.blocks != blank and template.name == 'index' %}
+    <div class="header__collection-carousel -mx-16 row-start-3 col-span-3 desktop:hidden">
+      <s-carousel id="collectionBar" data-options='{ "wrapAround": false }' class="block">
+        <div class="empty:hidden" js-carousel>
+          {% for block in section.blocks %}
+            {% if block.type == 'collection' %}
+              {% assign header_has_carousel = true %}
+              {% assign title = block.settings.title | default: block.settings.collection.title %}
+              {% assign image = block.settings.image | default: block.settings.collection.image %}
+              <a href="{{ block.settings.collection.url }}" class="block collection-bar__item pr-24 text-center first:pl-16 last:pr-16 box-content" js-carousel-slide>
+                <div class="header-collection-carousel__image-container">
+                  {% render 'lazy-image' image: image %}
+                </div>
+                <span class="header-collection-carousel__text block">{{ title }}</span>
+              </a>
+            {% endif %}
+          {% endfor %}
+      </s-carousel>
+    </div>
+  {% endif %}
+</header>
+</s-header>
+{% comment %}
+  Used to assess proper offsets and heights for elements throughout the site.
+  Set media query if height changes at higher widths.
+{% endcomment %}
+{% if section.blocks != blank %}
+  <style>
+    :root{
+      --header-height: 77px;
+    }
+  </style>
+{% else %}
+  <style>
+    :root{
+      --header-height: 46px;
+    }
+  </style>
+{% endif %}
+
+{% if localization.country.iso_code != "US" %}
+  <style>
+    @media (min-width: 768px) {
+    }
+  </style>
+{% endif %}
+
+{% schema %}
+  {
+    "name": "Header",
+    "class": "top-0 bg-white w-full",
+    "settings": [
+      {
+        "type": "range",
+        "id": "announcement_autoplay",
+        "min": 500,
+        "max": 9000,
+        "step": 500,
+        "unit": "ms",
+        "label": "Announcement auto-play (milliseconds)",
+        "default": 3000
+      },
+      {
+        "type": "checkbox",
+        "id": "enable_sticky_background",
+        "label": "Enable Sticky Background"
+      }
+    ],
+    "blocks": [
+      {
+        "name": "Announcement",
+        "type": "announcement",
+        "settings": [
+          {
+            "type": "html",
+            "id": "announcement",
+            "label": "Announcement"
+          },
+          {
+            "type": "select",
+            "id": "locale",
+            "label": "Locale",
+            "options": [
+              {
+                "value": "international",
+                "label": "International"
+              },
+              {
+                "value": "us",
+                "label": "US Only"
+              },
+              {
+                "value": "all",
+                "label": "All Countries"
+              }
+            ],
+            "default": "us"
+          }
+        ]
+      },
+      {
+        "name": "Collection Carousel Item",
+        "type": "collection",
+        "settings": [
+          {
+            "type": "collection",
+            "id": "collection",
+            "label": "Collection"
+          },
+          {
+            "type": "image_picker",
+            "id": "image",
+            "label": "Image"
+          },
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Title",
+            "info": "If left blank, the collection setting's title will be used by default"
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

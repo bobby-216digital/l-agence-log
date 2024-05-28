@@ -1,0 +1,42 @@
+<div class="seed-rich-text max-w-screen-extrawide mx-auto px-16 desktop:px-56 landscape:flex flex-col items-center justify-center pt-32 pb-24">
+  {% if section.settings.title != blank %}
+    <h3 class="text-25 font-300 pb-16 font-sangbleu text-center">{{ section.settings.title }}</h3>
+  {% endif %}
+
+  {% if section.settings.show_boder_line %}
+    <div class="border-line mb-8"></div>
+  {% endif %}
+
+  {% if section.settings.content != blank %}
+    <div class="content">{{ section.settings.content }}</div>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Seed Text Section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_boder_line",
+      "label": "Show Border Link",
+      "default": true
+    },
+    {
+      "type": "richtext",
+      "id": "content",
+      "label": "Content"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Seed Text Section"
+    }
+  ]
+}
+{% endschema %}

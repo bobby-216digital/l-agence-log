@@ -1,0 +1,127 @@
+{%- liquid 
+  assign image_mobile = section.settings.image_mobile
+  assign image_desktop = section.settings.image_desktop
+-%}
+
+<div
+  class="image-text
+    image-text-divider
+    max-w-screen-laptop mx-auto
+    flex flex-col justify-center items-center 
+    desktop:flex-row
+    {{ section.settings.max_width }}
+    {% if section.settings.padding_top %}pt-40{% endif %}
+    {% if section.settings.padding_bottom %}pb-40{% endif %}
+  "
+  style="--background-color: {{ section.settings.background_color }}"
+>
+  <div class="image-text__image image-text__image--stretch w-full {% if section.settings.layout == 'image-right' %} desktop:order-1 {% endif %}">
+    {% render 'lazy-image', image: image_mobile, image_desktop: image_desktop %}
+  </div>
+
+  <div class="image-text__content w-full py-32 {% if section.settings.layout == 'image-right' %} desktop:pr-24 {% else %} desktop:pl-24 {% endif %}">
+    {% for block in section.blocks %}
+      <div class="image-text__block">
+        {% if block.settings.title %}
+          <h2 class="h2 relative mb-16 text-20 uppercase text-center">{{ block.settings.title }}</h2>
+        {% endif %}
+
+        {% if block.settings.text %}
+          <p class="text-16 px-44 py-20 text-center">{{ block.settings.text | newline_to_br }}</p>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% schema %}
+  {
+    "name": "Image-Text-Divider",
+    "tag": "section",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "padding_top",
+        "label": "Padding Top",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "padding_bottom",
+        "label": "Padding Bottom",
+        "default": true
+      },
+      {
+        "type": "select",
+        "id": "max_width",
+        "label": "Max Width",
+        "options": [
+          {
+            "value": "w-full",
+            "label": "Full"
+          },
+          {
+            "value": "max-w-[992px] mx-auto",
+            "label": "Wide"
+          }
+        ],
+        "default": "w-full"
+      },
+      {
+        "type": "select",
+        "id": "layout",
+        "label": "Layout",
+        "options": [
+          {
+            "value": "image-left",
+            "label": "Image Left"
+          },
+          {
+            "value": "image-right",
+            "label": "Image Right"
+          }
+        ],
+        "default": "image-left"
+      },
+      {
+        "type": "color",
+        "id": "background_color",
+        "label": "Background Color",
+        "default": "#efeef0"
+      },
+      {
+        "type": "image_picker",
+        "id": "image_mobile",
+        "label": "Image (Mobile)"
+      },
+      {
+        "type": "image_picker",
+        "id": "image_desktop",
+        "label": "Image (Desktop)"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "text",
+        "name": "Text",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Title"
+          },
+          {
+            "type": "text",
+            "id": "text",
+            "label": "Text"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Image-Text-Divider"
+      }
+    ]
+  }
+{% endschema %}

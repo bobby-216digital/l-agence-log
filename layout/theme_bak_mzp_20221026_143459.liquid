@@ -1,0 +1,189 @@
+<!doctype html>
+<html class="no-js" lang="{{ request.locale.iso_code }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="">
+    {% include 'dataLayer-allPages' %}
+    {% if product == blank and collection and collection.metafields.nosto != blank %}
+      <link rel="canonical" href="{{shop.url}}/collections/{{collection.metafields.nosto.sourceHandle}}">
+    {% else %}
+      <link rel="canonical" href="{{ canonical_url }}">
+    {% endif %}
+    <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
+
+    {% if settings.favicon != blank %}
+      <link rel="shortcut icon" href="{{ settings.favicon | img_url: '32x32' }}" type="image/png">
+    {% endif %}
+
+    <title>
+      {{ page_title }}
+      {%- if current_tags %} &ndash; tagged "{{ current_tags | join: ', ' }}"{% endif -%}
+      {%- if current_page != 1 %} &ndash; Page {{ current_page }}{% endif -%}
+      {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
+    </title>
+
+    {% if page_description %}
+      <meta name="description" content="{{ page_description | escape }}">
+    {% endif %}
+
+    {% render 'meta-tags' %}
+
+    {%- comment -%} Redirect Cart Page {%- endcomment -%}
+    {% if template.name == 'cart' %}
+      <script> location.href = '{{ routes.root_url }}?viewcart=true' </script>
+    {% endif %}
+
+    {%- comment -%} Redirect Account Addresses Page {%- endcomment -%}
+    {% if template.name == 'addresses' %}
+      <script> location.href = '{{ routes.account_url }}' </script>
+    {% endif %}
+
+
+    {{ content_for_header }}
+
+    {{ 'vendor.css' | asset_url | stylesheet_tag }}
+    {{ 'theme.css' | asset_url | stylesheet_tag }}
+
+    <script>document.documentElement.className = document.documentElement.className.replace('no-js', 'js');</script>
+
+      <!-- Lucky Orange -->  
+      <script type='text/javascript'>
+        window.__lo_site_id = 196196;
+        
+          (function() {
+            var wa = document.createElement('script'); wa.type = 'text/javascript'; wa.async = true;
+            wa.src = 'https://d10lpsik1i8c69.cloudfront.net/w.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(wa, s);
+            })();
+        </script>
+        <!-- end Lucky Orange -->
+      <meta name="ahrefs-site-verification" content="967d62ff51619e60a34ead30d7049194ca0c19204bf6bfd8ff079eb921dcc1bd">
+      <meta name="facebook-domain-verification" content="740ogt4c2srcxg6h5zkmpajcdrazb4" /> 
+      {% render 'analyzify-product-datalayer.liquid' %}
+      {% include "globale-js.liquid" %}
+
+      <script type="text/javascript">
+        (function e(){var e=document.createElement("script");e.type="text/javascript",e.async=true,e.src="//staticw2.yotpo.com/0YPzwRoZULz4W2P3OUVvpTHuvSEJKzZeFxbBxvkc/widget.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})();
+        </script>
+  </head>
+
+  <body class="main--{{template}}" {% if template.name == 'login' %}id="recover"{% endif %}>
+    <a class="skip-to-content-link button visually-hidden" href="#MainContent">
+      {{ "accessibility.skip_to_text" | t }}
+    </a>
+    {% section 'header' %}
+
+    {% render 'mobile-nav-drawer' %}
+    {% render 'cart-drawer' %}
+    {% render 'search-drawer' %}
+    
+
+      <s-modal id="WaitlistModal" class="waitlist-modal w-[90vw] desktop:w-[50vw]" open="[js-open-waitlist-modal]" close="[js-close-waitlist-modal]">
+        <button class="w-24 absolute top-4 right-8 z-[2] p-4 border border-black-true" js-close-waitlist-modal>
+          {% render 'icon-close' %}
+        </button>
+        <div class="waitlist-content flex flex-col justify-center items-center my-[100px]">
+          <h1 class="waitlist-product-title" js-waitlist-title-container></h1>
+          <h2 class="waitlist-product-color" js-waitlist-color-container></h2>
+          <h3 class="text-center mt-16">COMING SOON</h3>
+          <h4 class="text-center mt-16">JOIN THE WAITLIST</h4>
+          <div class="klayvio-form-waitlist mt-24 desktop:w-1/2">
+            <div class="klaviyo-form-XE2YX9"></div>
+          </div>        
+        </div>
+      </s-modal>
+
+    <main id="MainContent" class="main drawer-background modal-background grid min-h-header tabletl:min-h-header-footer {% if template != 'index' %}pt-48 desktop:pt-94{% endif %}" role="main">
+      {{ content_for_layout }}
+    </main>
+
+    {% section 'footer' %}
+
+    <ul hidden>
+      <li id="a11y-refresh-page-message">{{ 'accessibility.refresh_page' | t }}</li>
+    </ul>
+
+    <script>
+      window.routes = {
+        cart_add_url: '{{ routes.cart_add_url }}',
+        cart_change_url: '{{ routes.cart_change_url }}',
+        cart_update_url: '{{ routes.cart_update_url }}',
+        predictive_search_url: '{{ routes.predictive_search_url }}'
+      };
+      window.currency = {
+        isoCode: '{{ cart.currency.iso_code }}',
+        name: '{{ cart.currency.name }}',
+        symbol: '{{ cart.currency.symbol }}',
+      }
+    </script>
+
+    <script src="{{ 'vendor.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>
+    <script src="https://a.klaviyo.com/media/js/onsite/onsite.js"></script>
+    <script>
+        var klaviyo = klaviyo || [];
+        klaviyo.init({
+          account: "MUVAwS",
+          platform: "shopify"
+        });
+        klaviyo.enable("backinstock",{
+        trigger: {
+          product_page_text: "Notify Me When Available",
+          product_page_class: "btn",
+          product_page_text_align: "center",
+          product_page_margin: "0px",
+          replace_anchor: false
+        },
+        modal: {
+         headline: "{product_name}",
+         body_content: "Register to receive a notification when this item comes back in stock.",
+         email_field_label: "Email",
+         button_label: "Notify me when available",
+         subscription_success_label: "You're in! We'll let you know when it's back.",
+         footer_content: '',
+         additional_styles: "@import url('https://cdn.shopify.com/s/files/1/0054/3952/0871/t/300/assets/theme.css?v={{'now'}}');",
+         drop_background_color: "#000",
+         background_color: "#fff",
+         text_color: "#222",
+         button_text_color: "#fff",
+         button_background_color: "#222",
+         close_button_color: "#ccc",
+         error_background_color: "#fcd6d7",
+         error_text_color: "#C72E2F",
+         success_background_color: "#d3efcd",
+         success_text_color: "#1B9500"
+        }
+      });
+    </script>
+    {% render 'nosto-tagging' %}
+  
+    {% render 'app_wishlist-king' %}
+    <script src="https://cdn.attn.tv/lagence/dtag.js"></script>
+    <script>(function(){ var s = document.createElement('script'), e = ! document.body ? document.querySelector('head') : document.body; s.src = 'https://acsbapp.com/apps/app/dist/js/app.js'; s.async = true; s.onload = function(){ acsbJS.init({ statementLink : '', footerHtml : '', hideMobile : false, hideTrigger : true, language : 'en', position : 'left', leadColor : '#000000', triggerColor : '#000000', triggerRadius : '50%', triggerPositionX : 'right', triggerPositionY : 'bottom', triggerIcon : 'people', triggerSize : 'medium', triggerOffsetX : 20, triggerOffsetY : 20, mobile : { triggerSize : 'small', triggerPositionX : 'right', triggerPositionY : 'bottom', triggerOffsetX : 10, triggerOffsetY : 10, triggerRadius : '50%' } }); }; e.appendChild(s);}());</script>
+    {% render 'gorgias-chat' %}
+    {% comment %} TEMP KLAVIYO TRIGGERS {% endcomment %}
+    <script type="text/javascript">
+      document.querySelector('.klaviyo_form_trigger').addEventListener('click', function (){
+          window._klOnsite = window._klOnsite || [];
+          window._klOnsite.push(['openForm', 'QP62jW']);
+      });
+    </script>
+    <script type="text/javascript">
+      document.querySelector('.klaviyo_form_trigger-mobile').addEventListener('click', function (){
+          window._klOnsite = window._klOnsite || [];
+          window._klOnsite.push(['openForm', 'Tr5GcD']);
+      });
+    </script>
+    <style>
+  .klaviyo_form_trigger{display: none;}
+  .klaviyo_form_trigger-mobile {display: inline;}
+  @media (min-width: 64.0625rem) {
+    .klaviyo_form_trigger{display: inline;}
+  .klaviyo_form_trigger-mobile {display: none;}
+  }
+  </style>
+  
+  </body>
+</html>

@@ -1,0 +1,32 @@
+{% comment %}
+ * snippet: article-card-lookbook.liquid
+ * ----------------------------
+ * Renders an article card.
+ * @param {Object} article
+ * @usage: {% render 'article-card-lookbook' article: article %}
+{% endcomment %}
+
+<article class="article-card-lookbook">
+  <a href="{{ article.url }}" class="article-content motion-reduce flex flex-col justify-center items-center">
+    {% if article.image != blank %}
+      <div class="article-card__image mb-12 w-full">
+        {% if layout == 'landscape' and article.metafields.image.landscape != blank %}
+          {% render 'lazy-image', image: article.image, image_desktop: article.metafields.image.landscape %}
+        {% else %}
+          {% if layout == 'landscape' %}
+            <div class="hidden desktop:block h-[650px] w-full bg-cover" style="background-image: url({{ article.image | img_url: 'master' }});">
+            </div>
+
+            <div class="desktop:hidden">
+              {% render 'lazy-image' image: article.image %}
+            </div>
+          {% else %}
+            {% render 'lazy-image' image: article.image %}
+          {% endif %}
+        {% endif %}
+      </div>
+
+      <h3 class="font-akzidenz text-9 text-gray-dark py-4 border-b uppercase">{{ article.title }}</h3>
+    {% endif %}
+  </a>
+</article>

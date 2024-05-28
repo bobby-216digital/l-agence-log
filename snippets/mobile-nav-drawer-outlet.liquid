@@ -1,0 +1,56 @@
+{% if settings.outlet_mobile_nav_international != blank %}
+	{% if localization.country.iso_code != "US" %}
+		{% assign outlet_mobile_menu = settings.outlet_mobile_nav_international %}
+	{% else %}
+		{% assign outlet_mobile_menu = settings.outlet_mobile_nav%}
+	{% endif %}
+{% else %}
+	{% assign outlet_mobile_menu = settings.outlet_mobile_nav%}
+{% endif %}
+
+
+<s-drawer id="MobileNavDrawer" position='left' open="[js-open-mobile-nav]" close="[js-close-mobile-nav]">
+    <header class="mobile-nav__header flex items-center justify-between px-16 pt-32 pb-32">
+      <a href="{{routes.root_url}}" class="block w-[110px]"><img src="{{ 'site-logo.png' | asset_img_url: 'master' }}" alt="Serenede" class="w-full" width="" height=""></a>
+      <button class="block w-[15px]" js-close-mobile-nav>{% render 'icon-close' %}</button>
+    </header>
+    <s-accordion class="mobile-nav__accordion font-akzidenz" data-manual-collapse="false" js-accordion>
+      {% for parent in linklists[outlet_mobile_menu].links %}
+        {% if parent.links != empty %}
+          <div class="accordion-item mb-32" js-accordion-item>
+            <button class="accordion-header w-full uppercase text-10 flex items-center justify-between" aria-expanded="false" aria-controls="mobile-nav-parent-{{parent.handle}}" js-accordion-header>{{parent.title}}<span class="block w-[12px]">{% render 'icon-arrow-down' %}</span></button>
+            <div id="mobile-nav-parent-{{parent.handle}}" class="accordion-content" aria-hidden="true" js-accordion-content>
+              <ul class="mobile-nav__links pl-16">
+                {% for child in parent.links %}
+                  {% unless child.title contains '||' %}
+                    <li class="mobile-nav__link-container mt-32">
+                    {% if child.links != empty %}
+                      <s-accordion data-manual-collapse="false" js-accordion>
+                        <div class="accordion-item" js-accordion-item>
+                          <button class="accordion-header w-full uppercase text-10 flex items-center justify-between" aria-expanded="false" aria-controls="mobile-nav-child-{{parent.handle}}-{{child.handle}}" js-accordion-header>{{child.title}}<span class="block w-[12px]">{% render 'icon-arrow-down' %}</span></button>
+                          <div id="mobile-nav-child-{{parent.handle}}-{{child.handle}}" class="accordion-content" aria-hidden="true" js-accordion-content>
+                            <ul class="mobile-nav__links pl-16">
+                              {% for grandchild in child.links %}
+                                <li class="mobile-nav__link-container mt-32">
+                                  <a href="{{grandchild.url}}" class="mobile-nav__link uppercase text-10 font-400">{{grandchild.title}}</a>
+                                </li>
+                              {% endfor %}
+                            </ul>
+                          </div>
+                        </div>
+                      </s-accordion>
+                    {% else %}
+                      <a href="{{child.url}}" class="mobile-nav__link uppercase text-10 font-400">{{child.title}}</a>
+                    {% endif %}
+                    </li>
+                  {% endunless %}
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        {% else %}
+          <a href="{{parent.url}}" class="mobile-nav__link block uppercase text-10 font-400 mb-32">{{parent.title}}</a>
+        {% endif %}
+      {% endfor %}
+    </s-accordion>
+  </s-drawer>

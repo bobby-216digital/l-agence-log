@@ -1,0 +1,11 @@
+<s-drawer id="FilterSortDrawer" class="filter-sort-drawer overflow-scroll p-16 desktop:p-0 row-span-3" data-focus="false" body-open-class="filter-drawer-open" open-class="open" position='left' open="[js-open-filter-sort]" close="[js-close-filter-sort]">
+  <div class="close-button relative desktop:hidden mb-16">
+    <button class="inline-block absolute w-16 top-0 right-0" js-close-filter-sort>{% render 'icon-close' %}</button>
+  </div>
+  {% if template.name == 'search' %}
+    {% assign resultsTemplate = search %}
+  {% else %}
+    {% assign resultsTemplate = collection %}
+  {% endif %}
+  {% render 'filter-sort', results: resultsTemplate %}
+</s-drawer>

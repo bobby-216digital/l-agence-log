@@ -1,0 +1,36 @@
+<div class="page max-w-full desktop:max-w-[var(--page-width)] mx-auto px-16" style="--page-width: {{ section.settings.page_width }}%;">
+  <h1 class="page__title py-40 desktop:pt-80 text-center">
+    {{ page.title | escape }}
+  </h1>
+
+  <s-rte-tables>
+    <div class="rte text-[18px] leading-normal" js-content>
+      {{ page.content }}
+    </div>
+  </s-rte-tables>
+</div>
+
+{% schema %}
+{
+"name": "Page",
+"tag": "section",
+"settings": [
+  {
+    "type": "checkbox",
+    "id": "show_title",
+    "label": "Show Title",
+    "default": false
+  },
+  {
+    "type": "range",
+    "id": "page_width",
+    "min": 40,
+    "max": 100,
+    "step": 1,
+    "unit": "%",
+    "label": "Page Width",
+    "default": 100
+  }
+]  
+}
+{% endschema %}

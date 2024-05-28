@@ -1,0 +1,91 @@
+<div class="fifty-section flex flex-col items-center desktop:px-20 py-32 desktop:px-60 desktop:justify-between gap-32">
+  <div class="flex flex-col desktop:flex-row {{ section.settings.img_position_mobile }} {{ section.settings.img_position }} justify-between gap-32">
+    <div class="fifty-section--image w-full desktop:w-1/2">
+      {% render 'lazy-image'
+        image: section.settings.mobile_image,
+        image_desktop: section.settings.image
+      %}
+    </div>
+
+    <div class="fifty-section--content flex flex-col justify-center w-full desktop:w-1/2 px-20 desktop:p-60 font-sangbleu">
+      {% if section.settings.title != blank %}
+        {{ section.settings.title }}
+      {% endif %}
+
+      {% if section.settings.description != blank %}
+        <div class="text-13 font-300 font-sangbleu mt-40">
+          {{ section.settings.description | replace: '<p', '<p class="pb-8 text-13 font-300 font-sangbleu"' }}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Fifty Fifty Section",
+  "settings": [
+    {
+      "type": "select",
+      "id": "img_position_mobile",
+      "label": "Image Position (mobile)",
+      "default": "flex-col",
+      "options": [
+        {
+          "value": "flex-col",
+          "label": "Image Top"
+        },
+        {
+          "value": "flex-col-reverse",
+          "label": "Image Bottom"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "img_position",
+      "label": "Image Position",
+      "default": "desktop:flex-row",
+      "options": [
+        {
+          "value": "desktop:flex-row",
+          "label": "Image Left"
+        },
+        {
+          "value": "desktop:flex-row-reverse",
+          "label": "Image Right"
+        }
+      ]
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "Mobile Image"
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "textarea",
+      "id": "title",
+      "label": "Title"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Fifty Fifty Section"
+    }
+  ]
+}
+{% endschema %}

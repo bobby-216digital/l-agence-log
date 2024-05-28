@@ -1,0 +1,166 @@
+<footer class="footer">
+  <div class="footer-top landscape:flex px-20 py-32 landscape:px-60 landscape:justify-between grid gap-32">
+    <div class="footer-top__left w-full">
+      <div class="footer-top__newsletter max-w-[372px]">
+        <h2 class="h2 mb-12 landscape:mb-20">{{ section.settings.newsletter_title }}</h2>
+
+        {{ section.settings.klaviyo_form }}
+      </div>
+
+      {% if section.settings.sms_signup_url %}
+        <a href="{{ section.settings.sms_signup_url }}" class="mt-16 landscape:mt-44 uppercase h3 underline text-gray-dark block">
+          Sign up for texts
+        </a>
+      {% endif %}
+    </div>
+
+    <div class="footer-top__right landscape:text-right">
+      {% if section.settings.store_locator_url %}
+        <h2 class="h2">Store Locator</h2>
+
+        <a href="{{ section.settings.store_locator_url }}" class="mt-16 landscape:mt-20 uppercase h3 text-gray-dark block whitespace-nowrap">
+          FIND L’AGENCE NEAR YOU
+        </a>
+      {% endif %}
+      <a></a>
+    </div>
+  </div>
+
+  <div class="footer-bottom py-40 px-16 landscape:py-48 bg-gray-light">
+    {% assign block_size = section.blocks.size %}
+    {% assign menus = linklists[section.settings.footer_linklist].links %}
+
+    <div class="flex flex-wrap footer-bottom__links mb-32 landscape:mb-72 max-w-screen-laptop mx-auto gap-y-32">
+      {% assign width = 100 | divided_by: section.settings.desktop_per_item %}
+      {% assign mobile_width = 100 | divided_by: section.settings.mobile_per_item %}
+
+      {% for menu in menus %}
+      <ul
+        class="footer__menu px-16"
+        style="
+          --width: {{ width }}%;
+          --mobile-width: {{ mobile_width }}%;
+        "
+      >
+          {% if menu.links.size > 0 %}
+            {% for child_item in menu.links %}
+              <li class="h4 mb-24 landscape:mb-12 uppercase">
+                {%- if child_item.title  == "Accessibility" -%}
+                  <a href="#">
+                    <span data-acsb-custom-trigger="true">Accessibility </span>
+                  </a>
+                {%- else -%}
+                  {% if child_item.title contains 'Do Not Sell' %}
+                    <!-- OneTrust Cookies Settings button start -->
+                    <button id="ot-sdk-btn" class="ot-sdk-show-settings">Cookie Settings</button>
+                    <!-- OneTrust Cookies Settings button end -->
+                  {%  elsif child_item.url == '/chat' %}
+                    <live-chat-link data-link-label="{{ child_item.title | upcase }}"></live-chat-link>
+                  {% else %}
+                    <a href="{{ child_item.url }}"{% if child_item.url contains 'http' %}{% unless child_item.title contains 'Do Not Sell' %} target="_blank" rel="noopener"{% endunless %}{%endif %}>{{ child_item.title }}</a>
+                  {% endif %}
+                {%- endif -%}
+              </li>
+            {% endfor %}
+          {% endif %}
+        </ul>
+      {% endfor %}
+    </div>
+
+    <div class="footer-bottom__copyright h4 text-center text-gray-dark uppercase">
+      {%- assign storeName = shop.name -%}
+      {%- capture year -%}&copy;{{ 'now' | date: '%Y' }}{%- endcapture -%}
+      {% if section.settings.copyright_text != blank %}
+        {%- assign copy = section.settings.copyright_text | replace: '${store}',storeName | replace: '${year}',year -%}
+        {{ copy }}
+      {% else %}
+        {{ storeName }} {{year}}.
+      {%endif %}
+    </div>
+  </div>
+</footer>
+
+{% comment %}
+  Main usage
+  Set min height for <main> so that there's no scroll on 1024+ for low content pages
+{% endcomment %}
+<style>
+  .footer__menu {
+    width: var(--mobile-width);
+  }
+
+  @media screen and (min-width: 64rem){
+    :root{
+      --footer-height: 1px;
+    }
+
+    .footer__menu {
+      width: var(--width);
+    }
+
+    .footer-bottom__links {
+      flex-wrap: nowrap;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Footer",
+  "settings": [
+    {
+      "type": "text",
+      "id": "newsletter_title",
+      "label": "Newletter title text",
+      "default": "Stay in touch"
+    },
+    {
+      "type": "html",
+      "id": "klaviyo_form",
+      "label": "Klaviyo Form",
+      "default": "<div class=\"klaviyo-form-XDqZf4\"></div>"
+    },
+    {
+      "type": "link_list",
+      "id": "footer_linklist",
+      "label": "Footer menu",
+      "default": "footer"
+    },
+    {
+      "type": "range",
+      "id": "desktop_per_item",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "label": "Desktop Per Item",
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "mobile_per_item",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "label": "Mobile Per Item",
+      "default": 2
+    },
+    {
+      "type": "url",
+      "id": "store_locator_url",
+      "label": "Store locator url"
+    },
+    {
+      "type": "url",
+      "id": "sms_signup_url",
+      "label": "SMS Signup URL"
+    },
+    {
+      "type": "richtext",
+      "id": "copyright_text",
+      "label": "Copyright text",
+      "default": "<p>${store} ${year}. All Rights Reserved.<\/p>",
+      "info": "Use ${store} or ${year} to display dynamic store and year"
+    }
+  ]
+}
+{% endschema %}

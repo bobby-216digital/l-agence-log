@@ -1,0 +1,229 @@
+<div
+  class="image-text
+    grid
+    gap-40
+    desktop:grid-cols-2
+    desktop:gap-0
+    px-16 desktop:px-32
+    {{ section.settings.max_width }}
+    {% if section.settings.padding_top %}pt-40{% endif %}
+    {% if section.settings.padding_bottom %}pb-40{% endif %}
+  "
+>
+  <div class="image-text__image {% if section.settings.layout == 'image-right' %} desktop:order-1 {% endif %}">
+    {% for block in section.blocks %}
+      {% if block.type == 'image' %}
+        {% render 'lazy-image', type: object, image: block.settings.image_mobile, image_desktop: block.settings.image_desktop %}
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <div class="image-text__content {% if section.settings.layout == 'image-right' %} desktop:pr-24 {% else %} desktop:pl-24 {% endif %}">
+    {% for block in section.blocks %}
+      {% if block.type == 'text' %}
+        <div class="image-text__block">
+          {% if block.settings.title %}
+            <h2 class="h2 mb-16">{{ block.settings.title }}</h2>
+          {% endif %}
+
+          {% if block.settings.text %}
+            {{ block.settings.text | newline_to_br }}
+          {% endif %}
+        </div>
+      {% elsif block.type == 'social' %}
+        <div class="image-text__block">
+          {% if block.settings.title %}
+            <h2 class="h2 mb-16">{{ block.settings.title }}</h2>
+          {% endif %}
+
+          {% if block.settings.text %}
+            <div class="mb-16">{{ block.settings.text | newline_to_br }}</div>
+          {% endif %}
+
+          <div class="image-text__block-social grid grid-cols-3 gap-x-16 gap-y-24">
+            {% if settings.social_link_facebook %}
+              <a class="h2" href="{{ settings.social_link_facebook }}" target="_blank">
+                FACEBOOK
+              </a>
+            {% endif %}
+
+            {% if settings.social_link_instagram %}
+              <a class="h2" href="{{ settings.social_link_instagram }}" target="_blank">
+                INSTAGRAM
+              </a>
+            {% endif %}
+
+            {% if settings.social_link_youtube %}
+              <a class="h2" href="{{ settings.social_link_youtube }}" target="_blank">
+                YOUTUBE
+              </a>
+            {% endif %}
+
+            {% if settings.social_link_pinterest %}
+              <a class="h2" href="{{ settings.social_link_pinterest }}" target="_blank">
+                PINTEREST
+              </a>
+            {% endif %}
+
+            {% if settings.social_link_twitter %}
+              <a class="h2" href="{{ settings.social_link_twitter }}" target="_blank">
+                TWITTER
+              </a>
+            {% endif %}
+
+            {% if settings.social_link_vimeo %}
+              <a class="h2" href="{{ settings.social_link_vimeo }}" target="_blank">
+                VIMEO
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      {% elsif block.type == 'contact' %}
+        <div class="image-text__block mt-40">
+          {% if block.settings.title %}
+            <h2 class="h2 mb-16">{{ block.settings.title }}</h2>
+          {% endif %}
+
+          <div class="image-text__block-contact grid grid-cols-2 gap-40 desktop:gap-80">
+            {% if block.settings.text_1 %}
+              {{ block.settings.text_1 | newline_to_br }}
+            {% endif %}
+
+            {% if block.settings.text_2 %}
+              {{ block.settings.text_2 | newline_to_br }}
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Image-Text",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "padding_top",
+      "label": "Padding Top",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "padding_bottom",
+      "label": "Padding Bottom",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "max_width",
+      "label": "Max Width",
+      "options": [
+        {
+          "value": "w-full",
+          "label": "Full"
+        },
+        {
+          "value": "max-w-[992px] mx-auto",
+          "label": "Wide"
+        }
+      ],
+      "default": "w-full"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "image-left",
+          "label": "Image Left"
+        },
+        {
+          "value": "image-right",
+          "label": "Image Right"
+        }
+      ],
+      "default": "image-left"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image_mobile",
+          "label": "Image (Mobile)"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_desktop",
+          "label": "Image (Desktop)"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text"
+        }
+      ]
+    },
+    {
+      "type": "social",
+      "name": "Social",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text"
+        }
+      ]
+    },
+    {
+      "type": "contact",
+      "name": "Contact",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "richtext",
+          "id": "text_1",
+          "label": "Text 1"
+        },
+        {
+          "type": "richtext",
+          "id": "text_2",
+          "label": "Text 2"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image-Text"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,7 @@
+{% comment %}
+  Template to be used for getting product-card layout for the lookbook drawer
+  products/{{product-handle}}?view=lookbook-card
+{% endcomment %}
+<div class="product-card mb-16" js-lookbook-product-card>
+    {% render 'lookbook-product-card', product: product %}
+</div>

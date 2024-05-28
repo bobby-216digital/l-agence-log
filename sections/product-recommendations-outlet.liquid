@@ -1,0 +1,42 @@
+<div class="product-recommendations block px-16 mb-40">
+      <h1 class="product-recommendations__heading text-center mb-24">{{ section.settings.heading }}</h1>
+      {%- assign counter = 0 -%}
+      {%- assign break_at = 4 | plus: 0 -%}
+      {%- assign current_product = product -%}
+      <div class="product-recommendations__products flex flex-wrap gap-x-8 gap-y-16 items-start justify-center">
+        {%- for product in collections.all.products -%}
+            {%- unless product.handle == current_product.handle -%}
+              {%- if product.tags contains 'outlet' -%}
+          <div class="product-recommendations__product">
+            {% render 'product-card', product: product %}
+          </div>
+          {%- assign counter = counter | plus: 1 -%}
+
+          {%- if counter == break_at -%}
+            {%- break -%}
+          {%- endif -%}
+              {%- endif -%}
+            {%- endunless -%}
+        {%- endfor -%}
+      </div>
+    </div>
+      
+  {% schema %}
+  {
+    "name": "PDP - Reco Outlet",
+    "tag": "section",
+    "settings": [
+      {
+        "type": "text",
+        "id": "heading",
+        "label": "Heading",
+        "default": "You May Also Like"
+      }
+    ],
+    "presets": [
+      {
+        "name": "PDP - Reco Outlet"
+      }
+    ]
+  }
+  {% endschema %}

@@ -1,0 +1,107 @@
+{% comment %}
+  Template for lazyloading images
+  @param {string} type -
+         eager: eager loading, assets above the fold
+          lazy: lazy loading, assets below the fold/hidden from initial view
+  @param {string} type - 
+      external: direct link to an image hosted somewhere else
+        object: (default) shopify image object not covered
+  @param {string/object} image - Image object/url string. Used for Mobile + Desktop
+  @param {string/object} image_desktop - Desktop Image object/url string, will be rendered at higher breakpoint (default width 768px+). If this field is blank, image will be used for mobile + desktop (optional)
+  @param {string/object} breakpoint - defaults to 48rem (768px), can pass in another value to change this if needed (optional)
+  @param {string} picture_classes - Additional CSS classes for picture object for styling (optional)
+  @param {string} img_classes - Additional CSS classes for image object for styling (optional)
+  @param {string} alt - Alt tag for image, use this instead of image.alt if not using shopify object/need to hardcode for any reason.
+  @param {string} styles - Additional styles needed not covered by tailwind
+  @param {string} attr - Additional HTML attributes
+{% endcomment %}
+
+{%- capture loading -%}
+  {%- if type == 'eager' -%}
+    eager
+  {%- else -%}
+    lazy
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- capture image_source -%}
+  {%- if type == 'external' -%}
+    {{ image }}
+  {%- else -%}
+    {{ image.src | image_url: width: 480 }}
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- capture image_srcset -%}
+  {%- if type == 'external' -%}
+    {{ image }}
+  {%- else -%}
+    {{ image | image_url: width: 480 }} 480w,
+    {{ image | image_url: width: 768 }} 768w,
+    {{ image | image_url: width: 1024 }} 1024w,
+    {{ image | image_url: width: 1140 }} 1140w,
+    {{ image | image_url: width: 1280 }} 1280w,
+    {{ image | image_url: width: 1440 }} 1440w,
+    {{ image | image_url }} 1920w
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- if image_desktop != blank -%}
+  {%- capture image_desktop_srcset -%}
+    {%- if type == 'external' -%}
+      {{ image_desktop }}
+    {%- else -%}
+      {{ image_desktop | image_url: width: 768 }} 768w,
+      {{ image_desktop | image_url: width: 1024 }} 1024w,
+      {{ image_desktop | image_url: width: 1140 }} 1140w,
+      {{ image_desktop | image_url: width: 1280 }} 1280w,
+      {{ image_desktop | image_url: width: 1440 }} 1440w,
+      {{ image_desktop | image_url }} 1920w
+    {%- endif -%}
+  {%- endcapture -%}
+{%- endif -%}
+
+{%- if alt == blank -%}
+  {%- assign alt = image.alt -%}
+{%- endif -%}
+
+{% capture all_styles %}
+  style="--ar-mobile: {{image.aspect_ratio}}; {% if image_desktop %}--ar-desktop: {{image_desktop.aspect_ratio}};{% endif %} {{styles}}"
+{% endcapture %}
+
+{% if breakpoint == blank %}
+  {% assign breakpoint = '48rem' %}
+{% endif %}
+{% if magic %}
+  <a href="{{ image.src | image_url: width: 1600 }}" class="MagicZoom" data-options-mobile="hint:on;zoomMode:on;expand:on;" data-gallery="zoom">
+<picture class="block w-full {% if picture_classes %}{{ picture_classes }}{% endif %}">
+  {% if image_desktop != blank %}
+    <source srcset="{{image_desktop_srcset}}" media="(min-width: {{breakpoint}})" />
+  {% endif %}
+  <img 
+    class="w-full {% if img_classes %}{{ img_classes }}{% endif %}"
+    src="{{image_source}}"
+    srcset="{{image_srcset}}"
+    sizes="100vw"
+    loading="{{loading}}"
+    alt="{{ alt }}"
+    {% if attr %}{{ attr }}{% endif %}
+    {{all_styles}} />
+</picture>
+</a>
+  {% else %}
+<picture class="lazypicture block w-full {% if picture_classes %}{{ picture_classes }}{% endif %}">
+  {% if image_desktop != blank %}
+    <source srcset="{{image_desktop_srcset}}" media="(min-width: {{breakpoint}})" />
+  {% endif %}
+  <img 
+    class="w-full {% if img_classes %}{{ img_classes }}{% endif %}"
+    src="{{image_source}}"
+    srcset="{{image_srcset}}"
+    sizes="100vw"
+    loading="{{loading}}"
+    alt="{{ alt }}"
+    {% if attr %}{{ attr }}{% endif %}
+    {{all_styles}} />
+</picture>
+  {% endif %}

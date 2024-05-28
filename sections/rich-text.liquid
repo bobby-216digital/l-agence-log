@@ -1,0 +1,346 @@
+<div class="rich-text text-center mx-auto landscape:mb-40" 
+  style="background-color: {{section.settings.bg_color}};color: {{section.settings.text_color}};
+  padding-top: {{section.settings.padding_top}}px;padding-bottom: {{section.settings.padding_bottom}}px;padding-left: {{section.settings.padding_left}}px;padding-right: {{section.settings.padding_right}}px;
+  margin-top: {{section.settings.margin_top}}px;margin-bottom: {{section.settings.margin_bottom}}px;
+  max-width: {{section.settings.max_width_2}}px;">
+  {% if section.settings.title != blank %}
+  <h1 class="hero__title mb-24 landscape:mb-40 {{section.settings.section_title_size}} {% if section.settings.use_bold %}font-500{% endif %}">{{ section.settings.title }}</h1>
+  {% endif %}
+
+  {% if section.blocks != blank %}
+    <div class="desktop:flex {% if section.blocks.size > 1 %} justify-between {% else %} justify-center {% endif %}">
+      {% for block in section.blocks %}
+        <div class="px-8 {{ block.settings.text_alignment }} {{ block.settings.mobile_text_alignment }} pb-24 desktop:pb-0">
+          {% if block.settings.title != blank %}
+            <h1 class="h1 mb-16 {{block.settings.title_size}} {% if block.settings.block_use_bold %}font-500{% endif %}">{{ block.settings.title }} </h1>
+          {% endif %}
+
+          {% if block.settings.text != blank %}
+            {% if block.settings.truncate == true %}
+              {% assign truncateCount = block.settings.truncate_count %}
+              {% assign originalDescription = block.settings.text %}
+              {% assign truncatedDescription = block.settings.text | truncatewords: truncateCount %}
+              {% comment %} <span class="{% unless originalDescription == truncatedDescription %}hidden desktop:block{% endunless %} mb-16 {{block.settings.text_size}}">{{ block.settings.text }}</span> {% endcomment %}
+              {% unless originalDescription == truncatedDescription %}
+                <read-more class="{% comment %}block desktop:hidden{% endcomment %}">
+                  <div class="wrapper" js-read-less>
+                    <span class="mb-16 {{block.settings.text_size}}">
+                      {{ truncatedDescription }}
+                    </span>
+                    <button type="button" class="collection__read-more text-grey underline" js-read-more-trigger>Read more</button>
+                  </div>
+                  <span class="hidden mb-16 {{block.settings.text_size}}" js-read-more>{{ originalDescription }}</span>
+                </read-more>
+              {% endunless %}  
+            {% else %}
+              <div class="mb-16 {{block.settings.text_size}}">{{ block.settings.text | newline_to_br }}</div>
+            {% endif %}       
+          {% endif %}
+
+          {% if block.settings.cta_url != blank or block.settings.calendly_url != blank %}
+            <a class="cursor-pointer inline-block {{ block.settings.cta_style }}" 
+              {% if block.settings.calendly_url != blank %}
+                onclick="{{ block.settings.calendly_url }}">
+              {% else %}
+                href="{{ block.settings.cta_url }}">
+              {% endif %}
+            {{ block.settings.cta_label }}
+            </a>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+{% if section.settings.use_calendly %}
+<!-- Calendly link widget begin -->
+<link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
+<script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript"></script>
+<!-- Calendly link widget end -->
+{% endif %}
+
+{% schema %}
+{
+  "name": "Rich Text",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_left",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Left",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "padding_right",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Right",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "label": "Margin Top",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "label": "Margin Bottom",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_calendly",
+      "label": "Use Calendly",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title"
+    },
+    {
+      "type": "select",
+      "id": "section_title_size",
+      "label": "Title Size",
+      "options": [
+        {
+          "value": "text-16",
+          "label": "Small"
+        },
+        {
+          "value": "text-25",
+          "label": "Medium"
+        },
+        {
+          "value": "text-40",
+          "label": "Large"
+        }
+      ],
+      "default": "text-25"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_bold",
+      "label": "Use Bold Title",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "max_width_2",
+      "min": 300,
+      "max": 2000,
+      "step": 20,
+      "unit": "px",
+      "label": "Max Width",
+      "default": 920
+    },
+    {
+     "type": "color",
+     "id": "bg_color",
+     "label": "Background Color"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color"
+     }
+  ],
+  "blocks": [
+    {
+      "type": "additional",
+      "name": "Additional",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "select",
+          "id": "title_size",
+          "label": "Title Size",
+          "options": [
+            {
+              "value": "text-12",
+              "label": "Small"
+            },
+            {
+              "value": "text-16",
+              "label": "Medium"
+            },
+            {
+              "value": "text-20",
+              "label": "Large"
+            },
+            {
+              "value": "text-25",
+              "label": "XLarge"
+            }
+          ],
+          "default": "text-16"
+        },
+        {
+          "type": "checkbox",
+          "id": "block_use_bold",
+          "label": "Use Bold Title",
+          "default": false
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text"
+        },
+        {
+          "type": "checkbox",
+          "id": "truncate",
+          "label": "Truncate Text",
+          "default": false
+        },
+        {
+          "type": "number",
+          "id": "truncate_count",
+          "label": "Truncate Word Count",
+          "default": 34
+        },
+        {
+          "type": "select",
+          "id": "text_size",
+          "label": "Text Size",
+          "options": [
+            {
+              "value": "text-12",
+              "label": "Small"
+            },
+            {
+              "value": "text-16",
+              "label": "Medium"
+            },
+            {
+              "value": "text-20",
+              "label": "Large"
+            }
+          ],
+          "default": "text-12"
+        },
+        {
+          "type": "select",
+          "id": "mobile_text_alignment",
+          "label": "Mobile Text Alignment",
+          "options": [
+            {
+              "value": "text-left",
+              "label": "Left"
+            },
+            {
+              "value": "text-center",
+              "label": "Center"
+            },
+            {
+              "value": "text-right",
+              "label": "Right"
+            }
+          ],
+          "default": "text-center"
+        },
+        {
+          "type": "select",
+          "id": "text_alignment",
+          "label": "Text Alignment",
+          "options": [
+            {
+              "value": "desktop:text-left",
+              "label": "Left"
+            },
+            {
+              "value": "desktop:text-center",
+              "label": "Center"
+            },
+            {
+              "value": "desktop:text-right",
+              "label": "Right"
+            }
+          ],
+          "default": "desktop:text-center"
+        },
+        {
+          "type": "text",
+          "id": "cta_label",
+          "label": "CTA Text"
+        },
+        {
+          "type": "url",
+          "id": "cta_url",
+          "label": "CTA Target"
+        },
+        {
+          "type": "text",
+          "id": "calendly_url",
+          "label": "Calendly URL (overrides link)"
+        },
+        {
+          "type": "select",
+          "id": "cta_style",
+          "label": "CTA Style",
+          "options": [
+            {
+              "value": "btn",
+              "label": "Button"
+            },
+            {
+              "value": "link",
+              "label": "Link"
+            }
+          ],
+          "default": "link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Rich Text"
+    }
+  ]
+}
+{% endschema %}

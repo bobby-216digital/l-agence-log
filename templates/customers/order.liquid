@@ -1,0 +1,105 @@
+<section class="w-full max-w-screen-laptop py-40 landscape:py-80 mx-auto px-20">
+  <div class="account__header text-center mb-40">
+    <h1 class="mb-16">My Account</h1>
+    <h2 class="mb-12">{{ customer.name }}</h2>
+    <a class="underline uppercase font-akzidenz text-10 leading-[2] font-400" href="{{routes.account_logout_url}}">Logout</a>
+  </div>
+
+  <div class="account__detail landscape:flex">
+    <div class="account__order mb-40 landscape:mb-0 landscape:mr-48 flex-1">
+      <h2 class="mb-8">Order {{ order.name }}</h2>
+
+      <p class="text-9">{{ order.created_at | time_tag: format: "date_at_time" }}</p>
+      {%- if order.cancelled -%}
+        <p class="account-order__cancelled-date text-9">Cancelled on: {{ order.cancelled_at | time_tag: format: "date_at_time" }}</p>
+        <p class="account-order__cancelled-reason text-9">Cancellation Reason: {{ order.cancel_reason_label }}</p>
+      {%- endif -%}
+
+      <table class="w-full font-akzidenz text-10 text-center font-400">
+        <tr class="uppercase border-b border-gray">
+          <th class="py-16 text-left">Product description</th>
+          <th class="py-16">Quantity</th>
+          <th class="py-16">Price</th>
+          <th class="py-16">Total</th>
+        </tr>
+
+        {% for item in order.line_items %}
+          <tr>
+            <td class="py-16">
+              <div class="flex">
+                <div class="max-w-[80px] mr-16">
+                  {% render 'lazy-image', image: item.image %}
+                </div>
+                <div class="text-left uppercase">
+                  <p>{{ item.title }}</p>
+                  {%- for option in item.options_with_values -%}
+                    <p>{{ option.name }}: {{ option.value }}</p>
+                  {%- endfor -%}
+                </div>
+              </div>
+            </td>
+            <td class="py-16 align-top">{{item.quantity}}</td>
+            <td class="py-16 align-top">{{ item.final_price | money_without_trailing_zeros }}</td>
+            <td class="py-16 align-top">{{ item.final_line_price | money_without_trailing_zeros }}</td>
+          </tr>
+        {% endfor %}
+      </table>
+    </div>
+
+    <div class="">
+      <h2 class="mb-20">Ship To</h2>
+
+      <h4 class="account-order__address-details mb-12">
+        {{order.shipping_address.first_name}} {{order.shipping_address.last_name}}<br>
+        {%- if order.shipping_address.company != blank -%}{{order.shipping_address.company}}<br>{%- endif -%}
+        {{order.shipping_address.address1}}<br>
+        {%- if order.shipping_address.address2 != blank -%}{{order.shipping_address.address2}}<br>{%- endif -%}
+        {{order.shipping_address.city}} {{order.shipping_address.province_code}} {{order.shipping_address.zip}}<br>
+        {{order.shipping_address.country}}<br>
+      </h4>
+
+      <h4 class="mb-24">{{ customer.email }}</h4>
+
+      <h4 class="mb-24">Method: <span class="uppercase">{{ order.shipping_methods.first.title }}</span></h4>
+
+      <div class="mb-32">
+        <h2 class="mb-20">Payment Method</h2>
+
+        <h4>{{order.shipping_address.first_name}} {{order.shipping_address.last_name}}<br></h4>
+        <h4>{{ order.transactions.first.amount | money_without_trailing_zeros }}</h4>
+      </div>
+
+      <div class="account-order__details">
+        <h2 class="mb-20">Order Summary</h2>
+        <div class="h4 uppercase w-full">
+          {% for discount in order.discounts %}
+            <div class="flex justify-between">
+              <span>{{ discount.code }} Discount</span>
+              <span>{{ discount.savings | money_without_trailing_zeros }}</span>
+            </div>
+          {% endfor %}
+          <div class="flex justify-between">
+            <span>Subtotal</span>
+            <td>{{ order.subtotal_price | money_without_trailing_zeros }}</span>
+          </div>
+          {% for shipping_method in order.shipping_methods %}
+            <div class="flex justify-between">
+              <span>Shipping ({{ shipping_method.title }})</span>
+              <td>{{ order.shipping_method.price | money_without_trailing_zeros }}</span>
+            </div>
+          {% endfor %}
+          {% for tax_line in order.tax_lines %}
+            <div class="flex justify-between">
+              <span>Tax ({{tax_line.title }} {{tax_line.rate | times: 100 }}%)</span>
+              <td>{{ tax_line.price | money_without_trailing_zeros }}</span>
+            </div>
+          {% endfor %}
+          <div class="flex justify-between mt-40">
+            <span>Total</span>
+            <td>{{ order.total_price | money_without_trailing_zeros }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

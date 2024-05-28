@@ -1,0 +1,122 @@
+{%- comment -%}
+* snippet: lookbook-product-card.liquid
+* ----------------------------
+* Renders a product card
+*
+* @param {Object} product 
+* @param {Boolean} quickadd - default: false
+* @param {Number} section_id - optional, but recommended: less chance of id conflicts
+*
+* @usage: {% render 'product-card', product: product, section_id: section.id %}
+{%- endcomment -%}
+
+{%- liquid
+    for tag in product.tags
+      if tag contains 'upsell:'
+        assign upsell_tag = tag | remove: 'upsell:'
+      endif 
+      if tag contains 'plp tag:'
+        assign badge_tag = tag | remove: "plp tag:" | strip
+      endif
+      if tag contains 'gwp:'
+        assign gwp_tag = tag | remove: "gwp:"
+      endif
+      if tag contains 'est. ship date:'
+        assign preorder = tag | remove: "est. ship date:" | strip
+      endif
+      if tag contains 'coming-soon'
+        assign waitlist = 'JOIN THE WAITLIST'
+      endif
+      if tag contains 'final sale'
+        assign final_sale_tag = tag | upcase | strip
+      endif
+    endfor
+  
+    if product.metafields.custom.link != blank
+      assign product-card__link = product.metafields.custom.link 
+    else
+      assign product-card__link = product.url
+    endif
+  -%}
+  
+  <product-card
+    class="product-card font-400 relative"
+    {% if upsell_tag %}data-upsell-tag="{{ upsell_tag }}"{% endif %}
+    {% if preorder %}data-preorder="{{preorder}}"{% endif %}
+    {% if gwp_tag %}data-gwp-tag="{{ gwp_tag }}"{% endif %}
+    {% if final_sale_tag %}data-final-sale-tag="{{ final_sale_tag }}"{% endif %}>
+    <div class="product-card__image-container relative overflow-hidden mb-20">
+      {%- if product.metafields.custom.hide_product_data == true and product.metafields.custom.link == blank -%}
+        <div class="product-card__image">
+        {%- else -%}
+          <a href="{{ product-card__link }}" class="product-card__image flex justify-center">
+          {%- endif -%}
+          <div class="product-card__item-image w-[95%]" js-item-image>{% render 'lazy-image' image: product.images[0] %}</div>
+          {%- if product.metafields.custom.hide_product_data == true and product.metafields.custom.link == blank -%}
+          </div>
+      {%- else -%}
+        </a>
+      {%- endif -%}
+    </div>
+  
+    {%- unless product.metafields.custom.hide_product_data == true -%}
+      <div class="product-card__info font-akzidenz text-10">
+        {% if badge_tag %}
+          <div class="product-card__badge h4 text-center mb-4 uppercase font-700 font-sangbleu">{{ badge_tag }}</div>
+        {% endif %}
+        {% if preorder %}
+          <div class="product-card__badge h4 text-center mb-4 uppercase font-700 font-sangbleu">est. ship date: {{ preorder }}</div>
+        {% endif %}
+        <h1 class="product-card__title text-center text-10 font-400 tracking-[0.06em] {% if badge_tag == blank and preorder == blank %}mt-20{% endif %}">
+          <a href="{{ product.url }}" class="product-card__title-link">{{ product.title | upcase }}</a>
+        </h1>
+        <div class="product-card__price text-center mt-8">
+          {% if product.available or waitlist != blank %}
+            {% if product.compare_at_price > product.price %}
+              <s class="product-card__price--sale pl-4 text-gray">{{ product.compare_at_price | money_without_trailing_zeros }}</s>
+            {% endif %}
+            <span class="product-card__price--price">{{ product.price | money_without_trailing_zeros }}</span>
+          {% elsif product.available == false and waitlist == blank %}
+            <span class="product-card__price--soldout">Sold Out</span>
+          {% endif %}
+        </div>
+      </div>
+      <!-- .product-card__info -->
+      {%- unless product.tags contains 'coming-soon' -%}
+        <h2 class="size-title my-8 text-10 font-500 uppercase text-center">Available Sizes</p>
+      {%- endunless -%}
+      <div class="lookbook-card__quick-add flex items-center justify-center gap-y-12 gap-x-20 flex-wrap p-8 bg-white font-akzidenz text-9">
+        {% if waitlist != blank %}
+          <a class="product-card__waitlist" href="{{ product.url }}">
+            {{ waitlist }}
+          </button>
+        {% elsif product.variants.size > 1 and product.available %}
+          {% for variant in product.variants %}
+            <button
+              class="product-card__quick-add-trigger disabled:cursor-not-allowed {% unless variant.available %}opacity-30{% endunless %}"
+              data-id="{{variant.id}}"
+              {% unless variant.available %}
+              disabled
+              {% endunless %}
+              js-quick-add>
+              {{ variant.option2 }}
+            </button>
+          {% endfor %}
+        {% elsif product.available %}
+          <button
+            class="product-card__quick-add-trigger"
+            data-id="{{product.first_available_variant.id}}"
+            js-quick-add>Add to Cart</button>
+        {% else %}
+          Sold Out
+        {% endif %}
+      </div>
+
+      {%- unless product.metafields.custom.hide_product_data == true -%}
+        <div class="lookbook-drawer-wishlist flex w-full justify-center items-center gap-8">
+          <!-- include 'wishlist-button-floating' with '{{ product.id }}' -->
+          <p class="font-400 text-10">Add to Wishlist</p>
+        </div>
+      {%- endunless -%}
+    {%- endunless -%}
+  </product-card>

@@ -1,0 +1,251 @@
+<script>
+  (function(d, t, i) {
+    if (d.getElementById(i)) return;
+    var s, ss = d.getElementsByTagName(t)[0];
+    s = d.createElement(t); s.id = i;
+    s.src = 'https://lcx-widgets.bambuser.com/embed.js';
+    ss.parentNode.insertBefore(s, ss);
+  })(document, 'script', "bambuser-liveshopping-widget");
+</script>
+
+<script>
+// ====================================== Define constants ========================================
+// Reduces server calls if a product has a crazy number of images.
+const MAX_IMAGES_COUNT = 6;
+
+// Extracts product handle from the product URL
+const SHOPIFY_PRODUCT_URL_HANDLE_REGEX = /\/products\/(.[\w\d-+]+)/;
+
+// ====================================== General helper methods for Shopify  ========================================
+// Sometimes image URLs miss the protocol at the beginning
+// E.g. '//cdn.shopify.com/s/files/.../image.jpg'
+window.urlSanitizer = (url) => {
+  if (typeof url === 'string') {
+    if (url.startsWith('//')) return `https:${url}`;
+    else if (url.toLocaleLowerCase().startsWith('http')) return url;
+    else console.log(`Not a valid URL: ${url}`);
+  } else console.log(`Not a valid URL: ${url}`);
+  return null;
+};
+
+// Returns the store's active currency for the current user
+// E.g,: 'EUR'
+window.getActiveCurrency = () => {
+    // 1. From the Shopify object
+    const getCurrencyFromContext = Shopify?.currency?.active;
+    if (getCurrencyFromContext) return getCurrencyFromContext;
+
+    // 2. From the 'cart_currency' cookie
+    const currencyFromCookies = document.cookie
+      .split('; ')
+      .find((row) => row.startsWith('cart_currency'))
+      ?.split('=')[1];
+    if (currencyFromCookies) return currencyFromCookies;
+
+    // If no currency found
+    return null;
+  };
+
+//========== Shopify Ajax API Helper methods ===============
+
+window.oneToManyStoreApi = {};
+
+oneToManyStoreApi.getProductByUrl = (url) => {
+  const handle = SHOPIFY_PRODUCT_URL_HANDLE_REGEX.exec(url);
+  try {
+    if (typeof handle[1] == 'string' && handle[1].length > 0) {
+      return fetch('/products/' + handle[1] + '.js', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }).then((resp) => resp.json());
+    }
+  } catch (error) {
+    throw new Error(
+      'Cannot find the handle in the product URL: ' + url + '/n' + error
+    );
+  }
+};
+
+oneToManyStoreApi.addToCart = (itemId) =>
+  fetch('/cart/add.js', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      items: [
+        {
+          quantity: 1,
+          id: itemId,
+        },
+      ],
+    }),
+  }).then((resp) => resp.json());
+
+oneToManyStoreApi.updateItemInCart = (itemId, quantity) =>
+  fetch('/cart/update.js', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      updates: {
+        [itemId]: quantity,
+      },
+    }),
+  }).then((resp) => resp.json());
+
+oneToManyStoreApi.getCartState = () =>
+  fetch('/cart.js', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  }).then((resp) => resp.json());
+
+oneToManyStoreApi.getVariantIdFromUrlParams = (url) => {
+  // Extract the variant ID from the URL
+  // URL Ex. https://www.MY-SHOPIFY-STORE.com/products/my-product-handle?variant=VARIATION_ID
+  const variantId = new URL(url).searchParams.get('variant');
+  return typeof variantId == 'string' && variantId.length == 14
+    ? variantId
+    : null;
+};
+
+//=========== Bambuser onReady Handler =================
+
+window.onBambuserLiveShoppingReady = (player) => {
+  // ---- Start of player configuration ----
+  player.configure({
+    currency: getActiveCurrency() || 'USD',
+    locale: 'en-US',
+    buttons: {
+      dismiss: player.BUTTON.CLOSE,
+      checkout: player.BUTTON.CLOSE,
+    },
+  });
+  // ---- End of player configuration ----
+
+  // ---- Start of Cart Integrations ----
+  player.on(player.EVENT.ADD_TO_CART, (addedItem, callback) => {
+    oneToManyStoreApi
+      .addToCart(addedItem.sku)
+      .then((res) => {
+        if (res.items) {
+          callback(true);
+          console.log('Item added succussfully!');
+        } else if (res.description && res.description.includes('sold out')) {
+          callback({ success: false, reason: 'out-of-stock' });
+        } else callback(false);
+      })
+      .catch((error) => {
+        callback(false);
+        console.error('Add to cart error! ', error);
+      });
+  });
+
+  player.on(player.EVENT.UPDATE_ITEM_IN_CART, (updatedItem, callback) => {
+    console.log(
+      `Cart updated! ${updatedItem.previousQuantity} --> ${updatedItem.quantity}`
+    );
+    oneToManyStoreApi
+      .updateItemInCart(updatedItem.sku, updatedItem.quantity)
+      .then((res) => {
+        if (res.items) {
+          callback(true);
+          console.log('Item updated succussfully!');
+        } else callback(false);
+      })
+      .catch((error) => {
+        callback(false);
+        console.error('Error on updating item! ', error);
+      });
+  });
+
+  player.on(player.EVENT.SYNC_CART_STATE, () => {
+    // Use your method to check if the user has checkout
+    oneToManyStoreApi.getCartState().then((res) => {
+      if (res.item_count == 0) {
+        // Emptying the in-player cart
+        player.updateCart({
+          items: [],
+        });
+      }
+    });
+  });
+
+  player.on(player.EVENT.CHECKOUT, () => {
+    // Use the showCheckout() method to safely
+    // navigate the user to your checkout page
+    player.showCheckout(window.location.origin + '/cart');
+  });
+  // ---- End of Cart Integrations ----
+
+  // ---- Start of Product Hydration ----
+  player.on(player.EVENT.PROVIDE_PRODUCT_DATA, (event) => {
+    // Iterates over all the products you have added to the show on the dashboard
+    event.products.forEach(({ ref: sku, id, url }) => {
+      const variantId = oneToManyStoreApi.getVariantIdFromUrlParams(url);
+      try {
+        // Your method to fetch a product data
+        oneToManyStoreApi.getProductByUrl(url).then((item) => {
+          //Uncomment the line below for debugging retrieved product data
+          //console.log(item);
+          player.updateProduct(id, (productFactory) =>
+            productFactory.product((detailsFactory) =>
+              detailsFactory
+                .name(item.title)
+                .sku(item.id)
+                .brandName(item.vendor)
+                .description(item.description)
+                .defaultVariationIndex(
+                  variantId
+                    ? item.variants.findIndex(
+                        (variant) => variant.id == variantId
+                      )
+                    : 0
+                )
+                .variations((variationFactory) =>
+                  item.variants.map((variation) =>
+                    variationFactory()
+                      .attributes((attributeFactory) =>
+                        attributeFactory.colorName(variation.title)
+                      )
+                      .imageUrls([
+                        // Adding the featured image of the chosen variation (if existed) at the beginning of the images array
+                        ...(variation.featured_image
+                          ? [variation.featured_image.src]
+                          : []),
+                        // Adding product imgaes
+                        ...item.images
+                          .slice(0, MAX_IMAGES_COUNT - 1)
+                          .map((url) => urlSanitizer(url))
+                          .filter((url) => typeof url === 'string'),
+                      ])
+                      .name(variation.title)
+                      .sku(item.id)
+                      .sizes((sizeFactory) => [
+                        sizeFactory()
+                          .name(variation.title)
+                          .sku(variation.id)
+                          .inStock(variation.available)
+                          .price((priceFactory) =>
+                            priceFactory
+                              .original(variation.compare_at_price / 100)
+                              .current(variation.price / 100)
+                          ),
+                      ])
+                  )
+                )
+            )
+          );
+        });
+      } catch (error) {
+        console.warn('CANNOT HYDRATE THE PRODUCT! \n', error);
+      }
+    });
+  });
+};
+</script>

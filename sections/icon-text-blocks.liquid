@@ -1,0 +1,82 @@
+<div class="icon-text-blocks px-16 py-32 max-w-screen-laptop mx-auto">
+  {% if section.settings.title != blank %}
+    <h1 class="icon-text-blocks__title my-24 text-center tabletp:mb-16 desktop:text-40">{{ section.settings.title }}</h1>
+  {% endif %}
+  {% if section.blocks.size > 1 %}
+    <ul class="icon-text-blocks__icons grid grid-cols-1 gap-32 py-16 tabletp:flex tabletp:flex-wrap tabletp:justify-center tabletp:gap-0">
+      {% for block in section.blocks %}
+        <li class="icon-text-blocks__icon-block {{ section.settings.grid_width }} tabletp:p-16">
+          {% if block.settings.icon_image != blank %}
+            <div class="icon-text-blocks__icon max-w-[120px] mx-auto tabletp:max-w-[150px]">
+              {% render 'lazy-image', image: block.settings.icon_image %}
+            </div>
+          {% endif %}
+          {% if block.settings.icon_title != blank %}
+            <div class="icon-text-blocks__icon-title text-13 font-akzidenz fotn-400 text-center desktop:text-15">{{ block.settings.icon_title }}</div>
+          {% endif %}
+          {% if block.settings.icon_text != blank %}
+            <div class="icon-text-blocks__icon-text text-15 font-500 text-center mt-24 desktop:text-20">{{ block.settings.icon_text }}</div>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Icon Text Blocks",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title"
+    },
+    {
+      "type": "radio",
+      "id": "grid_width",
+      "label": "Desktop Grid Width",
+      "options": [
+        {
+          "value": "tabletp:w-1/3",
+          "label": "3 Columns"
+        },
+        {
+          "value": "tabletp:w-1/4",
+          "label": "4 Columns"
+        }
+      ],
+      "default": "tabletp:w-1/3"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "icon",
+      "name": "Icon Block",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "icon_image",
+          "label": "Icon Image",
+          "info": "Use image with consistent aspect ratio"
+        },
+        {
+          "type": "text",
+          "id": "icon_title",
+          "label": "Title"
+        },
+        {
+          "type": "textarea",
+          "id": "icon_text",
+          "label": "Text"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Icon Text Blocks"
+    }
+  ]
+}
+{% endschema %}

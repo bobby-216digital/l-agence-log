@@ -1,0 +1,119 @@
+<div class="collection-header">
+
+  {% if collection.metafields.seed.collection_hero_use_mp4_video == true and collection.metafields.seed.collection_hero_video_mp4_mobile != blank or collection.metafields.seed.collection_hero_video_mp4_desktop != blank %}
+    {%- liquid 
+      if collection.metafields.seed.collection_hero_video_ar != blank
+        assign desktop_aspect_ratio = collection.metafields.seed.collection_hero_video_ar
+      else
+        assign desktop_aspect_ratio = '22/10'
+      endif
+      
+      if collection.metafields.seed.collection_hero_mobile_video_ar != blank
+        assign mobile_aspect_ratio = collection.metafields.seed.collection_hero_mobile_video_ar
+      else
+        assign mobile_aspect_ratio = '3/4'
+      endif      
+    -%}   
+
+    {% if collection.metafields.seed.collection_hero_video_mp4_desktop != blank %}
+      <div class="collection-header__hero relative hidden desktop:block" style="aspect-ratio: {{ desktop_aspect_ratio }};">
+        <video
+          src="{{collection.metafields.seed.collection_hero_video_mp4_desktop}}"
+          autoplay
+          muted
+          loop
+          playsinline
+          class="w-full"
+        ></video>
+      </div>
+    {% endif %}
+
+    {% if collection.metafields.seed.collection_hero_video_mp4_mobile != blank %}
+      <div class="collection-header__hero relative desktop:hidden" style="aspect-ratio: {{ mobile_aspect_ratio }};">
+        <video
+          src="{{collection.metafields.seed.collection_hero_video_mp4_mobile}}"
+          autoplay
+          muted
+          loop
+          playsinline
+          class="w-full"
+        ></video>
+      </div>  
+    {% endif %}  
+
+  {% elsif collection.metafields.seed.collection_hero_use_mp4_video == false or collection.metafields.seed.collection_hero_use_mp4_video == blank and collection.metafields.seed.collection_hero_video_desktop != blank or collection.metafields.seed.collection_hero_video_mobile != blank %}
+    {%- capture desktop_src -%}{{ collection.metafields.seed.collection_hero_video_desktop }}?background=1&title=0&byline=0&portrait=0&autoplay=1&loop=1&muted=1&controls=0{%- endcapture -%}
+    {%- capture mobile_src -%}{{ collection.metafields.seed.collection_hero_video_mobile }}?background=1&title=0&byline=0&portrait=0&autoplay=1&loop=1&muted=1&controls=0{%- endcapture -%}
+    
+    
+    {%- liquid 
+      if collection.metafields.seed.collection_hero_video_ar != blank
+        assign desktop_aspect_ratio = collection.metafields.seed.collection_hero_video_ar
+      else
+        assign desktop_aspect_ratio = '22/10'
+      endif
+      
+      if collection.metafields.seed.collection_hero_mobile_video_ar != blank
+        assign mobile_aspect_ratio = collection.metafields.seed.collection_hero_mobile_video_ar
+      else
+        assign mobile_aspect_ratio = '3/4'
+      endif      
+    -%}   
+
+    {% if collection.metafields.seed.collection_hero_video_desktop != blank %}
+      <div class="collection-header__hero relative hidden desktop:block" style="aspect-ratio: {{ desktop_aspect_ratio }};">
+        <iframe 
+          src="{{ desktop_src }}" 
+          style="position:absolute;top:0;left:0;width:100%;height:100%;" 
+          frameborder="0" 
+          webkitallowfullscreen 
+          mozallowfullscreen 
+          allowfullscreen
+        ></iframe>
+      </div>
+    {% endif %}
+
+    {% if collection.metafields.seed.collection_hero_video_mobile != blank %}
+      <div class="collection-header__hero relative desktop:hidden" style="aspect-ratio: {{ mobile_aspect_ratio }};">
+        <iframe 
+          src="{{ mobile_src }}" 
+          style="position:absolute;top:0;left:0;width:100%;height:100%;" 
+          frameborder="0" 
+          webkitallowfullscreen 
+          mozallowfullscreen 
+          allowfullscreen
+        ></iframe>
+      </div>  
+    {% endif %}  
+
+  {% elsif collection.metafields.nosto != blank and collection.metafields.seed.collection_hero_mobile_image == blank %}
+    <div class="collection-header__hero">
+      {% render 'lazy-image', image: collections[collection.metafields.nosto.sourceHandle].image.src, type: 'external' %}
+    </div>
+  {% elsif collection.image != blank and collection.metafields.seed.collection_hero_mobile_image != blank %}
+    <div class="collection-header__hero">
+      {% render 'lazy-image', image: collection.metafields.seed.collection_hero_mobile_image, image_desktop: collection.image %}
+    </div>
+  {% elsif collection.image != blank %}
+    {% render 'lazy-image', image: collection.image %}
+  {% endif %}
+
+  <nav class="collection-header__breadcrumbs px-16 desktop:px-56 py-16 font-akzidenz text-9" role="navigation" aria-label="breadcrumbs">
+    {% if collection.handle contains 'outlet' %}
+      <a href="/collections/outlet" title="Home">Home</a>
+      {% else %}
+    <a href="/" title="Home">Home</a>
+    {% endif %}
+    <span>/</span>
+    <span title="Collection List">Collections</span>
+    <span> / {{ collection.title }}</span>
+  </nav>
+</div>
+
+{% schema %}
+{
+  "name": "Collection Header",
+  "settings": [
+  ]
+}
+{% endschema %}

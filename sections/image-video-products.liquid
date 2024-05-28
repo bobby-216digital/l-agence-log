@@ -1,0 +1,163 @@
+<div class="image-video-products py-16 desktop:py-24 px-16 desktop:px-56 flex flex-col desktop:grid grid-cols-2 gap-16 desktop:gap-24">
+  <div class="image-video {% if section.settings.swap_mobile and section.settings.swap_desktop %}order-2{% endif %} {% if section.settings.swap_mobile and section.settings.swap_desktop != true %}order-2 desktop:order-1{% endif %} {% if section.settings.swap_mobile != true and section.settings.swap_desktop %}desktop:order-2{% endif %}">
+    {% if section.settings.use_video %}
+      <s-video>
+        <div class="video-mobile w-full h-full desktop:hidden relative" js-mobile-video>
+          {{ section.settings.video_mobile | video_tag: autoplay: true, playsinline: true, muted: true, loop:true }}
+          {% if section.settings.video_controls %}
+            <button class="icon-pause w-24 absolute bottom-24 right-48" style="color: {{section.settings.controls_color}};" js-mobile-pause>{% render 'icon-pause'%}</button>
+            <button class="icon-play hidden w-24 absolute right-48 bottom-24" style="color: {{section.settings.controls_color}};" js-mobile-play>{% render 'icon-play'%}</button>
+            <button class="icon-volume w-24 absolute bottom-24 right-24" style="color: {{section.settings.controls_color}};" js-mobile-volume>{% render 'icon-volume'%}</button>
+            <button class="icon-mute hidden w-24 absolute bottom-24 right-24" style="color: {{section.settings.controls_color}};" js-mobile-mute>{% render 'icon-mute'%}</button>
+          {% endif %}
+        </div>
+        <div class="video-desktop w-full h-full hidden desktop:block relative" js-desktop-video>
+          {{ section.settings.video_desktop | video_tag: autoplay: true, playsinline: true, muted: true, loop:true}}
+          {% if section.settings.video_controls %}
+            <button class="icon-pause w-24 absolute bottom-24 right-48" style="color: {{section.settings.controls_color}};" js-desktop-pause>{% render 'icon-pause'%}</button>
+            <button class="icon-play hidden w-24 absolute bottom-24 right-48" style="color: {{section.settings.controls_color}};" js-desktop-play>{% render 'icon-play'%}</button>
+            <button class="icon-volume w-24 absolute bottom-24 right-24" style="color: {{section.settings.controls_color}};" js-desktop-volume>{% render 'icon-volume'%}</button>
+            <button class="icon-mute hidden w-24 absolute bottom-24 right-24" style="color: {{section.settings.controls_color}};" js-desktop-mute>{% render 'icon-mute'%}</button>
+          {% endif %}
+        </div>
+      </s-video>
+    {% else %}
+      {% render 'lazy-image', type: object, image: section.settings.image_mobile, image_desktop: section.settings.image_desktop %}
+    {% endif %}
+    {% if section.settings.desctiption_text != blank or section.settings.desctiption_title != blank %}
+      <div class="text-center pt-28 pb-4">
+        {% if section.settings.desctiption_title != blank %} <h1>{{ section.settings.desctiption_title }}</h1> {% endif %}
+        {% if section.settings.desctiption_text != blank %}<p>{{ section.settings.desctiption_text }}</p>{% endif %}
+      </div>
+    {% endif %}
+  </div>
+  <div class="products grid grid-cols-2 gap-16 desktop:gap-24 {% if section.settings.swap_mobile and section.settings.swap_desktop %}order-1{% endif %} {% if section.settings.swap_mobile and section.settings.swap_desktop != true %}order-1 desktop:order-2{% endif %} {% if section.settings.swap_mobile != true and section.settings.swap_desktop %}desktop:order-1{% endif %}">
+    {% if section.settings.collection != empty%}
+      {% assign collection = collections[section.settings.collection] %}
+      {% for product in collection.products limit: 4 %}
+        {% render 'product-card' product: product %}
+      {% endfor %}
+    {% else %}
+      {% if section.settings.product_1 != empty %}
+        {% render 'product-card' product: section.settings.product_1 %}
+      {% endif %}
+      {% if section.settings.product_2 != empty %}
+        {% render 'product-card' product: section.settings.product_2 %}
+      {% endif %}
+      {% if section.settings.product_3 != empty %}
+        {% render 'product-card' product: section.settings.product_3 %}
+      {% endif %}
+      {% if section.settings.product_4 != empty %}
+        {% render 'product-card' product: section.settings.product_4 %}
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Image Video Products",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "Image (Mobile)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_desktop",
+      "label": "Image (Desktop)"
+    },
+    {
+      "type": "header",
+      "content": "Video"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_video",
+      "label": "Use video",
+      "default": false
+    },
+    {
+      "type": "video",
+      "id": "video_mobile",
+      "label": "Video (Mobile)"
+    },
+    {
+      "type": "video",
+      "id": "video_desktop",
+      "label": "Video (Desktop)"
+    },
+    {
+      "type": "checkbox",
+      "id": "video_controls",
+      "label": "Video Controls",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "controls_color",
+      "label": "Controls Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "checkbox",
+      "id": "swap_mobile",
+      "label": "Swap Order Mobile",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "swap_desktop",
+      "label": "Swap Order Desktop",
+      "default": false
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection",
+      "info": "If empty, choose products"
+    },
+    {
+      "type": "product",
+      "id": "product_1",
+      "label": "Product 1"
+    },
+    {
+      "type": "product",
+      "id": "product_2",
+      "label": "Product 2"
+    },
+    {
+      "type": "product",
+      "id": "product_3",
+      "label": "Product 3"
+    },
+    {
+      "type": "product",
+      "id": "product_4",
+      "label": "Product 4"
+    },
+    {
+      "type": "text",
+      "id": "desctiption_title",
+      "label": "Desctiption Title"
+    },
+    {
+      "type": "text",
+      "id": "desctiption_text",
+      "label": "Desctiption Text"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image Video Products"
+    }
+  ]
+}
+{% endschema %}

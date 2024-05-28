@@ -1,0 +1,100 @@
+<lookbook-carousel>
+  <div class="shoe-lookbook px-16">
+    {% if section.settings.title != blank %}
+      <h1 class="shoe-lookbook__title text-center mt-56 mb-32 text-[30px] {% if section.settings.use_bold %}font-500{% endif %}">{{ section.settings.title }}</h1>
+    {% endif %}
+    {% if section.blocks != blank %}
+      {%- capture main_carousel_options -%}
+        {
+          "wrapAround": false,
+          "prevNextButtons": true,
+          "draggable": false
+        }
+      {%- endcapture -%}
+      <s-carousel data-options='{{ main_carousel_options }}' class="block tabletp:max-w-[600px] mx-auto">
+        <div js-carousel class="shoe-lookbook__main-carousel">
+          {% for block in section.blocks %}
+            <div js-carousel-slide class="shoe-lookbook__main-slide w-full cursor-pointer" js-open-carousel-modal>
+              {% render 'lazy-image', image: block.settings.image %}
+            </div>
+          {% endfor %}
+        </div>
+      </s-carousel>
+
+      {%- capture nav_carousel_options -%}
+        {
+          "asNavFor": ".shoe-lookbook__main-carousel",
+          "wrapAround": false,
+          "prevNextButtons": true,
+          "draggable": false,
+          "groupCells": "100%"
+        }
+      {%- endcapture -%}
+      <s-carousel data-options='{{ nav_carousel_options }}' data-init="tablet" class="hidden tabletp:block tabletp:max-w-[600px] px-72 mx-auto py-20">
+        <div js-carousel class="shoe-lookbook__nav-carousel">
+          {% for block in section.blocks %}
+            <div js-carousel-slide class="shoe-lookbook__nav-slide w-1/5 px-[2px]">
+              {% render 'lazy-image', image: block.settings.image %}
+            </div>
+          {% endfor %}
+        </div>
+      </s-carousel>
+    {% endif %}
+  </div>
+
+  {% if section.blocks != blank %}
+    <s-modal id="LookbookCarouselModal" class="lookbook-carousel-modal w-[100vw] overflow-hidden tabletp:w-[67vh] max-h-[100vh]" open="[js-open-carousel-modal]" close="[js-close-carousel-modal]">
+      <button class="w-16 absolute top-4 right-8 z-[2] text-white" js-close-carousel-modal>
+        {% render 'icon-close' %}
+      </button>
+      <s-carousel data-options='{ "prevNextButtons": true }' class="block">
+        <div js-carousel class="shoe-lookbook__modal-carousel" js-modal-carousel>
+          {% for block in section.blocks %}
+            <div js-carousel-slide class="shoe-lookbook__modal-slide w-full">
+              {% render 'lazy-image', image: block.settings.image %}
+            </div>
+          {% endfor %}
+        </div>
+      </s-carousel>
+    </s-modal>
+  {% endif %}
+</lookbook-carousel>
+
+
+{% schema %}
+{
+  "name": "Shoe Lookbook",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_bold",
+      "label": "Use Bold Title",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Shoe Lookbook"
+    }
+  ]
+}
+{% endschema %}

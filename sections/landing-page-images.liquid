@@ -1,0 +1,110 @@
+<div class="landing-page-images">  
+    {% if section.settings.title !=blank %}
+        <h1 class="text-center mt-24 mb-32">{{section.settings.title}}</h1>
+    {% endif %}
+    <lookbook-drawer>  
+      <div class="landing-page-images__grid grid grid-cols-2 desktop:grid-cols-4 gap-8 desktop:gap-16 mb-16">
+        {% for block in section.blocks %}
+            {% if block.settings.url != blank %}
+            <a class="landing-page-images__image inline-block" href="{{ block.settings.url }}">
+            {% else %}
+            <div class="landing-page-images__image">
+            {% endif %}
+            <button class="open-lookbook w-full" type="button" js-lookbook-drawer-open data-product-1="{% if block.settings.product_1 != blank %}{{ block.settings.product_1 }}{% else %}NULL{% endif %}" data-product-2="{% if block.settings.product_2 != blank %}{{ block.settings.product_2 }}{% else %}NULL{% endif %}" data-product-3="{% if block.settings.product_3 != blank %}{{ block.settings.product_3 }}{% else %}NULL{% endif %}" data-product-4="{% if block.settings.product_4 != blank %}{{ block.settings.product_4 }}{% else %}NULL{% endif %}" data-product-5="{% if block.settings.product_5 != blank %}{{ block.settings.product_5 }}{% else %}NULL{% endif %}" {% unless block.settings.product_1 != blank or block.settings.product_2 != blank or block.settings.product_3 != blank or block.settings.product_4 != blank or block.settings.product_5 != blank %}disabled {% endunless %}>
+              <div class="lookbook-image__container pointer-events-none relative">
+                {% if block.settings.product_1 != blank or block.settings.product_2 != blank or block.settings.product_3 != blank or block.settings.product_4 != blank or block.settings.product_5 != blank %}
+                  <div class="image-carousel__item-hotspot absolute transform -translate-x-1/2 -translate-y-1/2 bottom-4 left-24 z-[1]">
+                    <div class="image-carousel__item-hotspot__target image-grid__item-hotspot__target w-[21px] h-[21px] inline-flex justify-center items-center text-black bg-white rounded-full relative">
+                      <span class="w-[12px] h-[12px] flex">
+                        {% render 'icon-plus' %}
+                      </span>
+                    </div>
+                  </div>
+                {% endif %}
+              {% render 'lazy-image', image: block.settings.image %}
+              </div>
+            </button>
+            {% if block.settings.url != blank %}
+            </a>
+            {% else %}
+            </div>
+            {% endif %}
+        {% endfor %}
+      </div>
+    </lookbook-drawer>
+    {% if section.settings.cta != blank %}
+        <a class="landing-page-images__cta block max-w-[200px] mx-auto text-center mt-24 mb-32 underline" href="{{section.settings.cta}}">{{section.settings.cta_text}}</a>
+    {% endif %}
+</div>
+  
+  {% schema %}
+  {
+    "name": "Landing Page Images",
+    "tag": "section",
+    "settings": [
+        {
+            "type": "text",
+            "id": "title",
+            "label": "Title"
+        },
+        {
+            "type": "url",
+            "id": "cta",
+            "label": "URL"
+        },
+        {
+            "type": "text",
+            "id": "cta_text",
+            "label": "CTA Text"
+        }
+    ],
+    "blocks": [
+      {
+        "type": "image",
+        "name": "Image",
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "image",
+            "label": "image"
+          },
+          {
+            "type": "product",
+            "id": "product_1",
+            "label": "Product 1"
+          },
+          {
+            "type": "product",
+            "id": "product_2",
+            "label": "Product 2"
+          },
+          {
+            "type": "product",
+            "id": "product_3",
+            "label": "Product 3"
+          },
+          {
+            "type": "product",
+            "id": "product_4",
+            "label": "Product 4"
+          },
+          {
+            "type": "product",
+            "id": "product_5",
+            "label": "Product 5"
+          },
+          {
+            "type": "url",
+            "id": "url",
+            "label": "Image URL"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Landing Page Images"
+      }
+    ]
+  }
+  {% endschema %}

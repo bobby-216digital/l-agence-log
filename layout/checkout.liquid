@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+  <html lang="{{ locale }}" dir="{{ direction }}" class="{{ checkout_html_classes }}">
+    <head>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, height=device-height, minimum-scale=1.0, user-scalable=0">
+      <meta name="referrer" content="origin">
+  
+      {%- include 'dataLayer-allPages' -%}
+      <title>{{ page_title }}</title>
+  
+      {{ content_for_header }}
+  
+      {{ checkout_stylesheets }}
+      {{ checkout_scripts }}
+      <!-- Google Tag Manager -->
+      <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-M4VVDFM');</script>
+      <!-- End Google Tag Manager -->
+    <script type="text/javascript" async="" src="https://assets.dailykarma.io/prod/init-checkout.js?shop=lagence-fashion.myshopify.com"></script> 
+      <script>
+      window.dk_roundup_checkout_show_left_side = true; window.dk_widget_roundup_checkout_step = 'contact_information'; window.dk_roundup_checkout_custom_wrapper = '.step__sections';
+      </script>
+          <script>
+            window.Shopify = window.Shopify || {theme: {id: {{ theme.id }}, role: '{{ theme.role }}' } };
+            window._template = {
+                directory: "{{ template.directory }}",
+                name: "{{ template.name }}",
+                suffix: "{{ template.suffix }}"
+            }
+          </script> 
+    <script src="https://cdn.intelligems.io/7d96c8446686.js"></script>  
+    {% include "globale-checkout-css" %} 
+    <style>
+      .sidebar__features {
+        display: none;
+      }
+
+      [data-checkout-extra-info="B"] .sidebar__features {
+        display: block;
+      }
+
+      [data-checkout-extra-info="B"] .sidebar__features--desktop {
+        display: none;
+      }
+
+      .sidebar__features--mobile {
+        margin-bottom: 1rem;
+      }
+      
+      .sidebar__feature {
+        display: flex;
+      }
+
+      .sidebar__feature-icon {
+        width: 3.5rem;
+        margin-right: 0.5rem;
+      }
+
+      .sidebar__feature-content a {
+        text-decoration: underline;
+      }
+
+      @media (min-width: 1000px) {
+        [data-checkout-extra-info="B"] .sidebar__features--desktop {
+          display: block;
+        }
+
+        [data-checkout-extra-info="B"] .sidebar__features--mobile {
+          display: none;
+        }
+
+        .order-summary__sections {
+          height: auto;
+        }
+
+        .sidebar__content {
+          height: calc(100vh - 8em);
+        }
+      }
+
+    </style>
+    </head>
+    <body data-checkout-extra-info="B">
+      <!-- Google Tag Manager (noscript) -->
+      <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-M4VVDFM"
+      height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+      <!-- End Google Tag Manager (noscript) -->
+      {{ skip_to_content_link }}
+  
+      <div class="banner" data-header>
+        <div class="wrap">
+          {{ content_for_logo }}
+        </div>
+      </div>
+  
+      {{ order_summary_toggle }}
+    <div class="dk-round-up-static"></div>
+      <div class="content" data-content>
+        <div class="wrap">
+          <div class="main" role="main">
+            <div class="main__header">
+              {{ content_for_logo }}
+              {{ breadcrumb }}
+              {{ alternative_payment_methods }}
+            </div>
+            <div class="main__content">
+              {{ content_for_layout }}
+            </div>
+            <div class="main__footer">
+              {{ content_for_footer }}
+              <p style="margin: 5px 0 5px 0; font-size: 0.8571428571em;"><a href="https://lagence.com/pages/ca-privacy-policy#notice-of-financial-incentive">Notice of Financial Incentive</a></p>
+              
+            </div>
+          </div>
+          <div class="sidebar" role="complementary">
+            <div class="sidebar__header">
+              {{ content_for_logo }}
+            </div>
+            <div class="sidebar__content"> 
+              {% assign roundupQuantity = 0 %}
+              {% assign roundupCost = 0 %}
+              {% assign roundupCostFmt = '' %}
+              {% for item in checkout.line_items %}
+              {% if item.product.type == 'roundup-donation' %}
+              {% assign roundupQuantity = item.quantity %}
+              {% assign roundupCost = item.final_line_price %}
+              {% assign roundupCostFmt = roundupCost | money %}
+              {% break %}
+              {% endif %}
+              {% endfor %}
+              {% capture CFOS %}{{ content_for_order_summary  }}{% endcapture %}
+              {% assign parts = CFOS | split: 'data-product-id=' %}
+              {% for part in parts %}
+              {% assign nPart = '' %}
+              {% if forloop.last == true %}
+              {% assign nPart = part %}
+              {% else %}
+              {% assign nPart = part | append: 'data-product-id=' %}
+              {% endif %}
+              {% if nPart contains 'roundup-donation' %}
+              {% assign src = '>' | append: roundupQuantity | append: '</span>'  %}
+              {% assign nPart = nPart | replace_first: src, '>1</span>' %}
+              {% endif %}
+              {{ nPart }}
+              {% endfor %}
+              <div class="sidebar__features sidebar__features--desktop">
+                <div class="sidebar__feature">
+                  <div class="sidebar__feature-icon">{% render 'icon-truck' %}</div>
+                  <p class="sidebar__feature-content">Complimentary Shipping to Continental US <br/> <a href="https://lagence.com/pages/international-shipping-returns" class="checkout-link" rel="noopener noreferrer" target="_blank">click here</a> for international shipping offers</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      {% if checkout.line_items_subtotal_price >= 120000 %}
+        <script>
+          const shippingMethodSection = document.querySelector('.section--shipping-method');
+
+          if (shippingMethodSection) {
+            const paragraphElement = document.createElement('p');
+            
+            paragraphElement.textContent = "To keep your purchases safe, we require signature on delivery for orders over $1,200";
+            paragraphElement.style.marginTop = '.5em';
+            paragraphElement.style.fontWeight = '700';
+
+            shippingMethodSection.querySelector('.section__header').appendChild(paragraphElement);
+          }
+        </script>
+      {% endif %}
+      
+      <script>
+        (function($) {
+          $(document).on("page:load page:change", function() {
+            if ($('#CheckoutFeaturesMobile').length) return;
+            const node = document.createElement('div');
+            const content = `
+            <div id="CheckoutFeaturesMobile" class="sidebar__features sidebar__features--mobile">
+              <div class="sidebar__feature">
+                <div class="sidebar__feature-icon">{% render 'icon-truck' %}</div>
+                <p class="sidebar__feature-content">Complimentary Shipping to Continental US <br/> <a href="https://lagence.com/pages/international-shipping-returns" class="checkout-link" rel="noopener noreferrer" target="_blank">click here</a> for international shipping offers</p>
+              </div>
+            </div>
+            `
+            node.innerHTML = content;
+            
+            const footer = document.querySelector(".step__footer")
+            const continueBtn = document.querySelector("#continue_button");
+            console.log(continueBtn)
+            footer.insertBefore(node, continueBtn);        
+          });
+        })(Checkout.$);
+
+      </script>
+
+      {{ tracking_code }}
+      {% include "globale-checkout-js" %}
+    </body>
+  </html>
+  

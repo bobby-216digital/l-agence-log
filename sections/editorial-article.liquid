@@ -1,0 +1,81 @@
+<div class="editorial-article px-8 desktop:px-56">
+  <div class="editorial-article__content py-40 text-center">
+    {% if section.settings.title %}
+      <h1 class="editorial-article__title h1 mb-16 desktop:mb-8">{{ section.settings.title }}</h1>
+    {% endif %}
+
+    {% if section.settings.text != blank %}
+      <h2 class="h2">{{ section.settings.text }}</h2>
+    {% endif %}
+  </div>
+
+  <div class="editorial-article__blocks desktop:flex justify-center">
+    {% for block in section.blocks %}
+      <div class="editorial-article__item desktop:px-4 relative mb-16 desktop:mb-0">
+        {% render 'lazy-image', type: object, image: block.settings.image %}
+
+        <div class="editorial-article__item-content text-center desktop:text-left mt-8">
+          <h4 class="editorial-article__item-title mb-8">{{ block.settings.title }}</h4>
+
+          <p class="leading-[2]">{{ block.settings.text }}</p>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Editorial Article Main",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Les Papillons"
+    },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Text",
+      "default": "Refresh your spring aesthetic with joyous butterfly prints."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "block",
+      "name": "Block",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "image"
+        },
+        {
+          "type": "header",
+          "content": "Content"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Editorial Article Main"
+    }
+  ]
+}
+{% endschema %}

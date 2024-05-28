@@ -1,0 +1,149 @@
+{%- comment -%}
+ * snippet: filter-sort.liquid 
+ * ---------------------------
+ * Collection filter and sort
+ *
+ * @param {Object} results: Collection of Search object
+ * @param {Boolean} enable_filtering
+ * @param {Boolean} enable_sorting
+ * @usage 
+    {% render 'facets', 
+      results: collection, 
+      enable_filtering: true, 
+      enable_sorting: true 
+    %}
+{%- endcomment -%}
+
+{%- liquid
+  assign sort_by = results.sort_by | default: results.default_sort_by
+  assign total_active_values = 0
+  if results.url
+    assign results_url = results.url
+  else 
+    assign terms = results.terms | escape
+    assign results_url = '?q=' | append: terms | append: '&options%5Bprefix%5D=last&sort_by=' | append: sort_by
+  endif
+-%}
+
+<filter-sort class="filter-sort">
+  <form class="filter-sort__form flex flex-col items-start font-400" js-filter-form>
+    <active-filters class="active-filters flex flex-wrap gap-8" role="list" js-active-filters>
+      {% assign has_filters = false %}
+      {% for filter in collection.filters %}
+        {% for value in filter.active_values %}
+          {% assign has_filters = true %}
+          <li class="active-filters__filter list-none border border-gray-light p-8" js-active-filter>
+            <button class="active-filters__remove" data-value="{{ value.value }}" data-name="{{ value.param_name }}" js-remove>          
+              {{ value.label | escape }} X
+              <span class="visually-hidden">Clear Filter</span>
+            </button>
+          </li>
+        {% endfor %}
+        {% if filter.type == 'price_range' %}
+          {%- if filter.min_value.value != nil or filter.max_value.value != nil -%}
+            {% assign has_filters = true %}
+            <li class="active-filters__filter list-none border border-gray-light p-8" js-active-filter>
+              <button class="active-filters__remove" js-remove>
+                {%- if filter.min_value.value -%}{{ filter.min_value.value | money }}{%- else -%}{{ 0 | money }}{%- endif -%}-{%- if filter.max_value.value -%}{{ filter.max_value.value | money }}{%- else -%}{{ filter.range_max | money }}{%- endif -%}
+                <span class="visually-hidden">Clear Filter</span>
+              </button>
+            </li>
+          {%- endif -%}
+        {% endif %}
+      {% endfor %}
+      {% comment %}
+      {% if has_filters %}
+        <li class="active-filters__clear-all clear-all" js-active-filter>
+          <button class="active-filters__remove"  js-clear-all>
+            Clear All
+          </button>
+        </li>
+      {% endif %}
+      {% endcomment %}
+    </active-filters>
+    <div class="filter-sort__container relative">
+      <label for="SortBy" class="filter-sort__label hidden"><span>SORT BY</span></label>
+      {%- assign sort_by = results.sort_by | default: results.default_sort_by -%}
+      <select name="sort_by" class="filter-sort__select uppercase w-[76px] cursor-pointer font-300 bg-transparent" id="SortBy" aria-describedby="a11y-refresh-page-message" js-filter-form-sort>
+        <option value="sort-by" selected disabled>SORT BY</option>
+        {%- for option in results.sort_options -%}
+          <option value="{{ option.value | escape }}">{{ option.name | escape }}</option>
+        {%- endfor -%}
+      </select>
+      <div class="filter-sort__select-icon absolute top-1/2 -translate-y-1/2 right-8 w-8">
+        {% render 'icon-arrow-down' %}
+      </div>
+    </div><!-- .filter-sort__sort-container -->
+
+
+    <div class="filter-sort__filters-container">
+      
+      <div class="filter-sort__filters-dropdown w-full h-auto mt-4 bg-white pt-8 pb-40 desktop:pt-20 z-[2]" js-filter-dropdown>
+        <s-accordion class="flex flex-col" js-accordion>
+        {%- for filter in results.filters -%}
+          {%- assign total_active_values = total_active_values | plus: filter.active_values.size -%}
+          <div class="filter-sort accordion-item pt-16 pb-24 flex flex-col items-start" data-index="{{ forloop.index }}" js-accordion-item js-filter>
+            <button class="filter-sort__label accordion-header flex items-center justify-between w-full capitalize text-10 font-akzidenz" aria-expanded="false" aria-controls="{{ filter.label | handle }}-master-filter" type="button" js-accordion-header>{{ filter.label | escape }}<span class="filter-sort-icon inline-block w-16 mr-16">{% render 'icon-filter-caret' %}</span></button>
+            <div id="{{ filter.label | handle }}-master-filter" class="filter-sort__values-container accordion-content flex-1 flex flex-col w-full" aria-hidden="true" js-accordion-content>
+              {% case filter.type %}
+                {% when 'list' %}
+                  <ul class="filter-sort__values mt-16 flex-1 grid gap-y-16 {% if filter.label == 'Color' %}grid-cols-6{% endif %}" role="list">
+                    {%- for value in filter.values -%}
+                      {% capture value_id %}FilterSort-{{ filter.label | escape }}-{{ forloop.index }}{% endcapture %}
+                      <li class="filter-sort__value">
+                        <div class="filter-value flex items-center">
+                          <input type="checkbox"
+                            name="{{ value.param_name }}"
+                            value="{{ value.value }}"
+                            id="{{ value_id }}"
+                            class="{% if filter.label == 'Color' %}filter-sort__color-input sr-only{% else %}filter-sort__checkbox-input{% endif %} {% unless value.count == 0 and value.active == false %}cursor-pointer{% endunless %}"
+                            {% if value.active %}checked{% endif %}
+                            {% if value.count == 0 and value.active == false %}disabled{% endif %}
+                          >
+                          <label for="{{ value_id }}" 
+                            class="filter-value__label ml-8 uppercase leading-[1] font-300 {% if value.count == 0 and value.active == false %} disabled opacity-30{% else %} cursor-pointer{% endif %}" {% if filter.label == 'Color' %} aria-label="{{ value.label | upcase }}" title="{{ value.label | upcase }}" {% endif %}>
+                            {% if filter.label == 'Color' %}
+                              {% assign color = value.value | handle %}
+                              {% assign color_swatch = color | prepend: 'swatch-' | append: '.png' | file_url %}
+                              <div class="filter-value__label-color absolute top-[1px] left-[1px] w-12 h-12 bg-cover bg-no-repeat" style="background-image: url({{ color_swatch }}); background-color: {{ color }};"></div>
+                            {% else %}
+                              {{ value.label | escape }}
+                              <span>
+                                ({{ value.count }})
+                              </span>
+                            {% endif %}
+                          </label>
+                        </div>
+                      </li>  
+                    {%- endfor -%}
+                  </ul>   
+                {% when 'price_range' %}   
+                  {% render 'filter--range' filter: filter, value: value %}
+              {% endcase %}
+            </div><!-- .filter-sort__values-container -->
+          </div>
+        {%- endfor -%}
+        </s-accordion>
+
+        <div class="filter-sort__footer mt-16 widescreen:mt-0">
+          <button class="no-js-hidden btn mb-16 py-12 w-full bg-black-true text-white" js-filter-sort-close>APPLY FILTERS</button>
+          <button class="active-filters__remove btn py-12 w-full" js-clear-all>
+            CLEAR ALL
+          </button>
+        </div>
+      </div>
+      
+    </div><!-- .filter-sort__filters-container -->
+
+
+
+    {% if results.current_vendor or results.current_type %}
+      <input type="hidden" name="q" value="{{ results.current_vendor }}{{ results.current_type }}">
+    {% endif %}
+
+    {%- if results.terms -%}
+      <input type="hidden" name="q" value="{{ results.terms | escape }}">
+      <input name="options[prefix]" type="hidden" value="last">
+    {%- endif -%}     
+  </form>
+</filter-sort>

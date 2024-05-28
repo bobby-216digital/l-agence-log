@@ -1,0 +1,254 @@
+<div class="image-grid max-w-screen-extrawide mx-auto px-16 desktop:px-56 landscape:flex justify-center">  
+  {% for block in section.blocks %}
+    <div class="image-grid__item w-full landscape:px-12 relative">
+      <div class="image-grid__item-image relative">
+        {% render 'lazy-image', image: block.settings.image %}
+
+        <div class="image-grid__item-hotspots absolute top-0 left-0 w-full h-full">
+          {% for index in (1..4) %}
+            {% assign product_index = 'product_' | append: index %}
+            {% assign pos_x_index = 'pos_x_' | append: index %}
+            {% assign pos_y_index = 'pos_y_' | append: index %}
+
+            {% if block.settings[product_index] != blank %}
+              {% assign product = all_products[block.settings[product_index]] %}
+              {% assign pos_x = block.settings[pos_x_index] %}
+              {% assign pos_y = block.settings[pos_y_index] %}
+
+              {% if product.available %}
+              <hot-spot>
+                <div class="image-grid__item-hotspot absolute transform -translate-x-1/2 -translate-y-1/2 z-[1]" style="left: {{ pos_x }}%; top: {{ pos_y }}%">
+                  <button
+                    class="image-grid__item-hotspot__target w-[21px] h-[21px] inline-flex justify-center items-center text-white bg-black rounded-full relative" js-hot-spot-btn
+                  >
+                    <span class="w-[12px] h-[12px] flex">
+                      {% render 'icon-plus' %}
+                    </span>
+                  </button>
+  
+                  <a
+                    href="{{ product.url }}"
+                    class="image-grid__item-hotspot__content hidden z-[1] bottom-[25px] left-[25px] bg-white p-8 font-akzidenz text-9 text-black leading-[1.78] tracking-[0.01px] max-w-[100px] absolute text-left w-screen" js-hot-spot-content
+                  >
+  
+                    <span class="z-[1] relative uppercase">
+                      {{ product.title }} <br>
+                      {{ product.price | money_without_trailing_zeros }}<br>
+                      <span class="uppercase h4 underline cursor-pointer">SHOP NOW</span>
+                    </span>
+                  </a>
+                </div>
+              </hot-spot>
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="image-grid__item-content text-center py-40">
+        {% if block.settings.title %}
+          <h1 class="h1 mb-16 {{block.settings.title_size}} {% if block.settings.use_bold %}font-500{% endif %}">
+            {% if block.settings.cta_style == 'title' %}
+              <a href="{{block.settings.cta_url}}" class="image-grid__item-title-link title-link">{{block.settings.title}}</a>
+            {% else %}
+              {{block.settings.title}}
+            {% endif %}
+          </h1>
+        {% endif %}
+
+        {% if block.settings.subtitle %}
+          <h2 class="h2 mb-16  {{block.settings.subtitle_size}}">{{ block.settings.subtitle }}</h2>
+        {% endif %}
+
+        {% if block.settings.cta_url and block.settings.cta_style != 'title' %}
+          <a href="{{ block.settings.cta_url }}" class="{{ block.settings.cta_style }}">
+            {{ block.settings.cta_text }}
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}  
+</div>
+
+{% schema %}
+{
+  "name": "Image Grid",
+  "tag": "section",
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "image"
+        },
+        {
+          "type": "header",
+          "content": "Content"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "select",
+          "id": "title_size",
+          "label": "Title Size",
+          "options": [
+            {
+              "value": "text-16",
+              "label": "Small"
+            },
+            {
+              "value": "text-25",
+              "label": "Medium"
+            },
+            {
+              "value": "text-40",
+              "label": "Large"
+            }
+          ],
+          "default": "text-25"
+        },
+        {
+          "type": "checkbox",
+          "id": "use_bold",
+          "label": "Use Bold Title",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "subtitle",
+          "label": "Subtitle"
+        },
+        {
+          "type": "select",
+          "id": "subtitle_size",
+          "label": "Subtitle Size",
+          "options": [
+            {
+              "value": "text-12",
+              "label": "Small"
+            },
+            {
+              "value": "text-16",
+              "label": "Medium"
+            },
+            {
+              "value": "text-20",
+              "label": "Large"
+            }
+          ],
+          "default": "text-12"
+        },
+        {
+          "type": "select",
+          "id": "cta_style",
+          "label": "CTA Style",
+          "options": [
+            {
+              "value": "title",
+              "label": "No CTA, title links instead"
+            },
+            {
+              "value": "btn",
+              "label": "Button"
+            },
+            {
+              "value": "link",
+              "label": "Link"
+            }
+          ],
+          "default": "btn"
+        },
+        {
+          "type": "text",
+          "id": "cta_text",
+          "label": "CTA Text"
+        },
+        {
+          "type": "url",
+          "id": "cta_url",
+          "label": "CTA Target"
+        },
+        {
+          "type": "product",
+          "id": "product_1",
+          "label": "Product 1"
+        },
+        {
+          "type": "text",
+          "id": "pos_x_1",
+          "label": "X Pos 1",
+          "info": "% of the image"
+        },
+        {
+          "type": "text",
+          "id": "pos_y_1",
+          "label": "Y Pos 1",
+          "info": "% of the image"
+        },
+        {
+          "type": "product",
+          "id": "product_2",
+          "label": "Product 2"
+        },
+        {
+          "type": "text",
+          "id": "pos_x_2",
+          "label": "X Pos 2",
+          "info": "% of the image"
+        },
+        {
+          "type": "text",
+          "id": "pos_y_2",
+          "label": "Y Pos 2",
+          "info": "% of the image"
+        },
+        {
+          "type": "product",
+          "id": "product_3",
+          "label": "Product 3"
+        },
+        {
+          "type": "text",
+          "id": "pos_x_3",
+          "label": "X Pos 3",
+          "info": "% of the image"
+        },
+        {
+          "type": "text",
+          "id": "pos_y_3",
+          "label": "Y Pos 3",
+          "info": "% of the image"
+        },
+        {
+          "type": "product",
+          "id": "product_4",
+          "label": "Product 4"
+        },
+        {
+          "type": "text",
+          "id": "pos_x_4",
+          "label": "X Pos 4",
+          "info": "% of the image"
+        },
+        {
+          "type": "text",
+          "id": "pos_y_4",
+          "label": "Y Pos 4",
+          "info": "% of the image"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image Grid with Hotspots"
+    }
+  ]
+}
+{% endschema %}

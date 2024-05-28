@@ -1,0 +1,57 @@
+<section class="page page--cart max-w-screen-tabletl mx-auto self-center">
+  <h1 class="cart__title">Shopping Bag</h1>
+  {% if cart.item_count > 0 %}
+    <form class="page-cart__form grid grid-cols-1 tabletp:grid-cols-2" action="/cart" method="post" novalidate>
+      <div class="page-cart__products grid grid-cols-1">
+        {% for item in cart.items %}
+          {% comment %}Copy line item layout from cart drawer{% endcomment %}
+          <div class="cart__product grid grid-cols-[135px,1fr]" data-line="{{item.key}}">
+            <a href="{{item.product.url}}" class="cart__product-image-link">
+              {% render 'lazy-image', image: item.product.featured_image %}
+            </a>
+            <div class="cart__product-information">
+              <h1 class="cart__product-title">{{item.product.title}}</h1>
+              {% unless item.variant.title contains 'Default' %}
+                <span class="cart__product-variant">{{ item.variant.title }}</span>
+              {% endunless %}
+              <div class="cart__product-price">
+                {% if item.variant.compare_at_price > item.line_price %}
+                  <s>{{ item.variant.compare_at_price | money_without_trailing_zeros }}</s> {{ item.price | money_without_trailing_zeros }}
+                {% else %}
+                  {{ item.price | money_without_trailing_zeros }}
+                {% endif %}
+              </div>
+              <input type="text" name="updates[]" class="cart__qty-num" id="updates_{{ item.key }}" value="{{ item.quantity }}" min="0" aria-label="{{ 'cart.general.item_quantity' | t }}">
+              <a href="/cart/change?line={{ forloop.index }}&amp;quantity=0" class="cart__remove">X</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      <aside class="page-cart__sidebar top-0 self-start tabletp:sticky">
+        <div class="page-cart__subtotal flex space-between align-center justify-between w-full">
+          <h2 class="page-cart-subtotal__title">Subtotal</h2>
+          <span class="page-cart-subtotal__price">{{ cart.total_price | money_without_trailing_zeros }}</span>
+        </div>
+        <p class="page-cart__disclaimer">Taxes and shipping calculated at checkout</p>
+        <div class="page-cart__footer">
+          <button type="submit" name="update" class="page-cart__update btn">
+            Update Cart
+          </button>
+          <button type="submit" class="page-cart__checkout btn__checkout btn" name="checkout">
+            Checkout
+          </button>
+        </div>
+      </aside>
+    </form>
+  {% else %}
+    <div class="cart--empty">
+      <p class="cart__empty">Your cart is empty</p>
+    </div>
+  {% endif %}
+</section>
+
+{% schema %}
+{
+  "name": "Cart"
+}
+{% endschema %}

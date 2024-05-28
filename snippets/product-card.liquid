@@ -1,0 +1,213 @@
+{%- comment -%}
+* snippet: product-card.liquid
+* ----------------------------
+* Renders a product card
+*
+* @param {Object} product 
+* @param {Boolean} quickadd - default: false
+* @param {Number} section_id - optional, but recommended: less chance of id conflicts
+*
+* @usage: {% render 'product-card', product: product, section_id: section.id %}
+{%- endcomment -%}
+
+{%- liquid
+  for tag in product.tags
+    if tag contains 'upsell:'
+      assign upsell_tag = tag | remove: 'upsell:'
+    endif 
+    if tag contains 'plp tag:'
+      assign badge_tag = tag | remove: "plp tag:" | strip
+    endif
+    if tag contains 'gwp:'
+      assign gwp_tag = tag | remove: "gwp:"
+    endif
+    if tag contains 'est. ship date:'
+      assign preorder = tag | remove: "est. ship date:" | strip
+    endif
+    if tag contains 'coming-soon'
+      assign waitlist = 'JOIN THE WAITLIST'
+    endif
+    if tag contains 'final sale'
+      assign final_sale_tag = tag | upcase | strip
+    endif
+  endfor
+
+  if product.metafields.custom.link != blank
+    assign product-card__link = product.metafields.custom.link 
+  else
+    assign product-card__link = product.url
+  endif
+
+  if settings.currency_code_enabled
+    if cart.currency.symbol == '$' and localization.country.iso_code != 'US'
+      assign country_code = localization.country.iso_code
+    else
+      assign country_code = null
+    endif
+  endif
+
+  assign lazy_load = true
+-%}
+
+{% assign sale_tag = settings.sale_tag %}
+{% if settings.sale_percentage != blank %}
+  {% assign sale_percentage = settings.sale_percentage |  divided_by: 100.0 %}
+  {% assign complement_percentage = 1 | minus: sale_percentage %}
+{% endif %}
+
+<product-card
+  class="product-card font-400 relative"
+  {% if upsell_tag %}data-upsell-tag="{{ upsell_tag }}"{% endif %}
+  {% if preorder %}data-preorder="{{preorder}}"{% endif %}
+  {% if gwp_tag %}data-gwp-tag="{{ gwp_tag }}"{% endif %}
+  {% if final_sale_tag %}data-final-sale-tag="{{ final_sale_tag }}"{% endif %}
+  {% if product.tags contains sale_tag and sale_percentage > 0%}data-sale_percentage="{{ sale_percentage }}"{% endif %}>
+  {%- unless product.metafields.custom.hide_product_data == true -%}
+    <!-- include 'wishlist-button-floating' with '{{ product.id }}' -->
+  {%- endunless -%}
+  <div class="product-card__image-container relative overflow-hidden">
+    {%- if product.metafields.custom.hide_product_data == true and product.metafields.custom.link == blank -%}
+      <div class="product-card__image">
+    {%- else -%}
+      <a href="{{ product-card__link }}" class="product-card__image">
+    {%- endif -%}
+    <div class="product-card__item-image" js-item-image>
+      {% if product.featured_media.media_type == "video"%}
+        {{ product.featured_media | video_tag: image_size: '900x', controls: false, autoplay: true, loop: true, muted: "muted", class: 'w-full h-full' }}
+      {% else %}
+        {% if lazy_load == true %}
+          {% render 'lazy-image' image: product.featured_image %}
+        {% else %}
+          <img src="{{ product.featured_image | img_url: 'master' }}" class="w-full" width="" height="">
+        {% endif %}
+      {% endif %}
+    </div>
+    <div class="product-card__model-image absolute top-0 left-0 w-full h-full z-[1] opacity-0" js-model-image>
+      {% if lazy_load == true %}
+        {% render 'lazy-image' image: product.images[1] %}
+      {% else %}
+        <img src="{{ product.images[1] | img_url: 'master' }}" class="w-full" width="" height="">
+      {% endif %}
+    </div>
+    <lookbook-drawer>
+      {% assign product_1 = product.metafields.seed.shop_the_look_product_one.value %}
+      {% assign product_1_handle = product_1.handle%}
+      {% assign product_2 = product.metafields.seed.shop_the_look_product_2.value %}
+      {% assign product_2_handle = product_2.handle%}
+      {% assign product_3 = product.metafields.seed.shop_the_look_product_3.value %}
+      {% assign product_3_handle = product_3.handle%}
+      {% assign product_4 = product.metafields.seed.shop_the_look_product_4.value %}
+      {% assign product_4_handle = product_4.handle%}
+      {% assign product_5 = product.metafields.seed.shop_the_look_product_5.value %}
+      {% assign product_5_handle = product_5.handle%}
+      
+      <div class="collection-lookbook__button absolute bottom-8 left-[10px] z-[2]" type="button" js-lookbook-drawer-open data-product-1="{% if product.metafields.seed.shop_the_look_product_one != blank %}{{ product_1.handle }}{% else %}NULL{% endif %}" data-product-2="{% if product.metafields.seed.shop_the_look_product_2 != blank %}{{ product_2.handle }}{% else %}NULL{% endif %}" data-product-3="{% if product.metafields.seed.shop_the_look_product_3 != blank %}{{ product_3.handle }}{% else %}NULL{% endif %}" data-product-4="{% if product.metafields.seed.shop_the_look_product_4 != blank %}{{ product_4.handle }}{% else %}NULL{% endif %}" data-product-5="{% if product.metafields.seed.shop_the_look_product_5 != blank %}{{ product_5.handle }}{% else %}NULL{% endif %}" {% unless product.metafields.seed.shop_the_look_product_1 != blank or product.metafields.seed.shop_the_look_product_2 != blank or product.metafields.seed.shop_the_look_product_3 != blank or product.metafields.seed.shop_the_look_product_4 != blank or product.metafields.seed.shop_the_look_product_5 != blank %}disabled {% endunless %}>
+        <div class="pointer-events-none">
+          {% if product.metafields.seed.shop_the_look_product_one != blank or product.metafields.seed.shop_the_look_product_2 != blank or product.metafields.seed.shop_the_look_product_3 != blank or product.metafields.seed.shop_the_look_product_4 != blank or product.metafields.seed.shop_the_look_product_5 != blank %}
+            <div class="image-grid__item-hotspot__target collection-image__icon w-[21px] h-[21px] inline-flex justify-center items-center text-black bg-white rounded-full">
+              <span class="w-[12px] h-[12px] flex icon__wrapper absolute">
+                {% render 'icon-plus' %}
+              </span>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      {% if product.metafields.seed.shop_the_look_product_one != blank or product.metafields.seed.shop_the_look_product_2 != blank or product.metafields.seed.shop_the_look_product_3 != blank or product.metafields.seed.shop_the_look_product_4 != blank or product.metafields.seed.shop_the_look_product_5 != blank %}
+        <button class="hidden-bar p-[15px] flex h-[62px] w-full bg-white top-[100%] items-center justify-start absolute z-[2]" js-lookbook-drawer-open data-product-1="{% if product.metafields.seed.shop_the_look_product_one != blank %}{{ product_1.handle }}{% else %}NULL{% endif %}" data-product-2="{% if product.metafields.seed.shop_the_look_product_2 != blank %}{{ product_2.handle }}{% else %}NULL{% endif %}" data-product-3="{% if product.metafields.seed.shop_the_look_product_3 != blank %}{{ product_3.handle }}{% else %}NULL{% endif %}" data-product-4="{% if product.metafields.seed.shop_the_look_product_4 != blank %}{{ product_4.handle }}{% else %}NULL{% endif %}" data-product-5="{% if product.metafields.seed.shop_the_look_product_5 != blank %}{{ product_5.handle }}{% else %}NULL{% endif %}" {% unless product.metafields.seed.shop_the_look_product_1 != blank or product.metafields.seed.shop_the_look_product_2 != blank or product.metafields.seed.shop_the_look_product_3 != blank or product.metafields.seed.shop_the_look_product_4 != blank or product.metafields.seed.shop_the_look_product_5 != blank %}disabled {% endunless %}>
+          <span class="w-[12px] h-[12px] mr-8 flex icon__wrapper pointer-events-none">
+            {% render 'icon-minus' %}
+          </span>
+          <span class="shop__message pointer-events-none">
+            SHOP THE LOOK
+          </span>
+        </button>
+      {% endif %}
+    </lookbook-drawer>
+    {%- if product.metafields.custom.hide_product_data == true and product.metafields.custom.link == blank -%}
+    </div>
+    {%- else -%}
+  </a>
+  {%- endif -%}
+
+    {%- unless product.metafields.custom.hide_product_data == true -%}
+      <div class="product-card__quick-add items-center justify-center gap-y-12 gap-x-20 flex-wrap p-8 bg-white z-[2] absolute w-full bottom-0 left-0 font-akzidenz text-9" js-quick-add-container>
+        {% if waitlist != blank %}
+          <a class="product-card__waitlist" href="{{ product.url }}">
+            {{ waitlist }}
+          </a>
+        {% elsif product.variants.size > 1 and product.available %}
+          {% for variant in product.variants %}
+            <button
+              class="product-card__quick-add-trigger disabled:cursor-not-allowed {% unless variant.available %}opacity-30{% endunless %}"
+              data-id="{{variant.id}}"
+              {% unless variant.available %}
+              disabled
+              {% endunless %}
+              js-quick-add>
+              {{ variant.option2 }}
+            </button>
+          {% endfor %}
+        {% elsif product.available %}
+          <button
+            class="product-card__quick-add-trigger"
+            data-id="{{product.first_available_variant.id}}"
+            js-quick-add>Add to Cart</button>
+        {% else %}
+          Sold Out
+        {% endif %}
+      </div>
+    {%- endunless -%}
+  </div>
+
+  {%- unless product.metafields.custom.hide_product_data == true -%}
+    <div class="product-card__info p-8 desktop:p-24 font-akzidenz text-10">
+      {% if badge_tag %}
+        <div class="product-card__badge h4 text-center mb-4 uppercase font-700 font-sangbleu">{{ badge_tag }}</div>
+      {% endif %}
+      {% if preorder %}
+        <div class="product-card__badge h4 text-center mb-4 uppercase font-700 font-sangbleu">est. ship date: {{ preorder }}</div>
+      {% endif %}
+      <h1 class="product-card__title text-center text-10 font-400 tracking-[0.06em] {% if badge_tag == blank and preorder == blank %}mt-20{% endif %}">
+        <a href="{{ product.url }}" class="product-card__title-link">{{ product.title | upcase }}</a>
+      </h1>
+      <div class="product-card__price text-center mt-4">
+        {% if product.available or waitlist != blank %}
+          {% if product.compare_at_price > product.price %}
+            <s class="product-card__price--sale pl-4 text-gray {% if product.tags contains sale_tag and settings.sale_active %}line-through {%endif %}">{{ product.compare_at_price | money_without_trailing_zeros }}</s>
+          {% endif %}
+          {% if product.tags contains sale_tag and sale_percentage > 0%}
+            {% if product.compare_at_price <= product.price %}
+              <span class="text-gray line-through">{{ country_code }}{{ product.price | money_without_trailing_zeros }}</span>
+            {% endif %}
+            <span class="product-card__price--price product-card__sale-price text-red" style="color: {{settings.sale_price_color}}">
+              {% assign product_price_rounded =  product.price|  times: complement_percentage | divided_by: 100.0 | round |  times: 100.0%}
+              {{ country_code }}{{product_price_rounded | money_without_trailing_zeros}}
+              </span>
+          {% else %}
+            <span class="product-card__price--price">{{ country_code }}{{ product.price | money_without_trailing_zeros }}</span>
+          {% endif %}
+        {% elsif product.available == false and waitlist == blank %}
+          <span class="product-card__price--soldout">Sold Out</span>
+        {% endif %}
+      </div>
+      {% if product.tags contains sale_tag %}
+        {% if settings.sale_active %}
+        <p class="product-card__sale text-center">
+          <span style="color:{{settings.sale_color_1}}">{{ settings.sale_line_1 }}</span><br>
+          <span style="color:{{settings.sale_color_2}}">{{ settings.sale_line_2 }}</span>
+        </p>
+        {% endif %}
+      {% endif %}
+    </div>
+    <!-- .product-card__info -->
+
+    <div class="product-card__add desktop:hidden">
+      <button class="product-card__add-button flex w-full justify-center items-center text-10 font-akzidenz" js-mobile-quick-add>
+        <span class="product-card__add-button__border w-16 h-16 border border-gray rounded-full mr-8 text-gray flex justify-center items-center">
+          <span class="product-card__add-button__icon block w-8 transition-all">{% render 'icon-plus' %}</span>
+        </span>
+        {% if waitlist != blank %}JOIN THE WAITLIST {% else %}ADD TO BAG{% endif %}
+      </button>
+    </div>
+  {%- endunless -%}
+</product-card>

@@ -1,0 +1,22 @@
+{%- paginate blog.articles by 48 -%}
+
+  <div class="blog px-8 desktop:px-56">
+    <ul class="blog-articles grid desktop:grid-cols-3 gap-16 desktop:gap-x-8 desktop:gap-y-16" role="list">
+      {%- for article in blog.articles -%}
+        <li class="blog-articles__article">
+          {%- render 'article-card', article: article -%}
+        </li>
+      {%- endfor -%}
+      </ul>
+
+    {%- if paginate.pages > 1 -%}
+      {%- render 'pagination', paginate: paginate -%}
+    {%- endif -%}
+  </div>
+{%- endpaginate -%}
+
+{% schema %}
+{
+  "name": "Blog Posts"
+}
+{% endschema %}

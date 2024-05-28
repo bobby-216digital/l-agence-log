@@ -1,0 +1,31 @@
+<s-drawer class="search-drawer overflow-visible " id="SearchDrawer" position='top' open="[js-search-drawer-open]" close="[js-search-drawer-close]">
+  <predictive-search class="relative block desktop:flex desktop:justify-center desktop:items-center desktop:pb-20 desktop:pt-24">
+    <form action="{{ routes.search_url }}" method="get" role="search" class="search-drawer__form relative desktop:w-[60%] desktop:max-w-screen-tabletp">
+      <label for="header-search" class="visually-hidden">Search</label>
+      <input
+        id="header-search"
+        class="search-drawer__input pl-16 pr-48 py-12 w-full text-15 desktop:h-40 desktop:pl-0 desktop:border-b desktop:border-black"
+        type="search"
+        name="q"
+        value="{{ search.terms | escape }}"
+        {%- if settings.predictive_search_enabled -%}
+          role="combobox"
+          aria-expanded="false"
+          aria-owns="predictive-search-results-list"
+          aria-controls="predictive-search-results-list"
+          aria-haspopup="listbox"
+          aria-autocomplete="list"
+          autocorrect="off"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+        {%- endif -%}
+        placeholder="What can we help you find?"
+      >
+      <button class="search-drawer__submit search-link w-20 absolute top-1/2 translate-y-[-50%] right-16 desktop:right-12" type="submit">{% render 'icon-search' %}</button>
+      <input name="options[prefix]" type="hidden" value="last">
+      <div class="search-drawer__dropdown absolute hidden w-full overflow-auto bg-white max-h-75vh px-16 desktop:mt-20" tabindex="-1" js-predictive-search></div>
+    </form>
+    <button class="search-drawer__close btn hidden desktop:block absolute right-16 py-12 min-w-[100px] font-400" js-search-drawer-close>CLOSE</button> 
+  </predictive-search>
+</s-drawer>

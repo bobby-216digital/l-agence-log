@@ -1,0 +1,64 @@
+{%- capture carousel_options -%}
+{
+  "cellAlign": "left"
+}
+{%- endcapture -%}
+
+{% assign desktop_slide_width = "desktop:w-1/2" %}
+
+{% if section.blocks.size > 3 %}
+  {% assign desktop_carousel = true %}
+  {% assign desktop_slide_width = "desktop:w-1/3" %}
+{% endif %}
+
+
+
+<div class="image-blocks py-8 px-16 desktop:px-56">
+  <s-carousel data-options='{{carousel_options}}' {% unless desktop_carousel %} data-init="belowDesktop" {% endunless %}>
+    <div class="image-blocks__carousel w-full {% unless desktop_carousel %} desktop:flex {% endunless %}" js-carousel>
+      {% for block in section.blocks %}
+        <div class="image-blocks__slide w-full mr-8 {{ desktop_slide_width }}" js-carousel-slide>
+          {% render 'lazy-image' image: block.settings.image %}
+        </div>
+      {% endfor %}
+
+      <button class="carousel-nav image-blocks__left w-[44px] h-[44px] absolute top-1/2 -left-48 z-[2] hidden desktop:block flex items-center justify-center" js-prev-button>
+        {% render 'icon-arrow-left' %}
+      </button>
+
+      <button class="carousel-nav image-blocks__right w-[44px] h-[44px] absolute top-1/2 -right-48 z-[2] hidden desktop:block flex items-center justify-center" js-next-button>
+        {% render 'icon-arrow-right' %}
+      </button>
+    </div>
+
+    <div class="image-blocks__dots desktop:hidden mt-12 flex flex-row gap-4 justify-center w-full z-[2]" js-carousel-dots>
+      {% for block in section.blocks %}
+        <button class="image-blocks__dot relative border border-black carousel-dot bg-white w-12 h-12 rounded-full text-[0px]" data-index="{{ forloop.index0 }}" aria-label="Go to slide {{ forloop.index }}">{{forloop.index}}</button>
+      {% endfor %}
+    </div>
+  </s-carousel>
+</div>
+
+{% schema %}
+{
+  "name": "Lookbook Image Blocks",
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "image"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Lookbook Image Blocks"
+    }
+  ]
+}
+{% endschema %}

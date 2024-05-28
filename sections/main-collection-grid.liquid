@@ -1,0 +1,358 @@
+{%- liquid 
+  assign sort_by = collection.sort_by | default: collection.default_sort_by
+  assign count = 1
+
+	assign active_filters = false
+	for filter in collection.filters
+		assign active_values = filter.active_values | size
+		if active_values > 0
+			assign active_filters = true
+			break
+		endif
+	endfor
+
+	assign products_count = 0
+	for product in collection.products
+		unless active_filters and product.selected_or_first_available_variant.available == false
+			assign products_count = products_count | plus: 1
+		endunless
+	endfor
+
+
+  assign grid_image_1_mobile = collection.metafields.seed.collection_image_1_mobile
+  assign grid_image_1_desktop = collection.metafields.seed.collection_image_1_desktop
+  assign grid_image_1_link = collection.metafields.seed.collection_image_1_link
+  assign grid_image_1_link_title = collection.metafields.seed.collection_image_1_link_title
+  assign grid_image_1_link_style = collection.metafields.seed.collection_image_1_link_style
+  assign grid_image_1_subtext = collection.metafields.seed.collection_image_1_subtext
+  assign grid_image_1_video_desktop = collection.metafields.seed.collection_image_1_video
+  assign grid_image_1_video_mobile = collection.metafields.seed.collection_image_1_video_mobile
+
+  assign grid_image_2_mobile = collection.metafields.seed.collection_image_2_mobile
+  assign grid_image_2_desktop = collection.metafields.seed.collection_image_2_desktop
+  assign grid_image_2_link = collection.metafields.seed.collection_image_2_link
+  assign grid_image_2_link_title = collection.metafields.seed.collection_image_2_link_title
+  assign grid_image_2_link_style = collection.metafields.seed.collection_image_2_link_style
+  assign grid_image_2_subtext = collection.metafields.seed.collection_image_2_subtext
+  assign grid_image_2_video_desktop = collection.metafields.seed.collection_image_2_video
+  assign grid_image_2_video_mobile = collection.metafields.seed.collection_image_2_video_mobile
+
+  assign grid_image_3_mobile = collection.metafields.seed.collection_image_3_mobile
+  assign grid_image_3_desktop = collection.metafields.seed.collection_image_3_desktop
+  assign grid_image_3_link = collection.metafields.seed.collection_image_3_link
+  assign grid_image_3_link_title = collection.metafields.seed.collection_image_3_link_title
+  assign grid_image_3_link_style = collection.metafields.seed.collection_image_3_link_style
+  assign grid_image_3_subtext = collection.metafields.seed.collection_image_3_subtext
+  assign grid_image_3_video_desktop = collection.metafields.seed.collection_image_3_video
+  assign grid_image_3_video_mobile = collection.metafields.seed.collection_image_3_video_mobile
+  assign grid_row_three = collection.metafields.seed.three_row
+  assign subcategories = collection.metafields.custom.subcategories_link_list
+-%}
+{%- capture carousel_options -%}
+	{
+	  "cellAlign": "left",
+	  "groupCells": "3",
+	  "wrapAround": true
+	}
+{%- endcapture -%}
+
+{%- capture carousel_options_desktop -%}
+	{
+	  "cellAlign": "left",
+	  "wrapAround": true
+	}
+{%- endcapture -%}
+
+{% comment %}{% render 'active-filters', results: collection %}{% endcomment %}
+{% paginate collection.products by 48 %}
+	<main-collection role="section" class="collection-grid block font-akzidenz text-10" data-id="{{ section.id }}">
+	  <div class="collection-grid__layout px-8 pb-40 desktop:px-56">
+	    <h1 class="collection-grid__title font-sangbleu text-center pt-28 pb-4">{{ collection.title }}</h1>
+	    <div class="collection-grid__products-count block text-center h3" js-products-count>{% if active_filters %}{{ products_count }}{% else %}{{ collection.products_count }}{% endif%} Products</div>
+	    
+		{% if subcategories != blank %}
+		<s-carousel data-options='{{carousel_options}}' {% unless linklists[subcategories].links.size >= 4 %}data-init="never"{% endunless %} data-length="{{ linklists[subcategories].links.size }}" class="desktop:hidden">
+			<div class="collection-grid__subcategories gap-8 mt-20{% unless linklists[subcategories].links.size >= 4 %} flex items-start justify-center{% endunless %}" js-carousel>
+				{% for subcategory in linklists[subcategories].links %}
+				<div class="collection-grid__subcategory px-[5px] w-1/3 {% unless linklists[subcategories].links.size >= 4 %} desktop:px-[0px] desktop:w-[20%]{%- else -%}desktop:px-[10px] desktop:w-[20%]{% endunless %}" js-carousel-slide>
+						<a href="{{subcategory.url}}" class="collection-grid__subcategory-image block">
+							{% assign subcategory_image = collections[subcategory.handle].metafields.seed.subcategory_image %}
+							{% render 'lazy-image', image: subcategory_image  %}
+						</a>
+						<a href="{{ subcategory.url }}" data-check="{{ subcategory.url | handleize }}" class="collection-grid__subcategory-title text-[12px] block text-center pt-12">{{ subcategory.title }}</a>
+					</div>
+				{% endfor %}
+					<button class="carousel-nav metafields-carousel image-blocks__left left-0 w-[44px] h-[44px] absolute top-1/2 transform translate-y-[-100%] text-[#222222] z-[2] {% if linklists[subcategories].links.size <= 3 %}hidden{% else %}flex{% endif %} items-center justify-center" js-prev-button>
+						{% render 'icon-arrow-left' %}
+					</button>
+				
+					<button class="carousel-nav  metafields-carousel image-blocks__right right-0 w-[44px] h-[44px] absolute top-1/2 transform translate-y-[-100%] z-[2] text-[#222222] {% if linklists[subcategories].links.size <= 3 %}hidden{% else %}flex{% endif %} items-center justify-center" js-next-button>
+						{% render 'icon-arrow-right' %}
+					</button>
+		</div>
+	</s-carousel>
+	<s-carousel data-options='{{carousel_options_desktop}}' {% unless linklists[subcategories].links.size >= 6 %}data-init="belowDesktop"{% endunless %} data-length="{{ linklists[subcategories].links.size }}" class="hidden desktop:block">
+		<div class="collection-grid__subcategories relative gap-8 mt-20 {% unless linklists[subcategories].links.size >= 6 %}desktop:flex desktop:items-start desktop:justify-center{% endunless %}" js-carousel>
+			{% for subcategory in linklists[subcategories].links %}
+			<div class="collection-grid__subcategory px-[5px] w-1/3 {% unless linklists[subcategories].links.size >= 6 %} desktop:px-[0px] desktop:w-[20%]{%- else -%}desktop:px-[10px] desktop:w-[20%]{% endunless %}" js-carousel-slide>
+					<a href="{{subcategory.url}}" class="collection-grid__subcategory-image block">
+						{% assign subcategory_image = collections[subcategory.handle].metafields.seed.subcategory_image %}
+						{% render 'lazy-image', image: subcategory_image  %}
+					</a>
+					<a href="{{ subcategory.url }}" data-check="{{ subcategory.url | handleize }}" class="collection-grid__subcategory-title text-[12px] block text-center pt-12">{{ subcategory.title }}</a>
+				</div>
+			{% endfor %}
+			{% unless linklists[subcategories].links.size <= 5 %}
+			<button class="carousel-nav  metafields-carousel image-blocks__left left-0 w-[44px] h-[44px] absolute top-1/2 transform translate-y-[-100%] text-[#222222] z-[2] block flex items-center justify-center" js-prev-button>
+				{% render 'icon-arrow-left' %}
+			</button>
+		
+			<button class="carousel-nav metafields-carousel image-blocks__right right-0 w-[44px] h-[44px] absolute top-1/2 transform translate-y-[-100%] z-[2] text-[#222222] block flex items-center justify-center" js-next-button>
+				{% render 'icon-arrow-right' %}
+			</button>
+		{% endunless %}
+	</div>
+	</s-carousel>
+			<div class="border-mobile border-b border-solid pt-[25px] desktop:hidden"></div>
+		{% endif %}
+
+			<active-filters class="active-filters flex flex-wrap gap-8 my-12 desktop:hidden" role="list" js-active-filters>
+				{% assign has_filters = false %}
+				{% for filter in collection.filters %}
+					{% for value in filter.active_values %}
+						{% assign has_filters = true %}
+						<li class="active-filters__filter list-none border border-gray-light" js-active-filter>
+							<button class="active-filters__remove" data-value="{{ value.value }}" data-name="{{ value.param_name }}" js-remove>          
+								{{ value.label | escape }} X
+								<span class="visually-hidden">Clear Filter</span>
+							</button>
+						</li>
+					{% endfor %}
+					{% if filter.type == 'price_range' %}
+						{%- if filter.min_value.value != nil or filter.max_value.value != nil -%}
+							{% assign has_filters = true %}
+							<li class="active-filters__filter list-none border border-gray-light" js-active-filter>
+								<button class="active-filters__remove" js-remove>
+									{%- if filter.min_value.value -%}{{ filter.min_value.value | money }}{%- else -%}{{ 0 | money }}{%- endif -%}-{%- if filter.max_value.value -%}{{ filter.max_value.value | money }}{%- else -%}{{ filter.range_max | money }}{%- endif -%}
+									<span class="visually-hidden">Clear Filter</span>
+								</button>
+							</li>
+						{%- endif -%}
+					{% endif %}
+				{% endfor %}
+				{% comment %}
+				{% if has_filters %}
+					<li class="active-filters__clear-all clear-all" js-active-filter>
+						<button class="active-filters__remove"  js-clear-all>
+							Clear All
+						</button>
+					</li>
+				{% endif %}
+				{% endcomment %}
+			</active-filters>
+
+			<div class="filter-sort--container mb-16 desktop:mt-28 desktop:mb-52 flex justify-between w-full">
+				<div class="filter-btns">
+					<button class="flex justify-start items-center gap-4 font-400" js-open-filter-sort>FILTER <span class="inline-block w-8">{% render 'icon-arrow-down' %}</span></button>
+					<button class="hidden justify-start items-center gap-4 font-400" js-close-filter-sort>FILTER <span class="inline-block w-8 rotate-180">{% render 'icon-arrow-down' %}</span></button>
+				</div>
+				<div class="sort">
+			    <div class="filter-sort__container relative">
+			      <label for="SortBy" class="filter-sort__label hidden"><span>SORT BY</span></label>
+			      <select name="sort_by" class="filter-sort__select uppercase w-[76px] cursor-pointer font-400 bg-transparent" id="SortByController" aria-describedby="a11y-refresh-page-message" js-sort-controller>
+			        <option value="sort-by" selected disabled>SORT BY</option>
+			        {%- for option in collection.sort_options -%}
+			          <option value="{{ option.value | escape }}">{{ option.name | escape }}</option>
+			        {%- endfor -%}
+			      </select>
+			      <div class="filter-sort__select-icon absolute top-1/2 -translate-y-1/2 right-8 w-8">
+			        {% render 'icon-arrow-down' %}
+			      </div>
+			    </div>
+				</div>
+			</div>
+
+			{% comment %}
+	    <div class="collection-grid__filters mt-52 mb-16 desktop:mt-28 desktop:mb-52">
+	      {% render 'filter-sort', results: collection %}
+	    </div>
+			{% endcomment %}
+
+
+			<div class="collection-grid__container grid gap-8 h-full">
+				{% render 'drawer--filter-sort' %}
+				<ul class="collection-grid__grid pb-40 grid grid-cols-2 gap-x-8 gap-y-12 {% if grid_row_three == true %}desktop:grid-cols-3{% else %}desktop:grid-cols-4{% endif %} desktop:gap-y-16 transition-all col-span-4" js-products-grid>
+					{% for product in collection.products %}
+						{% unless active_filters and product.selected_or_first_available_variant.available == false %}
+						  {% if grid_row_three == true %}
+							{% if paginate.current_page == 1 and count == 5 and grid_image_1_mobile != blank or grid_image_1_video_desktop != blank %}
+								<li class="collection-grid__grid-image">
+									{% render 'collection-grid-image',
+										grid_image_mobile: grid_image_1_mobile,
+										grid_image_desktop: grid_image_1_desktop,
+										grid_image_link: grid_image_1_link,
+										grid_image_link_title: grid_image_1_link_title,
+										grid_image_link_style: grid_image_1_link_style,
+										grid_image_subtext: grid_image_1_subtext,
+										grid_image_video_desktop: grid_image_1_video_desktop,
+										grid_image_video_mobile: grid_image_1_video_mobile
+									%}
+								</li>
+								<li class="collection-grid__grid-item">
+									{% render 'product-card' product: product, section_id: section.id, index: forloop.index %}
+								</li>
+							{% elsif paginate.current_page == 1 and count == 10 and grid_image_2_mobile != blank or grid_image_2_video_desktop != blank %}
+								<li class="collection-grid__grid-image">
+									{% render 'collection-grid-image-2',
+										grid_image_mobile: grid_image_2_mobile,
+										grid_image_desktop: grid_image_2_desktop,
+										grid_image_link: grid_image_2_link,
+										grid_image_link_title: grid_image_2_link_title,
+										grid_image_link_style: grid_image_2_link_style,
+										grid_image_subtext: grid_image_2_subtext,
+										grid_image_video_desktop: grid_image_2_video_desktop,
+										grid_image_video_mobile: grid_image_2_video_mobile
+									%}
+								</li>
+								<li class="collection-grid__grid-item">
+									{% render 'product-card' product: product, section_id: section.id, index: forloop.index %}
+								</li>
+							{% elsif paginate.current_page == 1 and count == 15 and grid_image_3_mobile != blank or grid_image_3_video_desktop != blank %}
+								<li class="collection-grid__grid-image">
+									{% render 'collection-grid-image-3',
+										grid_image_mobile: grid_image_3_mobile,
+										grid_image_desktop: grid_image_3_desktop,
+										grid_image_link: grid_image_3_link,
+										grid_image_link_title: grid_image_3_link_title,
+										grid_image_link_style: grid_image_3_link_style,
+										grid_image_subtext: grid_image_3_subtext,
+										grid_image_video_desktop: grid_image_3_video_desktop,
+										grid_image_video_mobile: grid_image_3_video_mobile
+									%}
+								</li>
+								<li class="collection-grid__grid-item">
+									{% render 'product-card' product: product, section_id: section.id, index: forloop.index %}
+								</li>
+							{% else %}
+								<li class="collection-grid__grid-item">
+									{% render 'product-card' product: product, section_id: section.id, index: forloop.index %}
+								</li>
+							{% endif %}
+						  {% else %}
+						  {% if paginate.current_page == 1 and count == 5 and grid_image_1_mobile != blank or grid_image_1_video_desktop != blank %}
+							<li class="collection-grid__grid-image col-start-1 col-end-3 desktop:col-start-3 desktop:col-end-5 row-start-5 row-end-6 desktop:row-start-3 desktop:row-end-5">
+							{% render 'collection-grid-image',
+								grid_image_mobile: grid_image_1_mobile,
+								grid_image_desktop: grid_image_1_desktop,
+								grid_image_link: grid_image_1_link,
+								grid_image_link_title: grid_image_1_link_title,
+								grid_image_link_style: grid_image_1_link_style,
+								grid_image_subtext: grid_image_1_subtext,
+								grid_image_video_desktop: grid_image_1_video_desktop,
+								grid_image_video_mobile: grid_image_1_video_mobile
+							%}
+							</li>
+							<li class="collection-grid__grid-item">
+							{% render 'product-card' product: product, section_id: section.id, index: forloop.index %}
+							</li>
+						{% elsif paginate.current_page == 1 and count == 10 and grid_image_2_mobile != blank or grid_image_2_video_desktop != blank %}
+							<li class="collection-grid__grid-image col-start-1 col-end-3 desktop:col-start-1 desktop:col-end-5 row-start-[10] row-end-[11] desktop:row-start-7 desktop:row-end-8">
+							{% render 'collection-grid-image-2',
+								grid_image_mobile: grid_image_2_mobile,
+								grid_image_desktop: grid_image_2_desktop,
+								grid_image_link: grid_image_2_link,
+								grid_image_link_title: grid_image_2_link_title,
+								grid_image_link_style: grid_image_2_link_style,
+								grid_image_subtext: grid_image_2_subtext,
+								grid_image_video_desktop: grid_image_2_video_desktop,
+								grid_image_video_mobile: grid_image_2_video_mobile
+							%}
+							</li>
+							<li class="collection-grid__grid-item">
+							{% render 'product-card' product: product, section_id: section.id, index: forloop.index %}
+							</li>
+						{% elsif paginate.current_page == 1 and count == 15 and grid_image_3_mobile != blank or grid_image_3_video_desktop != blank %}
+							<li class="collection-grid__grid-image col-start-1 col-end-3 desktop:col-start-1 desktop:col-end-3 row-start-[15] row-end-[16] desktop:row-start-[13] desktop:row-end-[14]">
+							{% render 'collection-grid-image-3',
+								grid_image_mobile: grid_image_3_mobile,
+								grid_image_desktop: grid_image_3_desktop,
+								grid_image_link: grid_image_3_link,
+								grid_image_link_title: grid_image_3_link_title,
+								grid_image_link_style: grid_image_3_link_style,
+								grid_image_subtext: grid_image_3_subtext,
+								grid_image_video_desktop: grid_image_3_video_desktop,
+								grid_image_video_mobile: grid_image_3_video_mobile
+							%}
+							</li>
+							<li class="collection-grid__grid-item">
+							{% render 'product-card' product: product, section_id: section.id, index: forloop.index %}
+							</li>
+						{% else %}
+							<li class="collection-grid__grid-item">
+							{% render 'product-card' product: product, section_id: section.id, index: forloop.index %}
+							</li>
+						{% endif %}
+					  {% endif %}
+							{% assign count = count | plus: 1 %}
+							{% assign products_count = products_count | plus: 1 %}
+						{% endunless %}
+					{% endfor %}
+				</ul>
+
+				{% if collection.description != blank %}   
+					<s-accordion data-manual-collapse="true" js-accordion>
+						<div class="accordion-item py-40" js-accordion-item>
+							<button class="accordion-header collection-accordion-header pb-[2px] border-b border-black mb-16 font-400 flex items-center" aria-expanded="false" aria-controls="accordionID" js-accordion-header>
+								COLLECTION DETAILS
+								<div class="collection-accordion-header-icon plus w-[8px] ml-8 mb-2">
+									{% render 'icon-plus' %}
+								</div>
+								<div class="collection-accordion-header-icon minus w-[8px] ml-8 mb-2">
+									{% render 'icon-close' %}
+								</div>
+							</button>
+							<div id="accordionID" class="accordion-content" aria-hidden="true" js-accordion-content>
+								<p class="font-sangbleu text-12 leading-[2] desktop:w-1/2"> {{ collection.description }} </p>
+							</div>
+						</div>
+					</s-accordion>
+				{% endif %}
+
+				<div class="collection-grid__pagination {% if paginate.pages < 2 %}hidden{% endif %}" js-collection-pagination>
+					{% if settings.infinite_scroll and paginate.next %}
+						<a class="collection-grid__pagination--infinite block w-[50px] mx-auto" href="{{ paginate.next.url }}" js-next-page>
+							{% assign loading_icon = 'icon-loading.gif' | asset_url %}
+							{% render 'lazy-image', type: 'external', image: loading_icon %}
+						</a>
+					{% elsif settings.infinite_scroll == false %}
+						{% render 'pagination', paginate: paginate, anchor: '' %}
+					{% endif %}
+				</div>
+				
+				{% if collection.products.size == 0 %}
+				<span class="h2">No Products Found</span>
+				{% endif %}				
+			</div>
+
+	  </div>
+	</main-collection>
+{% endpaginate %}
+
+<script type="text/javascript">
+	var _learnq = _learnq || [];
+  var classname = document.getElementsByClassName("product-card__quick-add-trigger");
+  var addToCart = function() {
+  	_learnq.push(['track', 'Added to Cart', item]);
+  }; 
+  for (var i = 0; i < classname.length; i++) {
+  	classname[i].addEventListener('click', addToCart, false);
+  }
+</script>
+
+{% schema %}
+{
+  "name": "Collection Grid",
+  "settings": [
+  ]
+}
+{% endschema %}

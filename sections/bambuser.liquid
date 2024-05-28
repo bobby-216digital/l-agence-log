@@ -1,0 +1,130 @@
+{% render 'bambuser-cart-integration' %}
+
+{% for block in section.blocks %}
+  {% case block.type %}
+    {% when 'channel_row__full-width' %}
+      <div class="bambuser__wrapper flex flex-col desktop:flex-row {{ block.settings.desktop_text_position }}">
+        <div class="bambuser__left desktop:flex-1">
+          <div class="bambuser__image desktop:">
+            {% render 'lazy-image', image: block.settings.image %}
+          </div>
+          {{ section.settings.show_id }}
+        </div>
+
+        <div class="bambuser__right text-center p-16 desktop:flex-1 desktop:p-32">
+          <h2 class="mb-16">{{ block.settings.heading_text }}</h2>
+          <p class="mb-16">{{ block.settings.description }}</p>
+          <div class="bambuser__wrapper max-w-[1200px] mx-auto my-32 text-center">
+            <button id="liveshopping-{{ block.id }}">{{ block.settings.cta_text }}</button>
+          </div>
+        </div>
+
+
+      </div>
+
+      
+
+      <script>
+        (function() {
+          if (!window.initBambuserLiveShopping) {
+            window.initBambuserLiveShopping = function(item) { window.initBambuserLiveShopping.queue.push(item) };
+            window.initBambuserLiveShopping.queue = [];
+            var scriptNode = document.createElement('script');
+            scriptNode['src'] = 'https://lcx-embed.bambuser.com/embed.js';
+            document.body.appendChild(scriptNode);
+          }
+
+          window.initBambuserLiveShopping({
+          showId: '{{ block.settings.show_id }}',
+            node: document.getElementById('liveshopping-{{ block.id }}'),
+            type: 'overlay',
+          });
+        })();
+      </script>
+    {% when 'channel_row' %}
+    {% unless block.settings.channel_id == blank %}
+      <div class="bambuser__wrapper max-w-[1200px] mx-auto my-32">
+        <div data-bambuser-liveshopping-widget="channel" data-channel-id="{{ block.settings.channel_id }}" data-channel-locale=""></div>
+      </div>
+    {% endunless %}
+    {% when '@app' %}
+      {{ block }}
+  {% endcase %}
+{% endfor %}
+
+{% schema %}
+  {
+    "name": "Bambuser",
+    "tag": "section",
+    "settings": [],
+    "blocks": [
+      {
+        "type": "channel_row__full-width",
+        "name": "Channel Row - Full Width",
+        "settings": [
+          {
+            "type": "text",
+            "id": "show_id",
+            "label": "Show ID"
+          },
+          {
+            "type": "image_picker",
+            "id": "image",
+            "label": "Image"
+          },
+          {
+            "type": "select",
+            "id": "desktop_text_position",
+            "label": "Text Position (Desktop)",
+            "options": [
+              {
+                "value": "desktop:items-start",
+                "label": "Top"
+              },
+              {
+                "value": "desktop:items-center",
+                "label": "Center"
+              },
+              {
+                "value": "desktop:items-end",
+                "label": "Bottom"
+              }
+            ],
+            "default": "desktop:items-start"
+          },
+          {
+            "type": "text",
+            "id": "heading_text",
+            "label": "Heading Text"
+          },
+          {
+            "type": "text",
+            "id": "description",
+            "label": "Description"
+          },
+          {
+            "type": "text",
+            "id": "cta_text",
+            "label": "CTA Label"
+          }
+        ]
+      },
+      {
+        "type": "channel_row",
+        "name": "Channel Row - Grid",
+        "settings": [
+          {
+            "type": "text",
+            "id": "channel_id",
+            "label": "Channel ID"
+          }
+        ]        
+      }
+    ],
+    "presets": [
+      {
+        "name": "Bambuser"
+      }
+    ]
+  }
+{% endschema %}

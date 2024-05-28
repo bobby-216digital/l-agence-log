@@ -1,0 +1,430 @@
+{%- comment -%}
+ * Ajax Cart
+ * --------------------------------------------------------
+ * See ajaxcart.liquid for documentation
+ *
+ * Remember to style error and loading states
+{%- endcomment -%}
+
+{% assign gift_bag = all_products['gift-bag'] %}
+{% capture gwp_options %}
+{
+  "product": "{{ settings.cart_gwp_product }}",
+  "variantId": {{ settings.cart_gwp_product.selected_or_first_available_variant.id | default: false }},
+  "autoadd": {{ settings.cart_gwp_autoadd }},
+  "threshold": {{ settings.cart_gwp_threshold | default: false }},
+  "tag": {{ settings.cart_gwp_tag | json }}
+}
+{% endcapture %}
+
+{% assign sale_tag = settings.sale_tag %}
+{% if settings.sale_percentage != blank %}
+  {% assign sale_percentage =  settings.sale_percentage |  divided_by: 100.0 %}
+  {% assign complement_percentage = 1 | minus: sale_percentage %}
+{% endif %}
+
+{%-  liquid  
+assign country_code_check = localization.country.iso_code
+
+assign show_ddp = false
+assign show_duties = false
+
+case country_code_check
+when 'AU'
+  assign show_ddp = true
+when 'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'NO', 'CH', 'LI', 'MC', 'SG'
+  assign show_ddp = true
+when 'CA'
+  assign show_ddp = false
+  assign show_duties = true
+when 'NZ'
+  assign show_ddp = true
+when 'SG'
+  assign show_ddp = true
+when 'SE'
+  assign show_ddp = true
+when 'GB'
+  assign show_ddp = true
+when 'MY'
+  assign show_ddp = true
+else
+  assign show_ddp = false
+endcase
+
+-%} 
+
+<s-drawer id="CartDrawer" position="right" open="[js-cart-drawer-open]" close="[js-cart-drawer-close]" class="overflow-scroll" data-focus="false" js-cart-drawer>
+  <s-ajaxcart class="ajaxcart hidden" data-shipping-threshold="{{ settings.shipping_threshold_enabled }}" data-gwp='{{ gwp_options }}'>
+    <div id="AjaxCartTemplate">
+      <header class="ajaxcart__header border-b border-gray-light top-0 sticky bg-white z-[1]" ref="cartHeader">
+        <div class="flex justify-between p-16">
+          <h2 class="font-akzidenz text-12 font-400">MY BAG <span v-if="cart">(${cart.items.length})</span></h2>
+          <button class="ajaxcart__close w-16 text-gray" aria-label="close cart drawer" js-cart-drawer-close>{% render 'icon-close' %}</button>
+        </div>
+        <shipping-threshold 
+          v-if="shippingThreshold" 
+          class="w-full" 
+          :cart="cart"
+        />
+      </header>
+  
+      <form v-if="cart" class="ajaxcart__content relative" action="/cart" method="post" novalidate>
+        <main class="ajaxcart__main relative" :class="[loading.cart ? 'opacity-50' : '']">
+          <p v-if="error" class="ajaxcart__error sticky top-0 w-full">
+            ${ error }
+            <button type="button" @click.prevent="this.error = false">X</button>
+          </p>
+            <ul v-if="cart.items.length" class="ajaxcart__products p-16">
+              <li v-for="(item, idx) in cart.items" class="transition-all inline-block w-full"  :class="{ hidden: item.variant_id === GIFT_WRAP_VARIANT_ID }"  :key="item.key">
+                <line-item                             
+                  :item="item" 
+                  :line="idx + 1" 
+                  :gwp="item.variant_id === gwp.variantId"
+                  :gwp-options="gwp"
+                  :loading="loading.item === idx"
+                  :key="item.key"
+                  @remove-item="removeItem"
+                  @update-item-quantity="updateItemQuantity"
+                  @add-gift-wrap="giftWrapsCount += 1"
+                  @remove-gift-wrap="giftWrapsCount -= 1"
+                />
+              </li>
+            </ul>
+          <p v-else class="ajaxcart__empty pl-16 pt-16">Your cart is empty</p>
+
+          <div v-if="gwpShouldAddToCart" class="ajaxcart__gwp-add gwp-add flex">
+            {% assign gwp = settings.cart_gwp_product %}
+            <div class="gwp-add__image max-w-[100px] mr-16">
+              {% render 'lazy-image' image: gwp.featured_image %}
+            </div>
+            <div class="gwp-add__detail flex-grow flex flex-col justify-between">
+              <a class="gwp-add__product-title block mb-16">{{ gwp.title }}</a>
+              <p>COMPLIMENTARY GIFT</p>
+              <button class="gwp-add__atc btn min-w-0" 
+                type="button" 
+                @click.prevent="addToCart({ variantId: gwp.variantId, quantity: 1})">
+                Add to Cart
+              </button>
+            </div>
+          </div>
+
+
+          <div class="ajaxcart__footer w-full py-16 bg-white">
+          {% comment %} <div v-if="cart" class="ajaxcart__cart-note">
+            <button class="flex w-full p-16" type="button" @click.prevent="cartNoteOpen = !cartNoteOpen">
+              <span class="flex-grow text-left">Special Order Instructions</span> 
+              <span class="w-16" :class="{'-rotate-180': cartNoteOpen }">{% render 'icon-caret' %}</span>
+            </button>
+            <div v-if="cartNoteOpen" class="ajaxcart__cart-note-content px-16 pb-16">
+              <textarea class="w-full border border-black p-8" v-model="cart.note" name="note" cols="60" placeholder="Please specify gift wrap instructions here..."></textarea>
+            </div>
+          </div> {% endcomment %}
+          
+          {% unless gift_bag == blank %}
+            <div v-if="cart.items.length" class="ajaxcart__gift-bag flex bg-[#f8f8f8] p-16 mb-16">
+              <div class="ajaxcart__gift-bag-img max-w-[50px] mr-16">
+                {% render 'lazy-image' image: gift_bag.featured_image %}
+              </div>
+              <div class="ajaxcart__gift-bag-detail grid grid-cols-2">
+                <div>
+                  <h4 class="text-12 mb-8 font-akzidenz uppercase">Add {{ gift_bag.title }}</h4>
+                  {% if gift_bag.variants.size > 1 %}
+                    <label for="AjaxCartGiftBagSizeSelect" class="font-akzidenz uppercase text-[9px]">Size:</label>
+                    <select id="AjaxCartGiftBagSizeSelect" class="bg-transparent font-akzidenz uppercase text-[9px]" v-model="giftBagSelectedVariantId" @change="updateGiftBagPrice($event.target.value)">
+                      {% for variant in gift_bag.variants %}
+                        <option value="{{ variant.id }}" data-price="{{ variant.price | money_without_trailing_zeros }}" {% if forloop.first %}selected="selected"{% endif %}>{{ variant.title | remove: "White / " }}</option>
+                      {% endfor %}
+                    </select>
+                  {% endif %}
+
+                  <a class="block underline font-akzidenz uppercase text-[9px] mt-8" href="{{ gift_bag.url }}">Recommended Sizes</a>
+                </div>
+                <div>
+                  <button id="GiftBagButton" class="btn block ml-auto max-w-full min-w-0 px-20 py-12 bg-transparent" type="button" @click="addToCart({ variantId: giftBagSelectedVariantId, quantity: 1 })">Add to Cart</button>
+                  <span id="GiftBagPrice" class="gift-bag__price block text-right mt-8">{{ gift_bag.variants[0].price | money_without_trailing_zeros }}</span>
+                </div>
+              </div>
+            </div>            
+          {% endunless %}
+
+          <div class="ajaxcart__subtotal mb-16 px-16">
+            <div class="ajaxcart__subtotal-row flex justify-between">
+              <p class="ajaxcart__subtotal-title font-akzidenz text-12 font-400">SUBTOTAL <span v-if="cart">(${cart.items.length} ITEMS)</span></p>
+              <p class="ajaxcart__subtotal-price font-akzidenz text-12 font-400">${ formatMoney(cart.total_price) }</p>
+            </div><!--.ajaxcart__subtotal-row -->
+            {% if show_ddp %}
+              <p class="cart-dpp font-akzidenz text-9 font-400">Duties and Taxes Included</p>
+            {% elsif show_duties %}
+              <p class="cart-dpp font-akzidenz text-9 font-400">Duties Included</p> 
+            {% endif %} 
+          </div><!-- .ajaxcart__subtotal -->
+          <div class="px-16">
+            <button type="submit" class="ajaxcart__checkout btn__checkout btn w-full py-12" name="checkout">
+              CONTINUE TO CHECKOUT
+            </button>
+          </div>
+        </div>
+        {% comment %} <upsell-products 
+            :cart="cart"
+            :handles-in-cart="handlesInCart"
+            @add-to-cart="addToCart"
+          /> {% endcomment %}
+        <div class="nosto_element" id="minicart-static"></div>
+        </main><!--.ajaxcart__main -->
+      </form><!-- .ajaxcart__content -->
+
+      <div v-else class="ajaxcart__loading-skeleton">
+        <ul class="ajaxcart__skeleton-items">
+          <skeleton-item v-for="i in 3"></skeleton-item>
+        </ul>
+        <footer class="ajaxcart__skeleton-footer w-full fixed bottom-0 p-16">
+          <div class="flex justify-between mb-16">
+            <div class="h-12 w-64 opacity-5 bg-black animate-pulse">&nbsp;</div>
+            <div class="h-12 w-32 opacity-5 bg-black animate-pulse">&nbsp;</div>
+          </div>
+          <div class="w-full h-32 opacity-5 mb-8 bg-black animate-pulse">&nbsp</div>
+          <div class=" w-2/3 mx-auto h-12 opacity-5 bg-black animate-pulse">&nbsp</div>
+        </footer>
+      </div>
+    </div><!-- #AjaxCart -->
+  </s-ajaxcart>
+</s-drawer>
+
+{%- comment -%}
+ * ========================================================================================
+ * Ajax Cart Components
+ * ======================================================================================
+{%- endcomment -%}
+
+{%- comment -%}
+ * Component: line-item
+{%- endcomment -%}
+<script id="AjaxCartLineItem" type="text/template">
+  <div class="line-item" :class="[loading ? 'opacity-50' : '']">
+    <div class="line-item__information flex">
+      <a :href="item.url" class="line-item__image-wrapper max-w-[100px] mr-16">
+        <img :src="item.featured_image.url" :alt="item.title" class="line-item__image">
+      </a>
+      <div class="line-item__detail flex-grow flex flex-col justify-between">
+        <div class="line-item__detail-top flex justify-between items-start w-full">
+          <h2 class="line-item__title font-akzidenz uppercase text-10">
+            <a class="block mb-4" :href="item.url">${ item.product_title }</a>
+            <span v-for="(option, idx) in item.options_with_values" 
+              class="line-item__variant block mb-4 text-9" 
+              :class="{'font-400': idx === item.options_with_values.length - 1}">${ option.value }</span>
+            <div v-if="propertiesToShow" class="line-item__properties">
+              <span v-for="property in propertiesToShow">
+                ${property}
+              </span>
+            </div>
+          </h2>
+          <button v-if="!gwp || !gwpOptions.autoadd" class="line-item__remove w-12 block" type="button" @click.prevent="$emit('removeItem', line)">{% render 'icon-trash' %}</button>
+        </div>
+        {% if settings.cart_enable_gift_wrap == true %}
+  
+          <div v-if="item.product_id !== {{ gift_bag.id | default: 0 }} && !gwp" class="line-item__gift-wrap flex items-start">
+            <input :id="`LineItemGiftWrap-${line}`" class="mr-8 relative top-[3px]" type="checkbox" v-model="giftWrapChecked">
+            <div>
+              <label :for="`LineItemGiftWrap-${line}`">add gift wrap for $15</label>
+              <a class="text-12 underline block" href="/products/gift-wrap">view gift wrap</a>
+            </div>
+          </div>
+        {% endif %}
+        <p v-if="gwp">Complimentary Gift</p>
+        <div class="line-item__detail-bottom flex justify-between items-end w-full">
+          <div class="line-item__pricing text-10 mt-8">
+            <div class="line-item__price font-500">
+              <div v-if="item.line_price !== item.original_line_price">
+                <s>${ formatMoney(item.original_line_price) }</s>
+                &nbsp;<span>${ formatMoney(item.line_price, 'amount_no_decimals') }</span>
+              </div>
+              <span v-else >
+                <span v-if="item.properties && item.properties._salePercentage">
+                  <s class="text-gray line-through">${ formatMoney(item.original_line_price) }</s>
+                  <s class="product-card__sale-price text-red no-underline" style="color: {{settings.sale_price_color}}">${ formatMoney(item.line_price * (1 - item.properties._salePercentage), 'amount_no_decimals')}</s>
+                </span>
+                <span v-else>
+                  <s class="no-underline">${ formatMoney(item.original_line_price) }</s>
+                </span>
+              </span>
+            </div><!-- .line-item__price-->
+            <div v-if="item.line_price !== item.original_line_price" class="line-item__discounts mt-8">
+              <span v-for="discount in item.discounts" class="line-item__discount">
+                ${ discount.title } (- ${ formatMoney(discount.amount,) })
+              </span>
+            </div><!-- .line-item__discounts -->
+          </div><!-- .line-item__pricing -->
+          <div v-if="!gwp" class="line-item__qty-selector flex items-center border border-gray px-8 py-[2px]">
+            <button  class="ajaxcart__qty-minus" type="button" @click.prevent="$emit('updateItemQuantity', { quantity: item.quantity - 1, line })">-</button>
+            <input class="line-item__qty-selector-input text-center w-40" type="text" :value="item.quantity" @change="$emit('updateItemQuantity', { quantity: $event.target.value, line })">
+            <button class="ajaxcart__qty-plus" type="button" @click.prevent="$emit('updateItemQuantity', { quantity: item.quantity + 1, line})">+</button>
+          </div><!-- .line-item__qty-selector-->
+        </div><!-- .line-item__detail-bottom -->
+      </div><!-- .line-item__detail-->
+    </div><!-- .line-item__information -->
+  </div><!-- .line-item -->
+</script>
+
+{%- comment -%}
+ * Component: shipping-threshold
+{%- endcomment -%}
+<script id="AjaxCartShippingThreshold" 
+  type="text/template" 
+  data-threshold="{{ settings.shipping_threshold }}" 
+  >
+  <div v-if="cart && cart.total_price > 0" class="shipping-threshold p-16 border-t border-gray-light">
+    <h3 class="shipping-threshold__title text-center">
+      <span v-if="unlocked">{{ settings.shipping_threshold_unlocked_message }}</span>
+      <span v-else>{{ settings.shipping_threshold_locked_message }}</span>
+    </h3> 
+    {% unless settings.hide_progress_bar %}
+      <progress 
+        v-if="!unlocked" 
+        class="shipping-threshold__bar w-full"
+        max="100"
+        :value="progress">
+      </progress>
+    {% endunless %}
+  </div>  
+</script>
+ 
+{%- comment -%}
+ * Component: upsell-products
+{%- endcomment -%}
+<script id="AjaxCartUpsell" type="text/template">
+  <div v-if="cart && cart.items.length && products.length" class="upsell px-16 mb-16">
+    <h3 class="upsell__title text-center mb-16 text-12 font-akzidenz uppercase font-normal">{{ settings.upsell_title }}</h3>
+      <div v-if="fetching">
+        <skeleton-item></skeleton-item>
+      </div>
+      <ul v-else-if="products" class="upsell__products grid gap-16" :class="[`grid-cols-${products.length % 4}`]">
+        <li v-for="product in products" :key="product.id" class="upsell__product w-full">
+          <upsell-product 
+            :product="product"
+          ></upsell-product>
+        </li><!-- .upsell__product -->
+      </ul><!-- .upsell__products-->
+  </div><!-- .upsell -->
+</script>
+
+{%- comment -%}
+ * Component: upsell-product
+{%- endcomment -%}
+<script id="AjaxCartUpsellProduct" type="text/template">
+  <div v-if="product && product.available" class="upsell-product h-full flex flex-col">
+    <a :href="`/products/${product.handle}`" class="upsell-product__image mb-4">
+      <img :src="product.featured_image" :alt="product.title">
+    </a>
+    <div class="upsell-product__info flex-grow flex flex-col justify-between">
+      <h3 class="upsell-product__title uppercase mb-4 text-10 font-400 text-center font-akzidenz"><a :href="product.url">${ product.title }</a></h3>
+      <p class="upsell-product__price mb-4 text-10 font-500 text-center">${ formatMoney(selectedVariant.price) }</p>
+      <div v-if="product.variants.length > 1" class="upsell-product__variants mb-4 text-10">
+        <div class="upsell-product__swatches text-center">
+          <div v-for="option in product.options" class="upsell-product__swatch">
+            <!-- <h3 class="upsell-product__swatch-option">${ option.name }</h3> -->
+            <!-- <div v-for="value in option.values" class="upsell-product__swatch-group">
+              <label for="`ajaxcart-${product.id}-${value}`">${ value }</label>
+              <input 
+                v-model="options[option.position]"  
+                :id="`ajaxcart-${product.id}-${option}`"
+                type="radio" :name="`${option.name}-selector`"
+                @change="onOptionChange(option)"
+                :value="value"
+              />
+            </div>.upsell-product__swatch-group -->
+            <select 
+              v-if="option.values.length > 1"
+              v-model="options[option.position]" 
+              :name="`${option.name}-selector`" 
+              :id="`ajaxcart-${product.id}-${option.name}`"
+              @change="onOptionChange(option)">
+              <option 
+                v-for="value in option.values" 
+                :value="value"
+                >
+                ${ value }
+              </option>
+            </select>
+          </div><!-- .upsell-product__swatch-->
+        </div><!-- .upsell-product__swatches-->
+      </div><!-- .upsell-product__variants -->
+      <button class='upsell-product__atc btn p-8 min-w-0 max-w-full' type="button" :disabled="!selectedVariant.available" @click.prevent="addToCart">
+        ${ selectedVariant.available ? 'Add To Cart' : 'Sold Out'}
+      </button>
+    </div>
+  </div>
+</script>
+
+{%- comment -%}
+ * Component: skeleton-item
+{%- endcomment -%}
+<script id="AjaxCartSkeletonItem" type="text/template">
+  <div class="skeleton-item flex p-16">
+    <div class="skeleton-item__image block w-72 h-64 mr-16 opacity-5 bg-black animate-pulse">&nbsp;</div>
+    <div class="skeleton-item__info flex-grow">
+      <div class="skeleton-item__title block w-full h-16 mb-8 opacity-5 bg-black animate-pulse">&nbsp;</div>
+      <div class="skeleton-item__subtitle block w-64 h-12 mb-8 opacity-5 bg-black animate-pulse">&nbsp;</div>
+      <div class="skeleton-item__price block w-32 h-12 opacity-5 bg-black animate-pulse">&nbsp;</div>
+    </div>
+  </div>
+</script>
+
+
+{%- comment -%}
+ * ===================================================================================== 
+ * DATA
+ * ====================================================================================
+{%- endcomment -%}
+
+
+{%- comment -%} 
+ * Get Upsell Data 
+{%- endcomment -%}
+{%- comment -%} Gather tags into a global theme array {%- endcomment -%}
+<script>
+  window.theme = window.theme || {}
+  theme.upsellTags = [
+    {% for i in (1..6) %}
+      {% assign tag_id = 'upsell_tag_' | append: i %}
+      {% assign tag = settings[tag_id] %}
+      {% if tag == blank %} {% continue %} {% endif %}
+      '{{ tag }}'{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  ]
+</script>
+
+{%- comment -%} Get and format products from theme settings {%- endcomment -%}
+<script id="AjaxCartUpsellData" type="application/json" js-upsell-data>
+  [
+    {% assign MAX_UPSELL = 6 %}
+    {% assign DEFAULT_TAG = '__DEFAULT__' %}
+    
+    {% for i in (1..MAX_UPSELL) %}
+    {% assign upsell_product_handle = false %}
+    {% assign tag = false %}
+    {% assign tag_id = 'upsell_tag_' | append: i %}
+    {% assign tag = settings[tag_id] %}
+    {% assign upsell_product_settings = 'upsell_product_' | append: i %}
+    {% assign upsell_product_handle = settings[upsell_product_settings] %}
+    {% if upsell_product_handle != blank or upsell_product_handle != false %}
+      {% assign upsell_product = all_products[upsell_product_handle] %}
+    {% else %}
+      {% assign upsell_product = false %}
+    {% endif %}
+
+      {% if upsell_product %} 
+        {
+          "tag": "{{ tag | default: DEFAULT_TAG }}",
+          "product": {{ upsell_product | json }},
+          "product_options": {{ upsell_product.options_with_values | json }}
+        }{% unless forloop.last %},{% endunless %}
+      {% else %}
+        {
+          "tag": null,
+          "product": null
+        }{% unless forloop.last %},{% endunless %}
+      {% endif %}
+
+    {% endfor %}
+  ]
+</script>

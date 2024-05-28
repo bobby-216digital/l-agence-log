@@ -1,0 +1,75 @@
+{% assign country_with_language_list = 'kr, mx' |  split: ', ' %}
+{% assign language_list = 'Korean-ko-kr, Spanish-es-mx' |  split: ', ' %}
+
+
+<s-modal id="CountryModal" class="country-modal w-[90vw] desktop:w-[500px] overflow-hidden max-h-[100vh] min-h-[400px] p-16 border" open="[js-open-country-modal]" close="[js-close-country-modal]">
+    <button class="w-24 absolute top-4 right-8 z-[2] p-4" js-close-country-modal>
+        {% render 'icon-close' %}
+      </button>
+      <div class="flex items-center justify-center flex-col h-full min-h-[400px]">
+      {% if localization.available_countries.size > 1 %}
+        <localization-form class="w-full">
+          {% form 'localization' %}
+            <div class="disclosure max-w-[250px] mx-auto" js-country-selector-container>
+                <label class="font-sangbleu text-13 leading-loose text-black pb-4">Choose Country/Region</label>
+              <button type="button" class="disclosure__button flex border border-black p-12 w-full justify-between items-center" aria-expanded="false" aria-controls="CountryList" js-panel-button>
+                <span js-current-country>{{ localization.country.name }} ({{ localization.country.currency.iso_code }} {{ localization.country.currency.symbol }})</span>
+      
+                <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-caret w-16" viewBox="0 0 10 6">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M9.354.646a.5.5 0 00-.708 0L5 4.293 1.354.646a.5.5 0 00-.708.708l4 4a.5.5 0 00.708 0l4-4a.5.5 0 000-.708z" fill="currentColor">
+                </svg>
+              </button>
+      
+              <ul id="CountryList" role="list" class="disclosure__list h-[150px] overflow-auto p-16" hidden js-panel>
+                {% for country in localization.available_countries %}
+                  <li class="disclosure__item" tabindex="-1">
+                    {% assign country_code_downcase = country.iso_code | downcase %}
+                    <a href="#"{% if country.iso_code == localization.country.iso_code %} aria-current="true"{% endif %} data-value="{{ country.iso_code }}" {% if country_with_language_list contains country_code_downcase %} has-language-select {% endif %} js-country-select>
+                      {{ country.name }} ({{ country.currency.iso_code }} {{ country.currency.symbol }})
+                    </a>
+                  </li>
+                {% endfor %}
+              </ul>
+      
+              <input type="hidden" name="country_code" value="{{ localization.country.iso_code }}">
+            </div>
+
+            {% assign current_country_code_downcase = localization.country.iso_code | downcase %}
+            <div class="disclosure max-w-[250px] mx-auto mt-16" js-language-selector-container>
+              <label class="font-sangbleu text-13 leading-loose text-black pb-4">Choose Language</label>
+              <button type="button" class="disclosure__button flex border border-black p-12 w-full justify-between items-center" aria-expanded="false" aria-controls="LanguageList" js-panel-button>
+                <span js-current-language>{{ localization.language.endonym_name | capitalize }}</span>
+      
+                <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-caret w-16" viewBox="0 0 10 6">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M9.354.646a.5.5 0 00-.708 0L5 4.293 1.354.646a.5.5 0 00-.708.708l4 4a.5.5 0 00.708 0l4-4a.5.5 0 000-.708z" fill="currentColor">
+                </svg>
+              </button>
+      
+              <ul id="LanguageList" role="list" class="disclosure__list max-h-[64px] overflow-y-scroll p-16" hidden js-panel>
+                <li class="disclosure__item" tabindex="-1" js-language-select-wrapper>
+                  <a href="#" {% if localization.language.iso_code == 'en' %}aria-current="true"{% endif %} data-value="en"  js-language-select>
+                    English
+                  </a>
+                </li>
+                {% for language in language_list %}
+                  {% assign language_split = language | split: '-' %}
+                  {% assign language_label = language_split[0] %}
+                  {% assign language_code = language_split[1] %}
+                  {% assign language_country_code = language_split[2] %}
+                  <li class="disclosure__item {% if current_country_code_downcase != language_country_code %}hidden{% endif %}" tabindex="-1" js-language-select-wrapper>
+                    <a href="#"{% if language_code == localization.language.iso_code %} aria-current="true"{% endif %} hreflang="{{ language_code }}" lang="{{ language_code }}" data-value="{{ language_code }}" data-country="{{ language_country_code }}" js-language-select>
+                      {{ language_label }}
+                    </a>
+                  </li>
+                {% endfor %}
+              </ul>
+      
+              <input type="hidden" name="language_code" value="{{ localization.language.iso_code }}">
+            </div>
+
+            <button type="submit" class="btn mt-20 block w-full max-w-[250px] mx-auto min-w-[unset] py-12 border-black">Save</button>
+          {% endform %}
+        </localization-form>
+      {% endif %}
+    </div>
+</s-modal>

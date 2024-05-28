@@ -1,0 +1,140 @@
+{% if settings.outlet_header_nav_international != blank %}
+	{% if localization.country.iso_code != "US" %}
+		{% assign outlet_header_menu = settings.outlet_header_nav_international %}
+	{% else %}
+		{% assign outlet_header_menu = settings.outlet_header_nav %}
+	{% endif %}
+{% else %}
+	{% assign outlet_header_menu = settings.outlet_header_nav %}
+{% endif %}
+
+{% if section.blocks != blank %}
+    <s-carousel data-options='{ "autoPlay": {{ section.settings.announcement_autoplay }} }' class="block bg-black">
+      <div js-carousel class="site-header__announcements-carousel">
+        {% for block in section.blocks %}
+          <div js-carousel-slide class="site-header__announcement w-full bg-black p-8 text-10 text-center font-akzidenz text-white font-300">
+            {{block.settings.announcement}}
+          </div>
+        {% endfor %}
+      </div>
+    </s-carousel>
+  {% endif %}
+
+  <s-header>
+  <header class="site-header transition-all duration-500 {% if template == 'index' %}absolute left-0 {% if section.blocks != blank %}top-[31px]{% else %} top-0{% endif %} text-white bg-transparent {% else %} bg-white {% endif %} w-full grid grid-cols-3 desktop:grid-rows-2 gap-x-16 px-16 desktop:grid-cols-[1fr,10fr,1fr] border-b border-black" js-header>
+    <div class="header-top hidden desktop:grid col-span-3 grid-cols-3 font-400" js-header-top>
+      <div class="header-top__links-left flex gap-16 items-center">
+      </div>
+      <h1 class="header-top__links-logo w-[180px] py-12 mx-auto self-center justify-self-center desktop:justify-self-start">
+        <a href="/collections/outlet" class="top-logo-black {% if template == 'index' %}hidden {% else %}block{% endif %}"><img src="{{ 'site-logo-outlet.png' | asset_img_url: 'master' }}" alt="L'Agence" class="w-full" ></a>
+        <a href="/collections/outlet" class="top-logo-white {% if template == 'index' %}block {% else %} hidden{% endif %}"><img src="{{ 'site-logo-outlet-white.png' | asset_img_url: 'master' }}" alt="L'Agence" class="w-full"></a>
+
+      </h1>
+      <div class="header-top__links-right flex items-center justify-end gap-16">
+        <a href="{{routes.account_url}}" class="hidden desktop:block text-10 uppercase font-akzidenz">Account</a>
+        <button class="w-[20px] relative" aria-label="Shopping Bag" title="Shopping Bag" js-cart-drawer-open>
+          {% render 'icon-bag' %}
+          <div class="text-9 w-20 text-center absolute bottom-0" js-cart-counter>{{ cart.item_count }}</div>
+        </button>
+      </div>
+    </div>
+    <button class="site-header__menu w-[20px] self-center justify-self-start desktop:hidden row-start-2 col-start-1" aria-label="Menu" title="Menu" js-open-mobile-nav>{% render 'icon-menu' %}</button>
+    <h1 class="site-header__logo w-[150px] self-center justify-self-center py-12 desktop:justify-self-start row-start-2 desktop:col-start-1 desktop:hidden">
+      <a href="/collections/outlet" class="logo-black {% if template == 'index' %}hidden {% else %}block{% endif %}"><img src="{{ 'site-logo-outlet.png' | asset_img_url: 'master' }}" alt="L'Agence" class="w-full" ></a>
+      <a href="/collections/outlet" class="logo-white {% if template == 'index' %}block {% else %} hidden{% endif %}"><img src="{{ 'site-logo-outlet-white.png' | asset_img_url: 'master' }}" alt="L'Agence" class="w-full"></a>
+
+    </h1>
+    <ul class="site-header__nav hidden desktop:flex items-center justify-center w-full row-start-2 col-start-2 pt-12">
+      {% for link in linklists[outlet_header_menu].links %}
+        <li class="site-header__container flex items-center justify-center text-center px-[20px] pb-[20px] font-400">
+          <a href="{{link.url}}" class="site-header__link font-akzidenz uppercase text-10">{{link.title}}</a>
+          {% if link.links != empty %}
+            <div class="site-header__mega absolute bottom-0 left-0 w-full z-[-1] py-40 px-16 bg-white hidden">
+              <div class="site-header__links-container flex items-start justify-center gap-32">
+                {% for child in link.links %}
+                  {% if child.title contains '||' %}
+                    {% assign image_handle = child.title | split: '||' | first | strip %}
+                    {% assign image = images[image_handle] %}
+                    <a href="{{child.url}}" class="site-mega__image-link block">
+                      {% render 'lazy-image', image: image, picture_classes: 'max-w-[250px]' %}
+                      <div class="font-akzidenz text-10 uppercase mt-16">{{ child.title | split: '||' | last | strip }}</div>
+                    </a>
+                  {% else %}
+                    <ul class="site-mega__links flex flex-col items-start gap-8">
+                      <li class="site-mega__link-container text-left">
+                        <a href="{{child.url}}" class="site-mega__link font-400 font-akzidenz text-9 uppercase pb-12">{{child.title}}</a>
+                      </li>
+                      {% for grandchild in child.links %}
+                        <li class="site-mega__link-container text-left">
+                          <a href="{{grandchild.url}}" class="site-mega__link font-300 font-sangbleu text-12">{{grandchild.title}}</a>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+    <div class="site-header__right flex items-center justify-end gap-16 row-start-2 col-start-3 desktop:hidden">
+      <a href="{{routes.account_url}}" class="hidden desktop:block text-10 uppercase font-akzidenz">Account</a>
+      <button class="w-[20px] relative" aria-label="Shopping Bag" title="Shopping Bag" js-cart-drawer-open>
+        {% render 'icon-bag' %}
+        <div class="text-9 w-20 text-center absolute bottom-0" js-cart-counter>{{ cart.item_count }}</div>
+      </button>
+
+    </div>
+  </header>
+  </s-header>
+  {% comment %}
+    Used to assess proper offsets and heights for elements throughout the site.
+    Set media query if height changes at higher widths.
+  {% endcomment %}
+  {% if section.blocks != blank %}
+    <style>
+      :root{
+        --header-height: 77px;
+      }
+    </style>
+  {% else %}
+    <style>
+      :root{
+        --header-height: 46px;
+      }
+    </style>
+  {% endif %}
+
+
+  {% schema %}
+    {
+      "name": "Header",
+      "class": "top-0 bg-white w-full",
+      "settings": [
+        {
+          "type": "range",
+          "id": "announcement_autoplay",
+          "min": 500,
+          "max": 9000,
+          "step": 500,
+          "unit": "ms",
+          "label": "Announcement auto-play (milliseconds)",
+          "default": 3000
+        }
+      ],
+      "blocks": [
+        {
+          "name": "Announcement",
+          "type": "announcement",
+          "settings": [
+            {
+              "type": "html",
+              "id": "announcement",
+              "label": "Announcement"
+            }
+          ]
+        }
+      ]
+    }
+  {% endschema %}
