@@ -8,46 +8,23 @@
 	{% assign header_menu = settings.header_nav %}
 {% endif %}
 
-{% liquid 
-  assign topLogoBlackDisplay = 'hidden'
-  assign topLogoWhiteDisplay = 'hidden'
-  assign textColor = 'text-white'
-
-  if section.settings.enable_sticky_background == false and template != 'index'
-    assign topLogoBlackDisplay = 'block'
-    assign topLogoWhiteDisplay = 'hidden'
-    assign textColor = 'text-black'
-  elsif section.settings.enable_sticky_background == false and template == 'index'
-    assign topLogoBlackDisplay = 'hidden'
-    assign topLogoWhiteDisplay = 'block'
-    assign textColor = 'text-white'
-  elsif section.settings.enable_sticky_background
-    assign topLogoBlackDisplay = 'block'
-    assign textColor = 'text-black'
-    assign topLogoWhiteDisplay = 'hidden'
-  endif
-%}
-
 <div id="nonUsAnnoucementWrapper"></div>
 
 {% if section.blocks != blank %}
   <s-carousel id="announcementsBar" data-options='{ "autoPlay": {{ section.settings.announcement_autoplay }} }' class="block bg-gray-light">
-    <div js-carousel class="site-header__announcements-carousel empty:hidden">
+    <div js-carousel class="site-header__announcements-carousel">
       {% for block in section.blocks %}
-        {% if block.settings.locale == 'all' and block.type == 'announcement' %}
-        {% assign header_has_announcement = true %}
+        {% if block.settings.locale == 'all' %}
         <div js-carousel-slide class="site-header__announcement w-full bg-gray-light p-8 text-10 text-center font-akzidenz text-gray-dark font-300">
           {{block.settings.announcement}}
         </div>
         {% endif %}
-        {% if block.settings.locale == 'us' and localization.country.iso_code == 'US' and block.type == 'announcement' %}
-        {% assign header_has_announcement = true %}
+        {% if block.settings.locale == 'us' and localization.country.iso_code == 'US' %}
           <div js-carousel-slide class="site-header__announcement w-full bg-gray-light p-8 text-10 text-center font-akzidenz text-gray-dark font-300">
             {{block.settings.announcement}}
           </div>
         {% endif %}
-        {% if block.settings.locale == 'international' and localization.country.iso_code != 'US' and block.type == 'announcement' %}
-        {% assign header_has_announcement = true %}
+        {% if block.settings.locale == 'international' and localization.country.iso_code != 'US' %}
           <div js-carousel-slide class="site-header__announcement w-full bg-gray-light p-8 text-10 text-center font-akzidenz text-gray-dark font-300">
             {{block.settings.announcement}}
           </div>
@@ -57,9 +34,9 @@
   </s-carousel>
 {% endif %}
 
-<s-header {% if section.settings.enable_sticky_background %} data-enable-sticky-bg="true" {% endif %}>
-<header class="site-header transition-all duration-150 absolute left-0 {{ textColor }} {% if section.blocks != blank %}top-[31px]{% else %} top-0{% endif %}
-{% if section.settings.enable_sticky_background %} bg-white {% else %} bg-transparent {% endif %}
+<s-header>
+<header class="site-header transition-all duration-150 absolute left-0 {% if section.blocks != blank %}top-[31px]{% else %} top-0{% endif %}
+{% if template == 'index' %} text-white bg-transparent {% else %} bg-white {% endif %}
   w-full grid grid-cols-3 desktop:grid-rows-2 gap-x-16 px-16 desktop:grid-cols-[1fr,10fr,1fr]" js-header>
   <div class="header-top hidden desktop:grid col-span-3 grid-cols-3 font-400" js-header-top>
     <div class="header-top__links-left flex gap-16 items-center">
@@ -68,8 +45,8 @@
         <a href="/pages/contact" class="header-link font-sangbleu" title="Contact" aria-label="Contact">Contact</a>
     </div>
     <h1 class="header-top__links-logo w-[110px] py-12 mx-auto self-center justify-self-center desktop:justify-self-start">
-      <a href="{{routes.root_url}}" class="top-logo-black {{ topLogoBlackDisplay }} "><img src="{{ 'site-logo.png' | asset_img_url: 'master' }}" alt="L'Agence" class="w-full" width="" height=""></a>
-      <a href="{{routes.root_url}}" class="top-logo-white {{ topLogoWhiteDisplay }}"><img src="{{ 'site-logo-white.png' | asset_img_url: 'master' }}" alt="L'Agence" class="w-full" width="" height=""></a>
+      <a href="{{routes.root_url}}" class="top-logo-black {% if template == 'index' %}hidden {% else %}block{% endif %}"><img src="{{ 'site-logo.png' | asset_img_url: 'master' }}" alt="Lagence Black Logo" class="w-full" width="" height=""></a>
+      <a href="{{routes.root_url}}" class="top-logo-white {% if template == 'index' %}block {% else %} hidden{% endif %}"><img src="{{ 'site-logo-white.png' | asset_img_url: 'master' }}" alt="Lagence White Logo" class="w-full" width="" height=""></a>
 
     </h1>
     <div class="header-top__links-right flex items-center justify-end gap-16">
@@ -86,11 +63,11 @@
   </div>
   <button class="site-header__menu w-[20px] self-center justify-self-start desktop:hidden row-start-2 col-start-1" aria-label="Menu" title="Menu" js-open-mobile-nav>{% render 'icon-menu' %}</button>
   <h1 class="site-header__logo z-[2] w-[110px] self-center justify-self-center py-12 desktop:justify-self-start row-start-2 desktop:col-start-1 desktop:hidden">
-    <a href="{{routes.root_url}}" class="logo-black {{ topLogoBlackDisplay }}"><img src="{{ 'site-logo.png' | asset_img_url: 'master' }}" alt="Serenede" class="w-full" width="" height=""></a>
-    <a href="{{routes.root_url}}" class="logo-white {{ topLogoWhiteDisplay }}"><img src="{{ 'site-logo-white.png' | asset_img_url: 'master' }}" alt="Serenede" class="w-full" width="" height=""></a>
+    <a href="{{routes.root_url}}" class="logo-black {% if template == 'index' %}hidden {% else %}block{% endif %}"><img src="{{ 'site-logo.png' | asset_img_url: 'master' }}" alt="Serenede" class="w-full" width="" height=""></a>
+    <a href="{{routes.root_url}}" class="logo-white {% if template == 'index' %}block {% else %} hidden{% endif %}"><img src="{{ 'site-logo-white.png' | asset_img_url: 'master' }}" alt="Serenede" class="w-full" width="" height=""></a>
 
   </h1>
-    <ul class="site-header__nav hidden {% if section.settings.enable_sticky_background %} text-black {% endif %} items-center justify-center w-full row-start-2 col-start-1 col-span-3 pt-12 desktop:flex">
+  <ul class="site-header__nav hidden desktop:flex items-center justify-center w-full row-start-2 col-start-1 col-span-3 pt-12">
     {% for link in linklists[header_menu].links %}
       <li class="site-header__container flex items-center justify-center text-center px-[20px] pb-[20px] font-400">
         <a href="{{link.url}}" class="site-header__link font-akzidenz uppercase text-10">{{link.title}}</a>
@@ -136,26 +113,6 @@
     </button>
 
   </div>
-  {% if section.blocks != blank and template.name == 'index' %}
-    <div class="header__collection-carousel -mx-16 row-start-3 col-span-3 desktop:hidden">
-      <s-carousel id="collectionBar" data-options='{ "wrapAround": false }' class="block">
-        <div class="empty:hidden" js-carousel>
-          {% for block in section.blocks %}
-            {% if block.type == 'collection' %}
-              {% assign header_has_carousel = true %}
-              {% assign title = block.settings.title | default: block.settings.collection.title %}
-              {% assign image = block.settings.image | default: block.settings.collection.image %}
-              <a href="{{ block.settings.collection.url }}" class="block collection-bar__item pr-24 text-center first:pl-16 last:pr-16 box-content" js-carousel-slide>
-                <div class="header-collection-carousel__image-container">
-                  {% render 'lazy-image' image: image %}
-                </div>
-                <span class="header-collection-carousel__text block">{{ title }}</span>
-              </a>
-            {% endif %}
-          {% endfor %}
-      </s-carousel>
-    </div>
-  {% endif %}
 </header>
 </s-header>
 {% comment %}
@@ -197,11 +154,6 @@
         "unit": "ms",
         "label": "Announcement auto-play (milliseconds)",
         "default": 3000
-      },
-      {
-        "type": "checkbox",
-        "id": "enable_sticky_background",
-        "label": "Enable Sticky Background"
       }
     ],
     "blocks": [
@@ -233,28 +185,6 @@
               }
             ],
             "default": "us"
-          }
-        ]
-      },
-      {
-        "name": "Collection Carousel Item",
-        "type": "collection",
-        "settings": [
-          {
-            "type": "collection",
-            "id": "collection",
-            "label": "Collection"
-          },
-          {
-            "type": "image_picker",
-            "id": "image",
-            "label": "Image"
-          },
-          {
-            "type": "text",
-            "id": "title",
-            "label": "Title",
-            "info": "If left blank, the collection setting's title will be used by default"
           }
         ]
       }

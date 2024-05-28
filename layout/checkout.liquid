@@ -34,57 +34,8 @@
           </script> 
     <script src="https://cdn.intelligems.io/7d96c8446686.js"></script>  
     {% include "globale-checkout-css" %} 
-    <style>
-      .sidebar__features {
-        display: none;
-      }
-
-      [data-checkout-extra-info="B"] .sidebar__features {
-        display: block;
-      }
-
-      [data-checkout-extra-info="B"] .sidebar__features--desktop {
-        display: none;
-      }
-
-      .sidebar__features--mobile {
-        margin-bottom: 1rem;
-      }
-      
-      .sidebar__feature {
-        display: flex;
-      }
-
-      .sidebar__feature-icon {
-        width: 3.5rem;
-        margin-right: 0.5rem;
-      }
-
-      .sidebar__feature-content a {
-        text-decoration: underline;
-      }
-
-      @media (min-width: 1000px) {
-        [data-checkout-extra-info="B"] .sidebar__features--desktop {
-          display: block;
-        }
-
-        [data-checkout-extra-info="B"] .sidebar__features--mobile {
-          display: none;
-        }
-
-        .order-summary__sections {
-          height: auto;
-        }
-
-        .sidebar__content {
-          height: calc(100vh - 8em);
-        }
-      }
-
-    </style>
     </head>
-    <body data-checkout-extra-info="B">
+    <body>
       <!-- Google Tag Manager (noscript) -->
       <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-M4VVDFM"
       height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -147,12 +98,6 @@
               {% endif %}
               {{ nPart }}
               {% endfor %}
-              <div class="sidebar__features sidebar__features--desktop">
-                <div class="sidebar__feature">
-                  <div class="sidebar__feature-icon">{% render 'icon-truck' %}</div>
-                  <p class="sidebar__feature-content">Complimentary Shipping to Continental US <br/> <a href="https://lagence.com/pages/international-shipping-returns" class="checkout-link" rel="noopener noreferrer" target="_blank">click here</a> for international shipping offers</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -173,30 +118,6 @@
           }
         </script>
       {% endif %}
-      
-      <script>
-        (function($) {
-          $(document).on("page:load page:change", function() {
-            if ($('#CheckoutFeaturesMobile').length) return;
-            const node = document.createElement('div');
-            const content = `
-            <div id="CheckoutFeaturesMobile" class="sidebar__features sidebar__features--mobile">
-              <div class="sidebar__feature">
-                <div class="sidebar__feature-icon">{% render 'icon-truck' %}</div>
-                <p class="sidebar__feature-content">Complimentary Shipping to Continental US <br/> <a href="https://lagence.com/pages/international-shipping-returns" class="checkout-link" rel="noopener noreferrer" target="_blank">click here</a> for international shipping offers</p>
-              </div>
-            </div>
-            `
-            node.innerHTML = content;
-            
-            const footer = document.querySelector(".step__footer")
-            const continueBtn = document.querySelector("#continue_button");
-            console.log(continueBtn)
-            footer.insertBefore(node, continueBtn);        
-          });
-        })(Checkout.$);
-
-      </script>
 
       {{ tracking_code }}
       {% include "globale-checkout-js" %}

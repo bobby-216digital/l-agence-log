@@ -65,7 +65,7 @@
 
 {% comment %}{% render 'active-filters', results: collection %}{% endcomment %}
 {% paginate collection.products by 48 %}
-	<main-collection role="section" class="collection-grid block font-akzidenz text-10" data-id="{{ section.id }}">
+	<main-collection class="collection-grid block font-akzidenz text-10" data-id="{{ section.id }}">
 	  <div class="collection-grid__layout px-8 pb-40 desktop:px-56">
 	    <h1 class="collection-grid__title font-sangbleu text-center pt-28 pb-4">{{ collection.title }}</h1>
 	    <div class="collection-grid__products-count block text-center h3" js-products-count>{% if active_filters %}{{ products_count }}{% else %}{{ collection.products_count }}{% endif%} Products</div>
@@ -75,7 +75,7 @@
 			<div class="collection-grid__subcategories gap-8 mt-20{% unless linklists[subcategories].links.size >= 4 %} flex items-start justify-center{% endunless %}" js-carousel>
 				{% for subcategory in linklists[subcategories].links %}
 				<div class="collection-grid__subcategory px-[5px] w-1/3 {% unless linklists[subcategories].links.size >= 4 %} desktop:px-[0px] desktop:w-[20%]{%- else -%}desktop:px-[10px] desktop:w-[20%]{% endunless %}" js-carousel-slide>
-						<a href="{{subcategory.url}}" class="collection-grid__subcategory-image block">
+						<a title="View {{ subcategory.title | escape }}" href="{{subcategory.url}}" class="collection-grid__subcategory-image block">
 							{% assign subcategory_image = collections[subcategory.handle].metafields.seed.subcategory_image %}
 							{% render 'lazy-image', image: subcategory_image  %}
 						</a>
@@ -95,7 +95,7 @@
 		<div class="collection-grid__subcategories relative gap-8 mt-20 {% unless linklists[subcategories].links.size >= 6 %}desktop:flex desktop:items-start desktop:justify-center{% endunless %}" js-carousel>
 			{% for subcategory in linklists[subcategories].links %}
 			<div class="collection-grid__subcategory px-[5px] w-1/3 {% unless linklists[subcategories].links.size >= 6 %} desktop:px-[0px] desktop:w-[20%]{%- else -%}desktop:px-[10px] desktop:w-[20%]{% endunless %}" js-carousel-slide>
-					<a href="{{subcategory.url}}" class="collection-grid__subcategory-image block">
+					<a title="View {{ subcategory.title | escape }}" href="{{subcategory.url}}" class="collection-grid__subcategory-image block">
 						{% assign subcategory_image = collections[subcategory.handle].metafields.seed.subcategory_image %}
 						{% render 'lazy-image', image: subcategory_image  %}
 					</a>
@@ -159,7 +159,7 @@
 				<div class="sort">
 			    <div class="filter-sort__container relative">
 			      <label for="SortBy" class="filter-sort__label hidden"><span>SORT BY</span></label>
-			      <select name="sort_by" class="filter-sort__select uppercase w-[76px] cursor-pointer font-400 bg-transparent" id="SortByController" aria-describedby="a11y-refresh-page-message" js-sort-controller>
+			      <select title="Select Sort-By Filter" name="sort_by" class="filter-sort__select uppercase w-[76px] cursor-pointer font-400 bg-transparent" id="SortByController" aria-describedby="a11y-refresh-page-message" js-sort-controller>
 			        <option value="sort-by" selected disabled>SORT BY</option>
 			        {%- for option in collection.sort_options -%}
 			          <option value="{{ option.value | escape }}">{{ option.name | escape }}</option>
@@ -320,7 +320,7 @@
 
 				<div class="collection-grid__pagination {% if paginate.pages < 2 %}hidden{% endif %}" js-collection-pagination>
 					{% if settings.infinite_scroll and paginate.next %}
-						<a class="collection-grid__pagination--infinite block w-[50px] mx-auto" href="{{ paginate.next.url }}" js-next-page>
+						<a title="Visit Next Page" class="collection-grid__pagination--infinite block w-[50px] mx-auto" href="{{ paginate.next.url }}" js-next-page>
 							{% assign loading_icon = 'icon-loading.gif' | asset_url %}
 							{% render 'lazy-image', type: 'external', image: loading_icon %}
 						</a>

@@ -11,7 +11,7 @@
     {% assign product_5_handle = product_5.handle %}
     <div class="collection-grid-image__image-card {% if grid_image_video_desktop != blank %}w-full desktop:h-full desktop:flex desktop:flex-col{% endif %}">
       {% if grid_image_link != blank %}
-        <a href="{{ grid_image_link }}" class="collection-grid-image__image-wrapper--link block flex-1">
+        <a title="{{ grid_image_link_title | escape }}" href="{{ grid_image_link }}" class="collection-grid-image__image-wrapper--link block flex-1">
       {% else %}
         <div class="collection-grid-image__image-wrapper flex-1">
       {% endif %}

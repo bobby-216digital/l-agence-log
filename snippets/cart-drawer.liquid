@@ -150,7 +150,7 @@ endcase
           <div class="ajaxcart__subtotal mb-16 px-16">
             <div class="ajaxcart__subtotal-row flex justify-between">
               <p class="ajaxcart__subtotal-title font-akzidenz text-12 font-400">SUBTOTAL <span v-if="cart">(${cart.items.length} ITEMS)</span></p>
-              <p class="ajaxcart__subtotal-price font-akzidenz text-12 font-400">${ formatMoney(cart.total_price) }</p>
+              <p class="ajaxcart__subtotal-price font-akzidenz text-12 font-400">${ formatMoney(cart.total_price - cart.total_discount) }</p>
             </div><!--.ajaxcart__subtotal-row -->
             {% if show_ddp %}
               <p class="cart-dpp font-akzidenz text-9 font-400">Duties and Taxes Included</p>

@@ -43,14 +43,18 @@
               <div class="trending__btn-image">
                 {% render 'lazy-image', image: block.settings.hero_image %}
               </div>
+              {% if block.settings.anchor_label != blank %}
               <h2 class="text-15 text-center pt-8">{{ block.settings.anchor_label }}</h2>
+              {% endif %}
             </a>
           {% else %}
             <div class="trending__header {% if section.settings.single_collection %} cursor-pointer {% endif %}">
               <div class="trending__btn-image">
                 {% render 'lazy-image', image: block.settings.hero_image %}
               </div>
+              {% if block.settings.anchor_label != blank %}
               <h2 class="text-15 text-center pt-8">{{ block.settings.anchor_label }}</h2>
+              {% endif %}
             </div>
           {% endif %}
         </div>
@@ -80,7 +84,9 @@
       {% endif %}"
       {% if section.settings.single_collection %}data-collection-index="{{forloop.index0}}"js-collection{% endif %}>
       <div id="{{block.settings.component_name}}" class="trending__collection-title pt-[100px] mt-[-100px]">
+        {% if block.settings.title != blank %}
         <h2 class="text-15 text-center pb-12">{{ block.settings.title }}</h2>
+        {% endif %}
       </div>
       <div
         class="trending__collection grid grid-cols-2 desktop:grid-cols-4 gap-8"
