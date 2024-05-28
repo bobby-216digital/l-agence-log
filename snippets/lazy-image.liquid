@@ -73,7 +73,7 @@
   {% assign breakpoint = '48rem' %}
 {% endif %}
 {% if magic %}
-  <a href="{{ image.src | image_url: width: 1600 }}" class="MagicZoom" data-options-mobile="hint:on;zoomMode:on;expand:on;" data-gallery="zoom">
+  <a href="{{ image.src | image_url: width: 1600 }}" class="MagicZoom" data-options-mobile="hint:off;zoomMode:off;expand:off;" data-gallery="zoom">
 <picture class="block w-full {% if picture_classes %}{{ picture_classes }}{% endif %}">
   {% if image_desktop != blank %}
     <source srcset="{{image_desktop_srcset}}" media="(min-width: {{breakpoint}})" />

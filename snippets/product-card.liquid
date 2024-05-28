@@ -46,7 +46,10 @@
     endif
   endif
 
-  assign lazy_load = true
+  assign lazy_load = false
+  if template.name == 'collection' and index > 8
+    assign lazy_load = true
+  endif
 -%}
 
 {% assign sale_tag = settings.sale_tag %}
@@ -78,7 +81,7 @@
         {% if lazy_load == true %}
           {% render 'lazy-image' image: product.featured_image %}
         {% else %}
-          <img src="{{ product.featured_image | img_url: 'master' }}" class="w-full" width="" height="">
+          <img src="{{ product.featured_image | img_url: 'master' }}" alt="Featured: {{ product.title | escape }}" class="w-full" width="" height="">
         {% endif %}
       {% endif %}
     </div>
@@ -86,7 +89,7 @@
       {% if lazy_load == true %}
         {% render 'lazy-image' image: product.images[1] %}
       {% else %}
-        <img src="{{ product.images[1] | img_url: 'master' }}" class="w-full" width="" height="">
+        <img src="{{ product.images[1] | img_url: 'master' }}" alt="{{ product.images[1].alt | escape }}" class="w-full" width="" height="">
       {% endif %}
     </div>
     <lookbook-drawer>
@@ -162,14 +165,16 @@
   {%- unless product.metafields.custom.hide_product_data == true -%}
     <div class="product-card__info p-8 desktop:p-24 font-akzidenz text-10">
       {% if badge_tag %}
-        <div class="product-card__badge h4 text-center mb-4 uppercase font-700 font-sangbleu">{{ badge_tag }}</div>
+        <h4 class="product-card__badge h4 text-center mb-4 uppercase font-700 font-sangbleu">{{ badge_tag }}</h4>
       {% endif %}
       {% if preorder %}
-        <div class="product-card__badge h4 text-center mb-4 uppercase font-700 font-sangbleu">est. ship date: {{ preorder }}</div>
+        <h4 class="product-card__badge h4 text-center mb-4 uppercase font-700 font-sangbleu">est. ship date: {{ preorder }}</h4>
       {% endif %}
+      {% if product.title != blank %}
       <h1 class="product-card__title text-center text-10 font-400 tracking-[0.06em] {% if badge_tag == blank and preorder == blank %}mt-20{% endif %}">
         <a href="{{ product.url }}" class="product-card__title-link">{{ product.title | upcase }}</a>
       </h1>
+      {% endif %}
       <div class="product-card__price text-center mt-4">
         {% if product.available or waitlist != blank %}
           {% if product.compare_at_price > product.price %}

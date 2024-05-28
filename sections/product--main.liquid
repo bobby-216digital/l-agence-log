@@ -118,7 +118,7 @@
   {% endif %}
 </nav>
 
-<s-product role="section" class="product block w-full max-w-screen-extrawide mx-auto" data-section-id="{{ section.id }}">
+<s-product class="product block w-full max-w-screen-extrawide mx-auto" data-section-id="{{ section.id }}">
   <a class="skip-to-content-link sr-only" href="#{{product_form_id}}">Skip to product information</a>
   <div class="product__layout mb-40 tabletl:grid tabletl:grid-cols-[100px,1fr,1fr] tabletl:gap-32 tabletl:px-16 items-start">
 
@@ -136,7 +136,7 @@
     <div class="product__thumbnails-container hidden tabletl:block sticky top-[100px]">
       <div class="product__thumbnails w-full">
         {% for media in product.media %}
-          <button data-type="{{ media.media_type }}" class="{% if media.media_type == 'video' %}relative{% endif %} product__thumbnail block w-full mb-8 {% unless forloop.first %}opacity-50{% endunless %}" data-index="{{forloop.index0}}" js-product-thumbnail>
+          <button title="View {{ product.title | escape }} Thumbnail Image {{forloop.index0}}" data-type="{{ media.media_type }}" class="{% if media.media_type == 'video' %}relative{% endif %} product__thumbnail block w-full mb-8 {% unless forloop.first %}opacity-50{% endunless %}" data-index="{{forloop.index0}}" js-product-thumbnail>
             {% case media.media_type %}
               {% when 'image' %}
                 {% render 'lazy-image' image: media %}
@@ -156,7 +156,11 @@
             <div class="product-media__slide block w-full{% if media.media_type == 'video' %} relative{% endif %}" data-type="{{ media.media_type }}" data-index="{{ forloop.index0 }}" js-carousel-slide js-product-image>
               {% case media.media_type %}
                 {% when 'image' %}
-                  {% render 'lazy-image' image: media, magic: magic %}
+                  {% if forloop.index > 1 %}
+                    {% render 'lazy-image' image: media, magic: magic %}
+                  {% else %}
+                    <img alt="{{ media.alt | escape }}" src="{{ media | img_url: 'master' }}" class="w-full" width="" height="">
+                  {% endif %}
                 {% when 'video' %}
                   {% if forloop.index == 1 %}
                     {{ media | video_tag: image_size: '900x', controls: false, autoplay: true, loop: true, muted: "muted", class: 'w-full h-full' }}
@@ -179,6 +183,17 @@
         </div>
       </s-carousel>
     </div><!-- .product__images-container -->
+
+    {% if magic %}
+    <script>
+      if (window.matchMedia("(max-width: 767px)").matches) {
+        var $zooms = document.querySelectorAll('.MagicZoom');
+        $zooms.forEach(function($elm){
+          $elm.outerHTML = $elm.innerHTML;
+        })
+      }
+    </script>
+    {% endif %}
         
     <div class="product-information tabletl:sticky top-[100px]">
       {%- form 'product', product, id: product_form_id, class: 'product__form px-16 font-400 tabletl:px-0 flex flex-col', novalidate: 'novalidate', js-product-form: true -%}
@@ -374,7 +389,7 @@
         {% endif %}
         {% render 'okendo-reviews-product-rating-summary', product: product %}
 
-        <a class="block mb-24 order-3" href="{{ product.url }}#yotpoReviewsWidget">
+        <a title="View {{ product.title | escape }} Reviews" class="block mb-24 order-3" href="{{ product.url }}#yotpoReviewsWidget">
             <div class="yotpo bottomLine"
                 data-product-id="{{ product.id }}"
                 data-url="{{ product.url }}">

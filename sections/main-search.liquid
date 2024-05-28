@@ -91,7 +91,7 @@
       <div class="sort">
         <div class="filter-sort__container relative">
           <label for="SortBy" class="filter-sort__label hidden"><span>SORT BY</span></label>
-          <select name="sort_by" class="filter-sort__select uppercase w-[76px] cursor-pointer font-400 bg-transparent text-10" id="SortByController" aria-describedby="a11y-refresh-page-message" js-sort-controller>
+          <select title="Select Sort-By Filter" name="sort_by" class="filter-sort__select uppercase w-[76px] cursor-pointer font-400 bg-transparent text-10" id="SortByController" aria-describedby="a11y-refresh-page-message" js-sort-controller>
             <option value="sort-by" selected disabled>SORT BY</option>
             {%- for option in search.sort_options -%}
               <option value="{{ option.value | escape }}">{{ option.name | escape }}</option>

@@ -38,9 +38,9 @@
           {% endif %}
 
           {% if block.settings.cta_url != blank or block.settings.calendly_url != blank %}
-            <a class="cursor-pointer inline-block {{ block.settings.cta_style }}" 
+            <a title="View Calendly Booking" class="cursor-pointer inline-block {{ block.settings.cta_style }}" 
               {% if block.settings.calendly_url != blank %}
-                onclick="{{ block.settings.calendly_url }}">
+                href="#" onclick="{{ block.settings.calendly_url }}">
               {% else %}
                 href="{{ block.settings.cta_url }}">
               {% endif %}

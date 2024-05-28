@@ -60,6 +60,7 @@
           </div>
 
           <div class="image-carousel__item-content text-center py-40">
+            {% if block.settings.title != blank %}
             {% if block.settings.title %}
               <h1 class="h1 mb-16 {{block.settings.title_size}} {% if block.settings.use_bold %}font-500{% endif %}">
                 {% if block.settings.cta_style == 'title' %}
@@ -69,8 +70,9 @@
                 {% endif %}
               </h1>
             {% endif %}
+            {% endif %}
 
-            {% if block.settings.subtitle %}
+            {% if block.settings.subtitle != blank %}
               <h2 class="h2 mb-16  {{block.settings.subtitle_size}}">{{ block.settings.subtitle }}</h2>
             {% endif %}
 

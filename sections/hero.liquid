@@ -35,7 +35,6 @@
             {% else %}
               <div class="hero block relative">
             {% endif %}
-              <div class="hero__media">
                 {% if use_video %}
                   <s-video>
                     <div class="hero-video hidden tabletp:block" style="aspect-ratio:{{ar_desktop}};position:relative;" js-desktop-video>
@@ -48,10 +47,10 @@
                         class="w-full h-full object-cover"
                       ></video>
                       {% if video_controls %}
-                      <button class="icon-pause w-24 absolute bottom-24 right-48" style="color: {{controls_color}};" js-desktop-pause>{% render 'icon-pause'%}</button>
-                      <button class="icon-play hidden w-24 absolute bottom-24 right-48" style="color: {{controls_color}};" js-desktop-play>{% render 'icon-play'%}</button>
-                      <button class="icon-volume w-24 absolute bottom-24 right-24" style="color: {{controls_color}};" js-desktop-volume>{% render 'icon-volume'%}</button>
-                      <button class="icon-mute hidden w-24 absolute bottom-24 right-24" style="color: {{controls_color}};" js-desktop-mute>{% render 'icon-mute'%}</button>
+                      <button title="Pause Icon" class="icon-pause w-24 absolute bottom-24 right-48" style="color: {{controls_color}};" js-desktop-pause>{% render 'icon-pause'%}</button>
+                      <button title="Play Icon" class="icon-play hidden w-24 absolute bottom-24 right-48" style="color: {{controls_color}};" js-desktop-play>{% render 'icon-play'%}</button>
+                      <button title="Volume Icon" class="icon-volume w-24 absolute bottom-24 right-24" style="color: {{controls_color}};" js-desktop-volume>{% render 'icon-volume'%}</button>
+                      <button title="Mute Icon" class="icon-mute hidden w-24 absolute bottom-24 right-24" style="color: {{controls_color}};" js-desktop-mute>{% render 'icon-mute'%}</button>
                       {% endif %}
                     </div>
 
@@ -73,22 +72,9 @@
                     </div>
                   </s-video>
                 {% else %}
-                  {% if section.settings.first_no_lazy == true %}
-                    {% if forloop.first %}
-                      {% if image_mobile != blank %}
-                        <img class="w-full  {% if image_desktop != blank %}block desktop:hidden{% else %}block{% endif %}" src="{{ image_mobile | image_url }}" />
-                      {% endif %}
-                      {% if image_desktop != blank %}
-                        <img class="w-full {% if image_desktop != blank %}hidden desktop:block{% else %}block{% endif %}" src="{{ image_desktop |  image_url }}" />
-                      {% endif %}
-                    {% else %}
-                      {% render 'lazy-image', type: object, image: image_mobile, image_desktop: image_desktop %}
-                    {% endif %}
-                  {% else %}
-                    {% render 'lazy-image', type: object, image: image_mobile, image_desktop: image_desktop %}
-                  {% endif %}
+                  {% render 'lazy-image', type: object, image: image_mobile, image_desktop: image_desktop %}
                 {% endif %}
-                </div>
+
                 {% if title != blank or text != blank or cta_text != blank %}
                   <div class="hero__content-wrapper flex flex-col w-full p-40 {{mobile_text_alignment}} {{text_alignment}}">
                     <div class="hero__content">
@@ -109,7 +95,7 @@
                       {% endif %}
 
                       {% if cta_text != blank and cta_style != 'title' %}
-                        <button class="hero__btn {{cta_style}}">{{cta_text}}</button>
+                        <div class="hero__btn {{cta_style}}">{{cta_text}}</div>
                       {% else %}
                       {% endif %}
                     </div>
@@ -140,12 +126,6 @@
       "type": "checkbox",
       "id": "video_controls",
       "label": "Video Controls",
-      "default": false
-    },
-    {
-      "type": "checkbox",
-      "id": "first_no_lazy",
-      "label": "Make the first image not lazyload",
       "default": false
     },
     {

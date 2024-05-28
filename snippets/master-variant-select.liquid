@@ -20,7 +20,7 @@
 {%- endcomment -%}
 {% assign display = display | default: 'no-js' %}
 
-<select id="{{ id }}" name="{{ name | default: 'id' }}" class="{{ display }}">
+<select title="Select {{ product.title | escape }} Variant(s)" id="{{ id }}" name="{{ name | default: 'id' }}" class="{{ display }}">
   {% for variant in variants %}
     <option
       {% if variant == current_variant %}selected="selected"{% endif %}

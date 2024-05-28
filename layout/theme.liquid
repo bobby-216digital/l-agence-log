@@ -100,7 +100,7 @@
   
     </head>
   
-    <body class="main--{{template}}" {% if template.name == 'login' %}id="recover"{% endif %} data-header-carousel-test="">
+    <body class="main--{{template}}" {% if template.name == 'login' %}id="recover"{% endif %}>
       {% render 'gorgias-chat' %}
       
       <a class="skip-to-content-link button visually-hidden" href="#MainContent">
@@ -119,8 +119,8 @@
             {% render 'icon-close' %}
           </button>
           <div class="waitlist-content flex flex-col justify-center items-center my-[100px]">
-            <h1 class="waitlist-product-title" js-waitlist-title-container></h1>
-            <h2 class="waitlist-product-color" js-waitlist-color-container></h2>
+            <h1 class="waitlist-product-title" js-waitlist-title-container><span class="visually-hidden">Waitlist Product Title</span></h1>
+            <h2 class="waitlist-product-color" js-waitlist-color-container><span class="visually-hidden">Waitlist Product Color</span></h2>
             <h3 class="text-center mt-16">COMING SOON</h3>
             <h4 class="text-center mt-16">JOIN THE WAITLIST</h4>
             <div class="klayvio-form-waitlist mt-24 desktop:w-1/2">
@@ -228,6 +228,24 @@
   </script>
 
   {% render 'loop-script' %}
+
+  <script>
+  setTimeout(() => {  
+    let collLookBook = document.querySelectorAll(".collection-lookbook__button")
+      if (collLookBook) {
+        for (let i = 0; i < collLookBook.length; i++) {
+          collLookBook[i].removeAttribute("aria-expanded")
+        }
+      }
+
+    let collLookBookAria = document.querySelectorAll(".collection-lookbook__button")
+      if (collLookBookAria) {
+        for (let i = 0; i < collLookBookAria.length; i++) {
+          collLookBookAria[i].removeAttribute("aria-controls")
+        }
+      }
+  }, 1000);
+  </script>
   </body>
   </html>
   
